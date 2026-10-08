@@ -1,3 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project-specific
 /LOINC/LOINC-OCL-ETL/Input/umls-2025AA-mrconso/2025AA
 LOINC/LOINC-OCL-ETL/UMLS_API_config.json
 /LOINC/LOINC-OCL-ETL/Saved-output
