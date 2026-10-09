@@ -1,0 +1,11 @@
+[project]
+name = "ocl-content-tools"
+version = "0.1.0"
+description = "Shared tooling and declarative configuration for OCL content."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
