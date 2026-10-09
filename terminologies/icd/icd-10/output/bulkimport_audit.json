@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-09T02:05:33.216262+00:00",
+  "target": {
+    "owner": "WHO",
+    "source": "ICD-10-WHO",
+    "owner_type": "Organization"
+  },
+  "mode": "offline-baseline",
+  "upload_ready": false,
+  "warning": "Built from the committed baseline, not from live HEAD. The Concept bulk importer is not a PATCH: omitting a collection replaces it. Regenerate with --hydrate and re-verify before uploading.",
+  "inputs": [
+    {
+      "role": "canonical-baseline",
+      "path": "/Users/filipelopes/Desktop/Development/ocl-content/ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv",
+      "sha256": "3eb0575197724cbea98e6cbb65f230eed4bef4a52911e24d073f24c99f38b828",
+      "bytes": 1799101
+    },
+    {
+      "role": "translation-pt_BR",
+      "path": "/Users/filipelopes/Desktop/Development/ocl-content/terminologies/icd/icd-10/assets/datasus/2008/CID10CSV.zip",
+      "sha256": "84f23809275575f751255048064bbb244b0de33fd5987ab98df0f98e5f5d2c95",
+      "bytes": 306066,
+      "authority": "DATASUS",
+      "edition": "CID-10 (DATASUS V2008 download page; the XML declares V2007)"
+    },
+    {
+      "role": "translation-fr",
+      "path": "/Users/filipelopes/Desktop/Development/ocl-content/ICD-10 for OCL/cim10fr2024syst_claml_20231215/cim10fr2024syst_claml_20231215.xml",
+      "sha256": "7bff2fd4cc9bf6f2af1e4f895e63cb1d5b36684b492bb74e850b01b9ba278be2",
+      "bytes": 7171514,
+      "authority": "ATIH",
+      "edition": "CIM-10-FR 2024 (2024-01-01)"
+    }
+  ],
+  "adapters": [
+    {
+      "authority": "DATASUS",
+      "locale": "pt_BR",
+      "edition": "CID-10 (DATASUS V2008 download page; the XML declares V2007)",
+      "candidates": 14530,
+      "skipped": {},
+      "stats": {
+        "files": {
+          "CID-10-CAPITULOS.CSV": {
+            "rows": 22,
+            "emitted": 22
+          },
+          "CID-10-GRUPOS.CSV": {
+            "rows": 275,
+            "emitted": 275
+          },
+          "CID-10-CATEGORIAS.CSV": {
+            "rows": 2045,
+            "emitted": 2045
+          },
+          "CID-10-SUBCATEGORIAS.CSV": {
+            "rows": 12451,
+            "emitted": 12451
+          }
+        },
+        "out_of_scope_files": [
+          "CID-O-CATEGORIAS.CSV",
+          "CID-O-GRUPOS.CSV"
+        ],
+        "duplicate_identical_rows": 263
+      }
+    },
+    {
+      "authority": "ATIH",
+      "locale": "fr",
+      "edition": "CIM-10-FR 2024 (2024-01-01)",
+      "candidates": 11959,
+      "skipped": {
+        "modifier-class": 283
+      },
+      "stats": {
+        "title": {
+          "name": "CIM-10-FR",
+          "version": "2024",
+          "date": "2024-01-01"
+        },
+        "declared_lang": "fr",
+        "classes": 11959,
+        "modifier_classes": 283,
+        "kinds": {
+          "chapter": 22,
+          "block": 275,
+          "category": 11662
+        }
+      }
+    }
+  ],
+  "alignment": {
+    "counts": {
+      "accepted": 23664,
+      "not-in-canonical": 2718,
+      "unchanged": 107
+    },
+    "accepted_concepts": 12498,
+    "report": "alignment_report.csv",
+    "exclusions_file": null
+  },
+  "build": {
+    "status_counts": {
+      "PROPOSED_UPDATE": 12498
+    },
+    "locale_counts": {
+      "fr": 11396,
+      "pt_BR": 12268
+    },
+    "changed_concepts": 12498,
+    "max_part_bytes": 2097152
+  },
+  "hydration": null,
+  "output": {
+    "directory": "/Users/filipelopes/Desktop/Development/ocl-content/terminologies/icd/icd-10/output",
+    "parts": [
+      {
+        "name": "bulkimport_part_001.ndjson",
+        "lines": 3705,
+        "sha256": "b09abf24a432a9f714d22a9d3b20659752961bb265294c46117fe4592ff13345",
+        "bytes": 2096626
+      },
+      {
+        "name": "bulkimport_part_002.ndjson",
+        "lines": 3676,
+        "sha256": "cf0fb35819bc31b8d39c75a9326b31e45df3afb7fd728f6b13e5f670ac8b68a6",
+        "bytes": 2096506
+      },
+      {
+        "name": "bulkimport_part_003.ndjson",
+        "lines": 3473,
+        "sha256": "d6404eea2997810af4897f36bc26a66f35e43f62c012912a36735c217bdc2a0e",
+        "bytes": 2096637
+      },
+      {
+        "name": "bulkimport_part_004.ndjson",
+        "lines": 1644,
+        "sha256": "ec1c0b7701397647832e2a8cb08200276e72a9d1eb9319156bd1048d75137887",
+        "bytes": 1021971
+      }
+    ],
+    "bundle": {
+      "name": "bulkimport_bundle.ndjson",
+      "lines": 12498,
+      "sha256": "9c1e59bd5e49f21a5e5336d4b9a11bcd63f2b7f4a6726106756c8bbce72c865b",
+      "bytes": 7311740
+    },
+    "archive": {
+      "name": "bulkimport_icd10-who.zip",
+      "bytes": 886540,
+      "method": "deflate",
+      "payload_bytes": 14625057,
+      "members": [
+        {
+          "name": "bulkimport_part_001.ndjson",
+          "lines": 3705,
+          "bytes": 2096626,
+          "compressed_bytes": 126179,
+          "sha256": "b09abf24a432a9f714d22a9d3b20659752961bb265294c46117fe4592ff13345"
+        },
+        {
+          "name": "bulkimport_part_002.ndjson",
+          "lines": 3676,
+          "bytes": 2096506,
+          "compressed_bytes": 131216,
+          "sha256": "cf0fb35819bc31b8d39c75a9326b31e45df3afb7fd728f6b13e5f670ac8b68a6"
+        },
+        {
+          "name": "bulkimport_part_003.ndjson",
+          "lines": 3473,
+          "bytes": 2096637,
+          "compressed_bytes": 114949,
+          "sha256": "d6404eea2997810af4897f36bc26a66f35e43f62c012912a36735c217bdc2a0e"
+        },
+        {
+          "name": "bulkimport_part_004.ndjson",
+          "lines": 1644,
+          "bytes": 1021971,
+          "compressed_bytes": 71167,
+          "sha256": "ec1c0b7701397647832e2a8cb08200276e72a9d1eb9319156bd1048d75137887"
+        },
+        {
+          "name": "bulkimport_bundle.ndjson",
+          "lines": 12498,
+          "bytes": 7311740,
+          "compressed_bytes": 441554,
+          "sha256": "9c1e59bd5e49f21a5e5336d4b9a11bcd63f2b7f4a6726106756c8bbce72c865b"
+        },
+        {
+          "name": "bulkimport_manifest.json",
+          "lines": 0,
+          "bytes": 1577,
+          "compressed_bytes": 693,
+          "sha256": "495cd94edd5a0877db4bb7f16e263b051ac3df61e5cb6e208929b04d9d23abd3"
+        }
+      ],
+      "ratio": 0.0606,
+      "sha256": "f10e3e1bc82be155da2e7c20cab5b89406d650c3db270279e75cb864f1a8dde8"
+    },
+    "versioned": [
+      "bulkimport_audit.json",
+      "bulkimport_icd10-who.zip"
+    ],
+    "not_versioned": [
+      "bulkimport_part_001.ndjson",
+      "bulkimport_part_002.ndjson",
+      "bulkimport_part_003.ndjson",
+      "bulkimport_part_004.ndjson",
+      "bulkimport_bundle.ndjson",
+      "alignment_report.csv"
+    ]
+  },
+  "projection": {
+    "included": [
+      "type",
+      "id",
+      "concept_class",
+      "names",
+      "descriptions",
+      "extras",
+      "owner",
+      "owner_type",
+      "source"
+    ],
+    "omitted": [
+      "datatype",
+      "external_id",
+      "retired",
+      "parent_concept_urls",
+      "mappings"
+    ],
+    "rationale": "OCL preserves omitted scalar values and hierarchy, and an empty mappings payload is a no-op, while a Concept bulk update replaces an omitted names/descriptions collection with an empty one. Full names/descriptions/extras are therefore always sent."
+  },
+  "upload": {
+    "mechanism": "manual",
+    "api_upload": false,
+    "note": "No tool in this repository uploads to OCL. Extract the parts from the archive and upload them in numeric order through the OCL bulk-import form, reusing one Queue ID."
+  }
+}

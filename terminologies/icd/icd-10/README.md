@@ -1,12 +1,23 @@
 # ICD-10 WHO
 
-Pilot terminology workspace for the WHO ICD-10 Source in Open Concept Lab (OCL).
+Workspace for the WHO ICD-10 Source in Open Concept Lab (OCL): Source configuration, the
+canonical-concept baseline, and the pipeline that proposes `pt_BR` and `fr` names from national
+editions.
 
 ## Scope and compatibility
 
-This folder is the new configuration home for ICD-10 work. It does **not** move or replace the existing tracked import material in [`../../../ICD-10 for OCL/`](../../../ICD-10%20for%20OCL/). That legacy directory remains the authoritative repository location for the current CSV and ClaML assets until a dedicated migration validates all downstream references.
+This folder is the configuration home for ICD-10 work and now also owns the name pipeline. It
+does **not** move or replace the existing tracked import material in
+[`../../../ICD-10 for OCL/`](../../../ICD-10%20for%20OCL/). That legacy directory remains the
+authoritative repository location for the current CSV and ClaML assets until a dedicated
+migration validates all downstream references.
 
-The current pilot is limited to documenting and synchronizing Source-level properties, filters, and display metadata. It does not reload concepts, mappings, or hierarchy relationships.
+The pipeline adds **names only**:
+
+- it never creates a concept, never retires one, and never changes hierarchy, classes, or
+  Source properties;
+- it reads the canonical baseline for the concept IDs and hierarchy it must not alter;
+- it proposes names for codes that exist in that baseline, in the locale of a national edition.
 
 ## OCL target
 
@@ -16,9 +27,12 @@ The current pilot is limited to documenting and synchronizing Source-level prope
 | Source | `ICD-10-WHO` |
 | Synthetic root concept ID | `ICD-10` |
 | Root concept name in legacy CSV | `ICD-10 Root Concept` |
-| Hierarchy configuration | Declared for guarded restoration only; do not apply it as part of the properties/filters update |
+| Hierarchy configuration | Declared for guarded restoration only; not applied by the name pipeline |
+| Name locales proposed here | `pt_BR` (DATASUS CID-10), `fr` (ATIH CIM-10-FR) |
 
-The existing CSV contains 12,587 concepts and parent links for 12,586 of them. It records `ICD-10` as the synthetic root. The Source configuration declares `grouped-by` for this classification hierarchy; changing this value requires a separate semantic review.
+The existing CSV contains 12,587 concepts and parent links for 12,586 of them. It records
+`ICD-10` as the synthetic root. The Source configuration declares `grouped-by` for this
+classification hierarchy; changing this value requires a separate semantic review.
 
 ## Source configuration
 
@@ -84,8 +98,268 @@ Before any Source update:
 4. For hierarchy work, confirm that `/concepts/ICD-10/` exists before applying the root setting.
 5. After a write, require GET read-back verification from the helper and rebuild Source indexes only under the separately approved operational procedure.
 
+## Data sources and provenance
+
+Every input the name pipeline consumes, with the URL and hash needed to re-obtain it. The full
+registry, including the note that DATASUS serves over plain HTTP, is in
+[`assets/README.md`](assets/README.md); fetched data files are excluded from Git.
+
+| Authority | Edition (as declared) | Locale | Format | Retrieval URL | SHA-256 | Role |
+|---|---|---|---|---|---|---|
+| WHO (via the tracked legacy CSV) | legacy load artifact, 10 Nov 2021 | `en` | CSV | [`../../../ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv`](../../../ICD-10%20for%20OCL/Production_Load_ICD-10_10Nov2021.csv) | recorded in `output/bulkimport_audit.json` | canonical baseline: IDs, hierarchy, English names, extras |
+| DATASUS / Ministério da Saúde | CID-10 V2008 page; its XML declares `V2007` | `pt_BR` | semicolon CSV, ISO-8859-1 | http://www2.datasus.gov.br/cid10/V2008/downloads/CID10CSV.zip | `84f23809275575f751255048064bbb244b0de33fd5987ab98df0f98e5f5d2c95` | Brazilian CID-10 names (default) |
+| DATASUS / Ministério da Saúde | same edition | `pt_BR` | DATASUS-specific XML with DTD entities, ISO-8859-1 | http://www2.datasus.gov.br/cid10/V2008/downloads/CID10XML.zip | `1f2f34076e50a28510aac7d2068003337aa05df1f4969571b46fd0dfa6de1385` | alternative Brazilian input; the adapter is selected from the file itself |
+| ATIH | CIM-10-FR 2024 (`2024-01-01`) | `fr` | ClaML with `FM`/`OMS` label variants | https://www.atih.sante.fr/sites/default/files/content/documents/cim10fr2024syst_claml_20231215.zip | `6f7b631d2da9f932b85ed7397c7476169c869ba3992c8f862d2c918332a15c55` | French CIM-10 names |
+| WHO | title declares `2019-covid-expanded`, date `2020-03-22`, Identifier `icd10_20210322` | `en` | ClaML | https://icdcdn.who.int/icd10/claml/icd102019en.xml.zip | `344c571aa9aed3b9ad1c80261b7828c45cfb5fc0b1a5da64aecef354dff5b3d9` | canonical extraction and baseline verification |
+
+The French ZIP is byte-identical to the tracked legacy copy, so the `fr` adapter reads
+[`../../../ICD-10 for OCL/cim10fr2024syst_claml_20231215/cim10fr2024syst_claml_20231215.xml`](../../../ICD-10%20for%20OCL/cim10fr2024syst_claml_20231215/cim10fr2024syst_claml_20231215.xml)
+by default.
+
+Redistribution terms for the DATASUS and WHO files were not established: do not commit a fetched
+copy or redistribute it from this repository.
+
+## What these files are
+
+The DATASUS file is the **CID-10 brasileiro** and the ATIH file is the **CIM-10 français**:
+national editions of ICD-10, not translations of the English release. They have their own codes,
+chapter handling, and content, so a matching code is a candidate for a name review, never proof
+that two entries mean the same thing.
+
+### Alignment rules
+
+| Rule | Behaviour |
+|---|---|
+| Code exists in the canonical baseline | Candidate name for the edition's locale |
+| Code exists only in the national edition | `not-in-canonical`, excluded from the proposal |
+| Label equals the canonical English name (case/space-insensitive) | `unchanged`, no name added |
+| Two different labels for one code and locale | `duplicate-conflict`, refused as a group |
+| Reviewed row in [`review/exclusions.csv`](review/exclusions.csv) | `excluded-by-curator`, held back with its reason |
+
+Recorded normalizations, never silent: a DATASUS four-character subcategory (`A000`) becomes
+`A00.0` with the original kept as `source_code`; a DATASUS chapter `NUMCAP` is used as a number
+because the baseline numbers chapters `1`–`22`; a ClaML chapter roman numeral becomes that number
+and is flagged `chapter-roman-normalized`; a preferred ClaML label containing a nested
+`Reference` contributes only its own text and is flagged `inline-markup`. Inclusion, exclusion,
+coding-hint and modifier content is never emitted as a name.
+
+### Cases that require a curator decision
+
+These are real rows in the current inputs, kept verbatim and surfaced by the alignment report:
+
+- `A09` — DATASUS: “Diarréia e gastroenterite de origem infecciosa presumível”; the canonical
+  English name also covers *unspecified* origin.
+- `J09` — DATASUS names avian influenza while the canonical entry covers zoonotic **and
+  pandemic** influenza. A row in `review/exclusions.csv` is the mechanism for holding it back.
+- `U07.1` — the French edition carries both an `FM` label (“COVID-19”) and an `OMS` label
+  (“COVID-19, virus identifié”); the pipeline selects `OMS`. There is no `pt_BR` name because
+  the Brazilian table predates COVID-19.
+- `U07.10` — a French national extension; it exists only outside the canonical release and is
+  excluded, never truncated into `U07.1`.
+- `A00.0` — the French preferred label is “À Vibrio cholerae 01, biovar cholerae”, a continuation
+  of the parent’s wording; it is kept verbatim rather than composed into a standalone name.
+- `A06.4` — the French label contains an asterisk reference (`K77.0`) that is not part of the
+  name.
+
+## Pipeline
+
+```text
+terminologies/icd/icd-10/
+├── README.md
+├── source.json
+├── assets/README.md          # pinned sources, hashes, licence status
+├── assets/datasus/2008/      # fetched inputs (Git-ignored)
+├── pipeline/
+│   ├── cli.py                # fetch-assets | canonical | build | compact
+│   ├── assets.py             # pinned URLs + SHA-256 fetch/verify
+│   ├── canonical.py          # canonical baseline loader (CSV or JSONL)
+│   ├── model.py              # NameCandidate / AdapterResult
+│   ├── xmlsafe.py            # shared, narrow ClaML reading
+│   ├── adapters/
+│   │   ├── datasus_csv.py    # CID-10 pt_BR tables (default)
+│   │   ├── datasus_xml.py    # CID-10 pt_BR XML with DTD entities
+│   │   ├── atih_claml.py     # CIM-10-FR fr ClaML
+│   │   └── who_claml.py      # canonical extraction from the WHO ClaML
+│   ├── align.py              # exact-code alignment and refusals
+│   ├── hydrate.py            # read-only HEAD GETs
+│   ├── build_bulkimport.py   # projection, size-capped parts, bundle, reports
+│   └── compact.py            # the versioned zip (parts + bundle + manifest)
+├── review/exclusions.csv     # curated, reviewed hold-backs
+└── output/                   # versioned: the zip and the audit
+```
+
+```bash
+# 1. fetch and verify the pinned inputs (once per machine)
+python3 terminologies/icd/icd-10/pipeline/cli.py fetch-assets --asset all
+
+# 2. extract the canonical structure from the WHO ClaML and check the baseline against it
+python3 terminologies/icd/icd-10/pipeline/cli.py canonical \
+  --who-claml terminologies/icd/icd-10/assets/who/icd102019en/icd102019en.xml.zip \
+  --compare "ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv"
+
+# 3. build the parts, the bundle, and the zip from the committed baseline (draft)
+python3 terminologies/icd/icd-10/pipeline/cli.py build
+
+# 4. regenerate from live HEAD so the artifacts are safe to upload (read-only GETs)
+OCL_API_TOKEN=… python3 terminologies/icd/icd-10/pipeline/cli.py build --hydrate
+
+# other flags
+#   --skip fr|pt_BR          build one locale only
+#   --exclusions FILE        apply the curated hold-backs
+#   --max-part-size SIZE     cap each part (default 2mb)
+#   --zip-method lzma        smaller archive for NDJSON (see below)
+#   --no-archive             parts and bundle only; zip later with `compact`
+#   --output-dir DIR         default: this folder's output/
+#   --api-url, --token-env, --allow-insecure-localhost
+```
+
+### Output and what is versioned
+
+```text
+output/
+├── bulkimport_part_001.ndjson      # ≤ 2 MB, ordered    → NOT versioned
+├── bulkimport_part_002.ndjson      # …
+├── bulkimport_bundle.ndjson        # every line, in order → NOT versioned
+├── alignment_report.csv            # review surface      → NOT versioned
+├── bulkimport_audit.json           # provenance + counts + hashes → versioned
+└── bulkimport_icd10-who.zip        # parts + bundle + manifest       → versioned
+```
+
+Parts are cut on resource boundaries **in the input order** and each is capped at
+`--max-part-size` (default 2 MB); concatenating them in numeric order reproduces the bundle
+byte for byte, and a single resource larger than the cap is an error rather than a split. The zip
+carries the parts, the whole bundle, and a `bulkimport_manifest.json` that lists the target, the
+mode, whether the artifact is upload-ready, and every part's SHA-256.
+
+Only the zip and the audit are committed: the parts, the bundle, the canonical extraction and the
+alignment report are byte-reproducible from the inputs the audit records, and they would weigh
+several megabytes in history on every run. `compact` (re)builds the zip from what is already on
+disk — `--zip-method deflate` (default, maximum portability) or `lzma`, which is smaller for
+NDJSON but not readable by every archive tool. On the current draft: 7,311,740 bytes of payload →
+886,540 bytes with `deflate` (ratio 0.061) or ~727 KB with `lzma` (ratio 0.050).
+
+### Uploading is manual
+
+No script, skill, or pipeline in this repository uploads a bulk import to OCL, and none will be
+added. The generated archive is the hand-off: extract the parts, then upload them **in numeric
+order** through the OCL bulk-import form, reusing one Queue ID for all of them. The manifest
+repeats that instruction, and the audit records `"upload": {"mechanism": "manual", "api_upload":
+false}`. The only network calls this pipeline makes are the authenticated read-only GETs of
+`--hydrate`.
+
+Each line carries the complete `names`, `descriptions`, and `extras` of the concept, plus
+`type`, `id`, `concept_class`, `owner`, `owner_type`, and `source`. `datatype`, `external_id`,
+`retired`, `parent_concept_urls`, and `mappings` are deliberately not sent: the Concept bulk
+importer is not a PATCH, so an omitted `names`/`descriptions` collection is replaced by an empty
+one, while OCL preserves omitted scalar values and hierarchy and treats an empty `mappings`
+payload as a no-op. A translation is added only when its locale has no active name; an existing
+name in that locale is never replaced and is reported instead.
+
+The committed pair is the archive and the audit; the parts are rebuilt on demand and are never
+committed.
+
+### Draft versus upload-ready
+
+`build` reads the committed baseline, which carries only the 2021 English names and the legacy
+extras. The resulting parts are a **draft** (`"mode": "offline-baseline"`,
+`"upload_ready": false`, with a warning recorded in the audit and in the archive manifest) and
+must not be uploaded: they do not reflect live names, descriptions, or extras.
+
+`build --hydrate` GETs every targeted concept from HEAD first. If any concept cannot be read, the
+command stops and writes nothing. Only a hydrated run records `"upload_ready": true`.
+
+Neither mode ever writes to OCL: the pipeline generates artifacts and performs authenticated GET
+requests only. Any upload is a separate, explicitly authorized action.
+
+## Canonical verification
+
+`canonical` extracts the structure from the WHO ClaML release itself and compares it with the
+baseline, so the baseline is checked against its source rather than trusted:
+
+```bash
+python3 terminologies/icd/icd-10/pipeline/cli.py canonical \
+  --who-claml terminologies/icd/icd-10/assets/who/icd102019en/icd102019en.xml.zip \
+  --out output/canonical_who_icd10.jsonl \
+  --compare "ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv"
+```
+
+Run on the pinned release, the extraction produces 12,850 concepts from 11,539 `Class` elements
+plus 1,312 modifier-derived codes (476 derived ids collide with an explicit class and are skipped,
+one class has no preferred label), and the comparison with the 12,587-concept baseline reports:
+
+| Measure | Result |
+|---|---|
+| IDs in both | 12,585 |
+| Only in the WHO extraction | 265 (254 modifier-derived optional subdivisions, 11 range ids such as `C00-C97`) |
+| Only in the baseline | 2 — the synthetic root `ICD-10` (legacy-only, expected) and `Z31.2` (unexplained, see below) |
+| Concept-class mismatches | 0 |
+| Name differences | 801, of which 782 are the baseline's `"<parent context>: <label>"` composition and 19 are other |
+
+Two findings are worth keeping visible rather than smoothing over. The baseline composes some
+names by prefixing the parent's wording (`Malignant neoplasm: External upper lip`), while the WHO
+file carries the bare label (`External upper lip`) — the extractor returns the source label and
+the comparison counts the composition separately. And `Z31.2` exists in the baseline but not as a
+`Class` in this WHO file; its provenance is unresolved and it is listed here instead of being
+reinterpreted.
+
+Extras in an extraction are deliberately empty: the baseline's `hierarchy_level`,
+`chapter_number`, `Classification_Place` and `Terminal_Node` come from the legacy import, and the
+WHO `Meta` mortality codes are a different set. Use the extraction to verify structure, and the
+baseline or a hydrated HEAD read to populate an artifact.
+
+## Review workflow
+
+`output/alignment_report.csv` lists every candidate with its status and reason. When a reviewed
+row must not be proposed, add it to [`review/exclusions.csv`](review/exclusions.csv):
+
+```csv
+code,locale,reason
+J09,pt_BR,national label names avian influenza; meaning differs from the canonical entry
+```
+
+Then rebuild with `--exclusions review/exclusions.csv`. The decision, its reason, and the input
+hashes are all recorded in `bulkimport_audit.json`.
+
+## Tests
+
+```bash
+python3 -m pytest tests/icd10
+```
+
+They cover the DATASUS CSV schema and encoding handling, the DATASUS XML entities and structure,
+the ClaML variant, chapter and modifier-expansion rules, the WHO extraction and baseline
+verification, the alignment outcomes, the projection, the size-capped parts and their order, the
+bundle and the versioned archive, idempotency and determinism, the hydrated versus draft modes,
+the token/origin guard rails, and asset verification.
+
+```bash
+python3 -m pytest            # root tooling + terminology pipelines
+python3 -m pytest tests/icd10
+```
+
+## Known limits
+
+- **Locale tokens**: `pt_BR`, `fr`, and `en` are used as OCL locale values. Confirm the Source's
+  default and supported locales, and the exact spelling it stores, before the first upload; the
+  hydrated mode preserves whatever the live concepts already carry.
+- **Baseline name composition**: the 2021 baseline prefixes some names with their parent's wording
+  (782 such cases). The name pipeline copies the baseline name as-is for the `en` locale, so keep
+  the convention when regenerating the baseline from the WHO extraction.
+- **`Z31.2`**: present in the baseline but absent from the WHO ClaML `Class` list. Unexplained;
+  do not silently drop or redefine it.
+- **Unresolved legacy flags**: the meaning of `Classification_Place` (`N`/`T`) and
+  `Terminal_Node` (`X`/`S`) is still undocumented; the DATASUS `CLASSIF`, `RESTRSEXO`, and
+  `CAUSAOBITO` columns (and the XML `duplaclassificacao`/`restricoes` elements) are different
+  concepts and are not used as substitutes.
+- **Optional subdivisions**: 265 codes exist in the WHO extraction but not in the baseline (254 of
+  them optional modifier subdivisions). They are out of scope for the name proposal, which aligns
+  strictly to the baseline.
+- **Hydration has not been run against production** from this repository; the `--hydrate` path is
+  covered by tests with an injected transport only.
+
 ## Related assets
 
 - Legacy load CSV: [`../../../ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv`](../../../ICD-10%20for%20OCL/Production_Load_ICD-10_10Nov2021.csv)
 - French ClaML source asset: [`../../../ICD-10 for OCL/cim10fr2024syst_claml_20231215/`](../../../ICD-10%20for%20OCL/cim10fr2024syst_claml_20231215/)
 - Shared OCL API instructions: [`../../../skills/ocl-api/SKILL.md`](../../../skills/ocl-api/SKILL.md)
+- Terminology README template: [`../../README.md`](../../README.md)

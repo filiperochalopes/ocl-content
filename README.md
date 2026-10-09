@@ -7,10 +7,11 @@ Repository for terminology content, repeatable OCL pipeline tooling, and Source-
 ```text
 ocl-content/
 ├── terminologies/          # New, incremental home for terminology work
-│   └── icd/icd-10/         # Pilot: Source configuration and operator guide
+│   ├── README.md           # Terminology README template (sources, provenance, output)
+│   └── icd/icd-10/         # Pilot: Source configuration + name pipeline + output
 ├── tools/                  # Shared Python helpers
 ├── skills/                 # Repository-local operational skills
-├── tests/                  # Tests for shared helpers
+├── tests/                  # Tests for shared helpers and terminology pipelines
 ├── LOINC/                  # Existing location; retained for compatibility
 ├── ICD-10 for OCL/         # Existing location; retained for compatibility
 ├── SNOMED-GPS/             # Existing location; retained for compatibility
@@ -32,7 +33,21 @@ Validate it locally:
 python3 tools/ocl_source_config.py --config terminologies/icd/icd-10/source.json
 ```
 
-See the terminology README for read-only checks and the deliberately guarded apply command.
+The same workspace owns the translation pipeline that proposes `pt_BR` names from the Brazilian
+CID-10 (DATASUS) and `fr` names from the French CIM-10-FR (ATIH) for codes that exist in the
+canonical baseline, verifies that baseline against the WHO ClaML release, and writes ordered
+size-capped bulk-import parts (plus the whole bundle and the versioned archive):
+
+```bash
+python3 terminologies/icd/icd-10/pipeline/cli.py fetch-assets --asset all
+python3 terminologies/icd/icd-10/pipeline/cli.py canonical --compare "ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv"
+python3 terminologies/icd/icd-10/pipeline/cli.py build
+```
+
+Only the archive and the audit are committed; uploading the parts stays a manual step through the
+OCL bulk-import form. See the terminology README for the provenance table, the alignment rules,
+the canonical verification results, the draft versus upload-ready distinction, and the guarded
+Source commands.
 
 ## Shared tooling
 
@@ -41,10 +56,12 @@ See the terminology README for read-only checks and the deliberately guarded app
 
 ## Development
 
-The root tooling uses only the Python standard library at runtime. Tests require `pytest`:
+The root tooling and the terminology pipelines use only the Python standard library at runtime. Test-only dependencies are declared in `pyproject.toml`, so the suite runs from the locked project environment:
 
 ```bash
-python3 -m pytest
+uv run python -m pytest
 ```
+
+`uv run` uses the project `.venv` and `uv.lock`, which keeps every shell — background jobs included — on one interpreter; `python3 -m pytest` also works where pytest is already installed. Commit `uv.lock` and keep `.venv/` ignored.
 
 Do not commit API tokens, credentials, licensed releases, virtual environments, notebook checkpoints, caches, or generated full-load artifacts.

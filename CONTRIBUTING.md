@@ -19,6 +19,8 @@ This repository manages terminology content, operational configuration, and repe
 
 Each new or migrated terminology Source should keep a reviewed `source.json` next to its documentation. It declares the Source-level `properties`, `filters`, and `meta.display` settings; it does not contain credentials.
 
+Each terminology workspace also keeps one `README.md` following the template in [`terminologies/README.md`](terminologies/README.md). Whenever a workspace consumes another release — a canonical release, a national edition, or a set of translations — its README must document that source's provenance: authority, declared edition, locale, format, retrieval URL, SHA-256, local path, redistribution status, and the code-alignment rule.
+
 Validate locally before any remote check:
 
 ```bash
@@ -27,10 +29,25 @@ python3 tools/ocl_source_config.py --config terminologies/icd/icd-10/source.json
 
 Use `--check` for a read-only comparison. `--apply` is intentionally opt-in and requires an exact `--confirm-target OWNER/SOURCE` acknowledgement.
 
+## Terminology pipelines and output
+
+- New repeatable terminology workflows are tested Python modules under `terminologies/<authority>/<terminology>/pipeline/`. Keep a chunk of code shared only when more than one pipeline genuinely uses it.
+- A national edition is not a translation of a canonical release: align names by exact code, keep codes that exist only in the national edition out of scope, and record curated decisions in `review/` instead of encoding them as heuristics.
+- Bulk-import artifacts belong in `terminologies/<authority>/<terminology>/output/`: ordered parts capped in size, the complete bundle, an alignment report, a machine-readable audit, and one zip holding parts + bundle + manifest. Only the **zip** and `bulkimport_audit.json` are versioned; parts and reports are byte-reproducible and stay out of Git.
+- A generated artifact must state whether it is upload-ready. Artifacts built from a committed snapshot are a draft; only a run that hydrated every targeted concept from live HEAD may be labelled upload-ready, and a hydration failure must abort before anything is written.
+
+## Uploading is manual
+
+- Never add a script, helper, or skill that uploads a bulk import to OCL through the API, and never document one as an option. Generation produces local artifacts only.
+- The hand-off is the archive: an operator extracts the parts and uploads them in numeric order through the OCL bulk-import form using one Queue ID. Record `"upload": {"mechanism": "manual", "api_upload": false}` in the audit and repeat the instruction in the manifest.
+
 ## Tests
 
-Run the root tooling tests after changing a shared helper or a `source.json` contract:
+Test-only dependencies are declared in `pyproject.toml` (`[dependency-groups] dev`), so the suite runs from the locked project environment instead of whichever `python3` happens to be first on `PATH`:
 
 ```bash
-python3 -m pytest
+uv run python -m pytest            # root tooling + terminology pipelines
+uv run python -m pytest tests/icd10
 ```
+
+`uv run` always uses the project `.venv` and `uv.lock`, so a foreground shell and a background job resolve the same interpreter. A plain `python3 -m pytest` still works where pytest is already installed. Commit `uv.lock`; keep `.venv/` out of Git.
