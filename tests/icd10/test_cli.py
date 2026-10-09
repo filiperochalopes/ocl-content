@@ -102,6 +102,30 @@ def test_archive_can_be_skipped_and_rebuilt_with_compact(tmp_path, baseline_csv,
         assert archive.getinfo("bulkimport_bundle.ndjson").compress_type == zipfile.ZIP_LZMA
 
 
+def test_dev_audit_pair_is_written_only_when_requested(tmp_path, baseline_csv, datasus_dir, atih_xml):
+    output = tmp_path / "output"
+    assert main(build_args(tmp_path, baseline_csv, datasus_dir, atih_xml)) == 0
+    assert not list(output.glob("*.dev.audit.json"))
+    assert json.loads((output / "bulkimport_audit.json").read_text(encoding="utf-8"))["dev_audit"] is None
+
+    assert main(build_args(tmp_path, baseline_csv, datasus_dir, atih_xml, "--dev-audit")) == 0
+    audit = json.loads((output / "bulkimport_audit.json").read_text(encoding="utf-8"))
+    assert audit["dev_audit"]["before"] == "bulkimport_before.dev.audit.json"
+    assert audit["dev_audit"]["after"] == "bulkimport_after.dev.audit.json"
+    assert audit["dev_audit"]["versioned"] is False
+    assert audit["dev_audit"]["concepts"] == audit["build"]["changed_concepts"]
+    assert "bulkimport_before.dev.audit.json" in audit["output"]["not_versioned"]
+    assert not any(
+        name in audit["output"]["versioned"] for name in ("bulkimport_before.dev.audit.json", "bulkimport_after.dev.audit.json")
+    )
+
+    before = json.loads((output / audit["dev_audit"]["before"]).read_text(encoding="utf-8"))
+    after = json.loads((output / audit["dev_audit"]["after"]).read_text(encoding="utf-8"))
+    assert [entry["id"] for entry in before] == [entry["id"] for entry in after]
+    # The pair mirrors the uploaded payload: the after array equals the NDJSON lines.
+    assert after == _read_parts(output)
+
+
 def test_build_proposes_both_editions_without_creating_national_extension_codes(tmp_path, baseline_csv, datasus_dir, atih_xml):
     assert main(build_args(tmp_path, baseline_csv, datasus_dir, atih_xml)) == 0
     audit = json.loads((tmp_path / "output" / "bulkimport_audit.json").read_text(encoding="utf-8"))

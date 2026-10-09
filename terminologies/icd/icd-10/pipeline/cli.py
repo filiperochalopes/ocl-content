@@ -48,6 +48,7 @@ from pipeline.build_bulkimport import (  # noqa: E402
     PartInfo,
     build,
     write_alignment_csv,
+    write_audit_pair,
     write_bundle,
     write_json,
     write_parts,
@@ -125,6 +126,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     build_parser.add_argument("--token-env", default="OCL_API_TOKEN")
     build_parser.add_argument("--allow-insecure-localhost", action="store_true")
     build_parser.add_argument("--no-archive", action="store_true", help="skip the zip (parts and bundle only)")
+    build_parser.add_argument(
+        "--dev-audit",
+        action="store_true",
+        help="also write the pretty-printed before/after pair for diff review (not versioned)",
+    )
     build_parser.add_argument("--zip-method", choices=sorted(METHODS), default=DEFAULT_METHOD)
     build_parser.add_argument("--archive-name", default=DEFAULT_ARCHIVE)
 
@@ -299,6 +305,18 @@ def command_build(args: argparse.Namespace) -> int:
     report_path = output_dir / "alignment_report.csv"
     write_alignment_csv(report_path, alignment)
 
+    dev_audit_meta = None
+    dev_audit_info = None
+    if args.dev_audit:
+        dev_audit_info = write_audit_pair(output_dir, result.before, result.after)
+        dev_audit_meta = {
+            "reason": "development/review aid: paste both files into a JSON-aware diff viewer",
+            "before": dev_audit_info.before,
+            "after": dev_audit_info.after,
+            "concepts": dev_audit_info.concepts,
+            "versioned": False,
+        }
+
     generated_at = datetime.now(timezone.utc).isoformat()
     upload_ready = mode == "hydrated-head"
     target = {"owner": TARGET_OWNER, "source": TARGET_SOURCE, "owner_type": "Organization"}
@@ -375,8 +393,11 @@ def command_build(args: argparse.Namespace) -> int:
             "versioned": sorted(
                 [path.name for path in output_dir.glob("*.zip")] + ["bulkimport_audit.json"]
             ),
-            "not_versioned": [part.name for part in parts] + [bundle.name, report_path.name],
+            "not_versioned": [part.name for part in parts]
+            + [bundle.name, report_path.name]
+            + ([dev_audit_info.before, dev_audit_info.after] if dev_audit_info else []),
         },
+        "dev_audit": dev_audit_meta,
         "projection": {
             "included": ["type", "id", "concept_class", "names", "descriptions", "extras", "owner", "owner_type", "source"],
             "omitted": ["datatype", "external_id", "retired", "parent_concept_urls", "mappings"],
@@ -409,6 +430,9 @@ def command_build(args: argparse.Namespace) -> int:
         )
     print(f"audit: {output_dir / 'bulkimport_audit.json'}")
     print(f"alignment report (not versioned): {report_path}")
+    if dev_audit_info:
+        print(f"dev audit pair (not versioned): {dev_audit_info.before} / {dev_audit_info.after}")
+        print("  review the diff by pasting both files into a JSON-aware diff viewer (e.g. diffchecker.com)")
     return 0
 
 

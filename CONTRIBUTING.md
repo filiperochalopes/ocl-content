@@ -34,6 +34,7 @@ Use `--check` for a read-only comparison. `--apply` is intentionally opt-in and 
 - New repeatable terminology workflows are tested Python modules under `terminologies/<authority>/<terminology>/pipeline/`. Keep a chunk of code shared only when more than one pipeline genuinely uses it.
 - A national edition is not a translation of a canonical release: align names by exact code, keep codes that exist only in the national edition out of scope, and record curated decisions in `review/` instead of encoding them as heuristics.
 - Bulk-import artifacts belong in `terminologies/<authority>/<terminology>/output/`: ordered parts capped in size, the complete bundle, an alignment report, a machine-readable audit, and one zip holding parts + bundle + manifest. Only the **zip** and `bulkimport_audit.json` are versioned; parts and reports are byte-reproducible and stay out of Git.
+- Review the proposal as a diff, not as a 12k-line NDJSON: `--dev-audit` writes the pretty-printed before/after pair (same IDs, same order, same fields) for pasting into a JSON-aware diff viewer. It is opt-in, never uploaded, and never versioned — the sibling `ciel-scripts` repository documents the same pair as *the canonical audit diff input*.
 - A generated artifact must state whether it is upload-ready. Artifacts built from a committed snapshot are a draft; only a run that hydrated every targeted concept from live HEAD may be labelled upload-ready, and a hydration failure must abort before anything is written.
 
 ## Uploading is manual

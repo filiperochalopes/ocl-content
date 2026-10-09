@@ -300,6 +300,42 @@ def write_json(path: Path, value) -> None:
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2, sort_keys=False) + "\n", encoding="utf-8")
 
 
+@dataclass(frozen=True)
+class AuditPairInfo:
+    before: str
+    after: str
+    concepts: int
+
+
+def write_audit_pair(
+    out_dir: Path,
+    before: list[dict],
+    after: list[dict],
+    stem: str = "bulkimport",
+) -> AuditPairInfo:
+    """Write the pretty-printed before/after pair used to review a proposal as a diff.
+
+    The two arrays carry exactly the same concept IDs, in the same order, with the same
+    import-relevant fields, so a JSON diff shows only real changes — the contract the sibling
+    ``ciel-scripts`` repository documents as "the canonical audit diff input". The pair is a
+    development/review aid: neither file is uploaded, and neither is versioned.
+    """
+    before_ids = [str(entry.get("id")) for entry in before]
+    after_ids = [str(entry.get("id")) for entry in after]
+    if before_ids != after_ids:
+        raise ValueError(
+            "before/after audit arrays must share the same concept IDs in the same order: "
+            f"{len(before_ids)} before vs {len(after_ids)} after"
+        )
+    out_dir = Path(out_dir)
+    paths = {}
+    for label, entries in (("before", before), ("after", after)):
+        path = out_dir / f"{stem}_{label}.dev.audit.json"
+        write_json(path, entries)
+        paths[label] = path.name
+    return AuditPairInfo(before=paths["before"], after=paths["after"], concepts=len(after))
+
+
 def write_alignment_csv(path: Path, alignment: Alignment) -> None:
     import csv
 

@@ -10,3 +10,4 @@
 */*/output/*.ndjson
 */*/output/*.jsonl
 */*/output/alignment_report.csv
+*/*/output/*.dev.audit.json

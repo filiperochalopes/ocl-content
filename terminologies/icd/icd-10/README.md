@@ -307,6 +307,30 @@ Extras in an extraction are deliberately empty: the baseline's `hierarchy_level`
 WHO `Meta` mortality codes are a different set. Use the extraction to verify structure, and the
 baseline or a hydrated HEAD read to populate an artifact.
 
+## Before/after dev audit (diff review)
+
+The proposal can be reviewed as a diff instead of reading a 12,498-line NDJSON. `--dev-audit`
+writes a pretty-printed pair, in the same run and with the same content as the payload:
+
+```bash
+uv run python terminologies/icd/icd-10/pipeline/cli.py build --dev-audit
+
+# output/bulkimport_before.dev.audit.json   (6.4 MB — the 2021 baseline state)
+# output/bulkimport_after.dev.audit.json    (10.5 MB — with the pt_BR/fr names added)
+```
+
+Both arrays carry exactly the same concept IDs, in the same order, with the same import-relevant
+fields, so a JSON-aware diff viewer shows only the changed values. Open
+<https://www.diffchecker.com/> (or any JSON diff), paste the two files, and read the proposal as
+before/after per concept — `A09` gains a `fr` and a `pt_BR` name, `U07.10` is absent, and so on.
+
+This mirrors the contract documented in the sibling `ciel-scripts` repository
+(`CONTRIBUTING.md`, "OCL bulk-import artifacts"): `--before-json-output` is *the canonical audit
+diff input*, produced in the same run as the payload, deterministically sorted, preserving the
+collections the importer would otherwise replace. Neither file of the pair is uploaded or
+versioned — the pair is a review aid, ignored by `terminologies/.gitignore`
+(`*/*/output/*.dev.audit.json`).
+
 ## Review workflow
 
 `output/alignment_report.csv` lists every candidate with its status and reason. When a reviewed

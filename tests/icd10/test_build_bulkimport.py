@@ -11,6 +11,7 @@ from pipeline.build_bulkimport import (
     ConceptState,
     build,
     write_alignment_csv,
+    write_audit_pair,
     write_bundle,
     write_parts,
 )
@@ -186,3 +187,30 @@ def test_alignment_report_lists_every_decision(tmp_path, baseline_csv):
     rows = path.read_text(encoding="utf-8").strip().split("\n")
     assert len(rows) == 3  # header + both decisions
     assert "not-in-canonical" in path.read_text(encoding="utf-8")
+
+
+def test_audit_pair_is_a_pretty_printed_diffable_pair(tmp_path, baseline_csv):
+    index, alignment, states = prepare(
+        baseline_csv,
+        candidate("A00", "Cólera", "pt_BR"),
+        candidate("A09", "Diarreia e gastroenterite", "pt_BR"),
+    )
+    result = build(alignment, states)
+    info = write_audit_pair(tmp_path, result.before, result.after)
+    assert info.before == "bulkimport_before.dev.audit.json"
+    assert info.after == "bulkimport_after.dev.audit.json"
+    assert info.concepts == len(result.lines)
+
+    before = json.loads((tmp_path / info.before).read_text(encoding="utf-8"))
+    after = json.loads((tmp_path / info.after).read_text(encoding="utf-8"))
+    # Same IDs, same order, same fields: a diff shows only the changed values.
+    assert [entry["id"] for entry in before] == [entry["id"] for entry in after]
+    assert [sorted(entry) for entry in before] == [sorted(entry) for entry in after]
+    assert all(entry["names"] != other["names"] for entry, other in zip(before, after))
+    # Pretty-printed, not one line per concept.
+    assert len((tmp_path / info.before).read_text(encoding="utf-8").split("\n")) > len(before)
+
+
+def test_audit_pair_refuses_mismatched_id_sets(tmp_path):
+    with pytest.raises(ValueError, match="same concept IDs in the same order"):
+        write_audit_pair(tmp_path, [{"id": "A00"}], [{"id": "A01"}])
