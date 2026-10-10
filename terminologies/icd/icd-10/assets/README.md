@@ -9,6 +9,40 @@ python3 terminologies/icd/icd-10/pipeline/cli.py fetch-assets --asset all
 python3 terminologies/icd/icd-10/pipeline/cli.py fetch-assets --asset datasus-csv --force
 ```
 
+## Where these inputs come from (edition discovery)
+
+The WHO publishes the ICD-10 ClaML/Meta releases behind an index page:
+
+| Page | What it is |
+| --- | --- |
+| <https://icdcdn.who.int/icd10/index.html> | The release index: every downloadable ICD-10 edition, in ClaML and Meta formats |
+| <https://icdcdn.who.int/icd10/clamlinfo.html> | Description of the ClaML format ("more info" next to each ClaML link) |
+| <https://icdcdn.who.int/icd10/metainfo.html> | Description of the Meta format ("more info" next to each Meta link) |
+
+Verified on **2026-10-09** (links on that page are relative to it). The editions it lists:
+
+| Edition (as labelled on the index) | ClaML | Meta |
+| --- | --- | --- |
+| **ICD-10 2019 version (including COVID-19 updates)** | `claml/icd102019en.xml.zip` | `meta/icd102019enMeta.zip` |
+| ICD-10 2016 version | `claml/icd102016en.xml.zip` | `meta/icd102016enMeta.zip` |
+| ICD-10 2015 version | `claml/icd102015en.xml.zip` | — |
+| ICD-10 2014 version | `claml/icd102014en.xml.zip` | — |
+| ICD-10 2010 version | `claml/icd102010en.xml.zip` | `meta/icd102010enMeta.zip` |
+| ICD-10 2nd Edition / 2008 | `claml/icd102008en.xml.zip` | `meta/icd102008enMeta.zip` |
+
+**Why the 2019 release is the one pinned here**: it is the newest edition the index offers (the ICD-10
+line itself is frozen — work continues in ICD-11), and it is the one that carries the COVID-19
+updates (`U07.1`, `U07.2`) the WHO/ICD-10-WHO Source already contains. Its ClaML file declares
+`2019-covid-expanded` in its own `Title`, which is recorded verbatim in the table below.
+
+The **Meta** sibling (`meta/icd102019enMeta.zip`, 237,071 bytes, HTTP 200) carries mortality/tabulation
+metadata as separate files. It has no consumer in this pipeline — the `MortB*`/`MortL*` elements the
+extraction sees are the ones embedded in the ClaML file — so it is not registered as an asset. If a
+future step needs the tabulation lists, add it here with its hash first.
+
+Re-check this page when a new canonical baseline is considered: an edition that is not listed above
+cannot be pinned as a SHA-256 without first deciding that the Source changes release.
+
 ## Pinned sources
 
 | Asset | Authority | Edition (as declared) | Locale | Format | Retrieval URL | SHA-256 | Destination |

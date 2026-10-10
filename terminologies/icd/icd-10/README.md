@@ -112,6 +112,11 @@ registry, including the note that DATASUS serves over plain HTTP, is in
 | ATIH | CIM-10-FR 2024 (`2024-01-01`) | `fr` | ClaML with `FM`/`OMS` label variants | https://www.atih.sante.fr/sites/default/files/content/documents/cim10fr2024syst_claml_20231215.zip | `6f7b631d2da9f932b85ed7397c7476169c869ba3992c8f862d2c918332a15c55` | French CIM-10 names |
 | WHO | title declares `2019-covid-expanded`, date `2020-03-22`, Identifier `icd10_20210322` | `en` | ClaML | https://icdcdn.who.int/icd10/claml/icd102019en.xml.zip | `344c571aa9aed3b9ad1c80261b7828c45cfb5fc0b1a5da64aecef354dff5b3d9` | canonical extraction and baseline verification |
 
+The WHO release index is <https://icdcdn.who.int/icd10/index.html>: it lists every ICD-10 edition
+available in ClaML/Meta, and the **2019 version (including COVID-19 updates)** is the newest one — it
+is the release pinned above. The available editions, their relative links, and why this one was
+chosen are recorded in [`assets/README.md`](assets/README.md#where-these-inputs-come-from-edition-discovery).
+
 The French ZIP is byte-identical to the tracked legacy copy, so the `fr` adapter reads
 [`../../../ICD-10 for OCL/cim10fr2024syst_claml_20231215/cim10fr2024syst_claml_20231215.xml`](../../../ICD-10%20for%20OCL/cim10fr2024syst_claml_20231215/cim10fr2024syst_claml_20231215.xml)
 by default.
@@ -378,6 +383,9 @@ python3 -m pytest tests/icd10
 - **Optional subdivisions**: 265 codes exist in the WHO extraction but not in the baseline (254 of
   them optional modifier subdivisions). They are out of scope for the name proposal, which aligns
   strictly to the baseline.
+- **Release choice**: the pinned WHO asset is the 2019 edition (including COVID-19 updates), the
+  newest the WHO index offers — see [`assets/README.md`](assets/README.md#where-these-inputs-come-from-edition-discovery).
+  A different edition means a different Source release decision, not a swap of the URL.
 - **Hydration has not been run against production** from this repository; the `--hydrate` path is
   covered by tests with an injected transport only.
 
