@@ -8,7 +8,8 @@ Repository for terminology content, repeatable OCL pipeline tooling, and Source-
 ocl-content/
 ├── terminologies/          # New, incremental home for terminology work
 │   ├── README.md           # Terminology README template (sources, provenance, output)
-│   └── icd/icd-10/         # Pilot: Source configuration + name pipeline + output
+│   ├── icd/icd-10/         # Pilot: Source configuration + name pipeline + output
+│   └── icd/icd-11/         # Second terminology: base Source from the WHO Simple Tabulation
 ├── tools/                  # Shared Python helpers
 ├── skills/                 # Repository-local operational skills
 ├── tests/                  # Tests for shared helpers and terminology pipelines
@@ -51,7 +52,8 @@ Source commands.
 
 ## Shared tooling
 
-- [`tools/ocl_source_config.py`](tools/ocl_source_config.py): validates, reads, and explicitly synchronizes Source-level properties, filters, display metadata, and—only when requested—hierarchy metadata.
+- [`tools/ocl_source_config.py`](tools/ocl_source_config.py): validates and reads Source-level properties, filters, display metadata, and—only when requested—hierarchy metadata, and prints the proposed patch. It is read-only and has no write mode.
+- [`tools/ocl_http.py`](tools/ocl_http.py), [`tools/ocl_artifacts.py`](tools/ocl_artifacts.py), [`tools/ocl_assets.py`](tools/ocl_assets.py), [`tools/ocl_pipeline_loader.py`](tools/ocl_pipeline_loader.py): the shared HTTP guard, bulk-import artifact writers, pinned-asset fetching, and by-path pipeline imports that every terminology pipeline uses.
 - [`skills/ocl-api/SKILL.md`](skills/ocl-api/SKILL.md): operating guidance for the OCL CLI and the HTTP fallback used by pipeline tools.
 
 ## Development

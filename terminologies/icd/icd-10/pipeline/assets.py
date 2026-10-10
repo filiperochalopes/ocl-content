@@ -1,32 +1,16 @@
-"""Pinned canonical and translation assets: fetch on demand and verify by SHA-256.
+"""Pinned canonical and translation assets for ICD-10: the registry of URLs, editions, and hashes.
 
-Fetched data files are never committed (see ``terminologies/.gitignore``); this module keeps
-the URL, the authority, the declared edition, and the expected hash in one place so an
-operator can re-obtain a byte-identical copy. DATASUS serves its files over plain HTTP, which
-is why the hash — not TLS — is the integrity control for that source.
+The fetch/verify mechanics are shared with the other pipelines (``tools/ocl_assets.py``). Fetched
+data files are never committed (see ``terminologies/.gitignore``). DATASUS serves its files over
+plain HTTP, which is why the hash — not TLS — is the integrity control for that source.
 """
 
 from __future__ import annotations
 
-import hashlib
 import urllib.request
-from dataclasses import dataclass
 from pathlib import Path
-from urllib.parse import urlparse
 
-
-@dataclass(frozen=True)
-class Asset:
-    key: str
-    filename: str
-    url: str
-    sha256: str
-    authority: str
-    edition: str
-    locale: str
-    format: str
-    destination: str
-
+from ocl_assets import Asset, fetch_asset, verify  # noqa: F401 - verify/Asset are part of this module's API
 
 ASSETS: dict[str, Asset] = {
     "datasus-csv": Asset(
@@ -84,14 +68,6 @@ def resolve(key: str) -> Asset:
         raise KeyError(f"unknown asset {key!r}; known assets: {known}") from None
 
 
-def verify(path: Path, asset: Asset) -> None:
-    actual = hashlib.sha256(path.read_bytes()).hexdigest()
-    if actual != asset.sha256:
-        raise ValueError(
-            f"{path} does not match the pinned SHA-256 for {asset.key}: expected {asset.sha256}, got {actual}"
-        )
-
-
 def fetch(
     key: str,
     assets_dir: Path,
@@ -100,25 +76,4 @@ def fetch(
     opener=urllib.request.urlopen,
 ) -> Path:
     """Download one asset into ``assets_dir`` and verify it before it is kept."""
-    asset = resolve(key)
-    scheme = urlparse(asset.url).scheme
-    if scheme not in ("http", "https"):
-        raise ValueError(f"{asset.key}: refusing to fetch a non-HTTP(S) URL: {asset.url}")
-    target = Path(assets_dir) / asset.destination
-    if target.is_file() and not force:
-        verify(target, asset)
-        print(f"ok (cached) {target}")
-        return target
-    target.parent.mkdir(parents=True, exist_ok=True)
-    temporary = target.with_suffix(target.suffix + ".tmp")
-    with opener(asset.url, timeout=120) as response:
-        payload = response.read()
-    temporary.write_bytes(payload)
-    try:
-        verify(temporary, asset)
-    except ValueError:
-        temporary.unlink(missing_ok=True)
-        raise
-    temporary.replace(target)
-    print(f"ok {target} ({len(payload):,} bytes, sha256 verified)")
-    return target
+    return fetch_asset(resolve(key), assets_dir, force=force, opener=opener)

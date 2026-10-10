@@ -194,7 +194,7 @@ terminologies/icd/icd-10/
 │   ├── align.py              # exact-code alignment and refusals
 │   ├── export.py             # offline reader for a Source export
 │   ├── build_bulkimport.py   # projection, size-capped parts, bundle, reports
-│   └── compact.py            # the versioned zip (parts + bundle + manifest)
+│   └── (parts, bundle, manifest, and zip: shared in tools/ocl_artifacts.py)
 ├── review/exclusions.csv     # curated, reviewed hold-backs
 └── output/                   # versioned: the zip and the audit
 ```

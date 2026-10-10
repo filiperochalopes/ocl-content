@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from pipeline.adapters import atih_claml
-from pipeline.model import NameCandidate
+from ocl_pipeline_loader import load
+atih_claml = load("icd/icd-10", "adapters.atih_claml")
+NameCandidate = load("icd/icd-10", "model").NameCandidate
 
 
 def _by_code(atih_xml) -> dict[str, NameCandidate]:

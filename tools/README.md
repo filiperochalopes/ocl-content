@@ -19,6 +19,10 @@ The tool is read-only. The default invocation is local-only; `--check` GETs the 
 python3 tools/ocl_source_config.py --config terminologies/icd/icd-10/source.json
 ```
 
+## `ocl_artifacts.py`, `ocl_assets.py`, `ocl_pipeline_loader.py`
+
+Shared by every terminology pipeline. `ocl_artifacts.py` writes the ordered, size-capped NDJSON parts, the whole bundle, the manifest, and the one zip, with fixed timestamps so a rebuild is byte-identical. `ocl_assets.py` downloads a pinned public input and verifies its SHA-256 before keeping it. `ocl_pipeline_loader.py` imports a terminology's `pipeline` package by path (`load("icd/icd-10", "align")`), so two pipelines named `pipeline` can coexist in one process. None of them talks to OCL.
+
 ## `ocl_http.py`
 
 Shared read-only HTTP guard: origin validation (production API by default, explicit opt-in for a custom HTTPS origin or localhost HTTP) and a no-redirect opener so a token never follows a redirect. Any tool that sends an OCL token goes through it. It is named `ocl_http` because a top-level `http` module would shadow the standard library.

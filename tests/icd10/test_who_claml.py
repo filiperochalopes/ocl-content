@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from pipeline.adapters import who_claml
-from pipeline.canonical import CanonicalConcept
+from ocl_pipeline_loader import load
+who_claml = load("icd/icd-10", "adapters.who_claml")
+CanonicalConcept = load("icd/icd-10", "canonical").CanonicalConcept
 
 
 def test_extracts_chapters_blocks_and_categories(who_claml_zip):

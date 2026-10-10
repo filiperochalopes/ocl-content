@@ -8,15 +8,10 @@ label variants, the roman chapter numbering, inline references, and a modifier c
 from __future__ import annotations
 
 import csv
-import sys
 import zipfile
 from pathlib import Path
 
 import pytest
-
-ICD10_DIR = Path(__file__).resolve().parents[2] / "terminologies" / "icd" / "icd-10"
-if str(ICD10_DIR) not in sys.path:
-    sys.path.insert(0, str(ICD10_DIR))
 
 BASELINE_FIELDS = [
     "resource_type", "owner_id", "source", "id", "name", "description", "concept_class",

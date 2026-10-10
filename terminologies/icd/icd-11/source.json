@@ -1,0 +1,66 @@
+{
+  "owner": "WHO",
+  "source": "ICD-11-WHO",
+  "name": "ICD-11 WHO Version",
+  "description": "WHO International Classification of Diseases, 11th Revision (MMS), modeled as a navigable classification hierarchy in OCL.",
+  "content": {
+    "requires_mappings": false,
+    "has_hierarchy": true
+  },
+  "properties": [
+    {
+      "code": "concept_class",
+      "type": "code",
+      "display": "Concept class",
+      "description": "OCL concept class that distinguishes the synthetic root, chapters, blocks, and diagnosis categories."
+    },
+    {
+      "code": "ChapterNo",
+      "type": "string",
+      "display": "Chapter",
+      "description": "ICD-11 chapter the entity belongs to, verbatim from the Simple Tabulation (for example 01 or X). A string, because the extension chapter is not numeric."
+    },
+    {
+      "code": "DepthInKind",
+      "type": "integer",
+      "display": "Depth in kind",
+      "description": "Depth of the entity within its class kind, as defined by the Simple Tabulation readme: a category with depth 2 has a category parent whose own parent is not a category."
+    },
+    {
+      "code": "IsResidual",
+      "type": "code",
+      "display": "Residual",
+      "description": "True when the entity is a residual category (other specified or unspecified), verbatim from the Simple Tabulation."
+    },
+    {
+      "code": "isLeaf",
+      "type": "code",
+      "display": "Leaf",
+      "description": "True when the entity has no children in the tabulation, verbatim from the Simple Tabulation."
+    }
+  ],
+  "filters": [
+    {
+      "code": "concept_class",
+      "operator": ["="],
+      "value": "Diagnosis",
+      "description": "Focuses the concept list on diagnosis categories rather than the synthetic root, chapters, and blocks."
+    },
+    {
+      "code": "isLeaf",
+      "operator": ["="],
+      "value": "True",
+      "description": "Focuses the concept list on leaf entities."
+    }
+  ],
+  "meta": {
+    "display": {
+      "concept_summary_properties": ["concept_class", "ChapterNo", "DepthInKind"],
+      "concept_filter_order": ["concept_class", "ChapterNo", "isLeaf"]
+    }
+  },
+  "hierarchy": {
+    "root_concept_id": "ICD-11-Root",
+    "meaning": "grouped-by"
+  }
+}

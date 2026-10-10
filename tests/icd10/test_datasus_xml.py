@@ -6,8 +6,9 @@ import zipfile
 
 import pytest
 
-from pipeline.adapters import datasus_xml
-from pipeline.model import NameCandidate
+from ocl_pipeline_loader import load
+datasus_xml = load("icd/icd-10", "adapters.datasus_xml")
+NameCandidate = load("icd/icd-10", "model").NameCandidate
 
 
 def _by_code(source) -> dict[str, NameCandidate]:

@@ -1,13 +1,12 @@
-"""Pack the generated artifacts into one versioned zip: the parts plus the whole bundle.
+"""Shared mechanics for versioned bulk-import artifacts, used by every terminology pipeline.
 
-Only the zip is versioned. The parts and the bundle are deterministically regenerable and are
-large, so they stay out of Git (see ``terminologies/.gitignore``); the zip carries them compressed
-together with a manifest that records the target, the mode, whether the artifact is upload-ready,
-and the SHA-256 of every part.
+Ordered, size-capped NDJSON parts, the whole bundle, a manifest, and the one zip that holds them.
+Only the zip and the audit are versioned; the parts and the bundle are deterministically
+regenerable and stay out of Git (see ``terminologies/.gitignore``).
 
-Uploading is deliberately manual. Nothing here — and nothing in this pipeline — calls an OCL
+Uploading is deliberately manual. Nothing here — and nothing in any pipeline — calls an OCL
 upload or bulk-import endpoint; an operator extracts the parts and uploads them in order through
-the OCL bulk-import form.
+the OCL bulk-import form. This module performs no network call.
 
 The compression method is selectable: ``deflate`` (level 9, maximum portability), ``bzip2``, or
 ``lzma`` (smallest for NDJSON but not readable by every archive tool).
@@ -156,3 +155,89 @@ def build_manifest(
         "bundle": bundle,
         "parts": parts,
     }
+
+
+# --- parts, bundle, and JSON writers ---
+
+@dataclass(frozen=True)
+class PartInfo:
+    name: str
+    lines: int
+    sha256: str
+    bytes: int
+
+
+DEFAULT_PART_BYTES = 2 * 1024 * 1024
+BUNDLE_NAME = "bulkimport_bundle.ndjson"
+
+
+def serialize(line: dict) -> bytes:
+    return (json.dumps(line, ensure_ascii=False, separators=(",", ":")) + "\n").encode("utf-8")
+
+
+def _flush(out_dir: Path, stem: str, index: int, chunks: list[bytes]) -> PartInfo:
+    payload = b"".join(chunks)
+    name = f"{stem}_{index:03d}.ndjson"
+    (out_dir / name).write_bytes(payload)
+    return PartInfo(name=name, lines=len(chunks), sha256=hashlib.sha256(payload).hexdigest(), bytes=len(payload))
+
+
+def write_parts(
+    out_dir: Path,
+    lines: list[dict],
+    max_bytes: int = DEFAULT_PART_BYTES,
+    stem: str = "bulkimport_part",
+) -> list[PartInfo]:
+    """Write ``<stem>_001.ndjson`` (…) parts, each at most ``max_bytes`` of serialized payload.
+
+    Parts are cut on resource boundaries in the input order, so concatenating them in numeric
+    order reproduces the bundle exactly. A single resource larger than the limit is an error:
+    a resource is never split. Parts from a previous run with the same stem are removed first.
+    """
+    if max_bytes < 1:
+        raise ValueError("max_bytes must be 1 or more")
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for stale in out_dir.glob(f"{stem}_*.ndjson"):
+        stale.unlink()
+    parts: list[PartInfo] = []
+    chunks: list[bytes] = []
+    size = 0
+    for line in lines:
+        payload = serialize(line)
+        if len(payload) > max_bytes:
+            raise ValueError(
+                f"concept {line.get('id')!r} serializes to {len(payload):,} bytes, above the "
+                f"{max_bytes:,}-byte part limit; a resource cannot be split across parts"
+            )
+        if chunks and size + len(payload) > max_bytes:
+            parts.append(_flush(out_dir, stem, len(parts) + 1, chunks))
+            chunks, size = [], 0
+        chunks.append(payload)
+        size += len(payload)
+    if chunks:
+        parts.append(_flush(out_dir, stem, len(parts) + 1, chunks))
+    return parts
+
+
+def write_bundle(out_dir: Path, lines: list[dict], name: str = BUNDLE_NAME) -> PartInfo:
+    """Write the complete bundle: every line, in order, as one NDJSON file."""
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    payload = b"".join(serialize(line) for line in lines)
+    (out_dir / name).write_bytes(payload)
+    return PartInfo(name=name, lines=len(lines), sha256=hashlib.sha256(payload).hexdigest(), bytes=len(payload))
+
+
+def write_json(path: Path, value) -> None:
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2, sort_keys=False) + "\n", encoding="utf-8")
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()

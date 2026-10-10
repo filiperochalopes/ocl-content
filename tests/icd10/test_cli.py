@@ -9,9 +9,10 @@ from pathlib import Path
 
 import pytest
 
-from pipeline import assets as asset_registry
-from pipeline import export as source_export
-from pipeline.cli import main
+from ocl_pipeline_loader import load
+asset_registry = load("icd/icd-10", "assets")
+source_export = load("icd/icd-10", "export")
+main = load("icd/icd-10", "cli").main
 
 
 def build_args(tmp_path: Path, baseline_csv, datasus_dir, atih_xml, *extra: str) -> list[str]:

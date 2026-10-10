@@ -33,33 +33,39 @@ import zipfile
 from collections.abc import Callable
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+# The pipeline is imported by path (tools/ocl_pipeline_loader.py), never as a top-level ``pipeline``,
+# so another terminology's ``pipeline`` package cannot shadow this one in the same process.
+_TOOLS = str(Path(__file__).resolve().parents[4] / "tools")
+if _TOOLS not in sys.path:
+    sys.path.insert(0, _TOOLS)
 
-from pipeline import assets as asset_registry  # noqa: E402
-from pipeline.adapters import atih_claml, datasus_csv, datasus_xml, who_claml  # noqa: E402
-from pipeline.align import align  # noqa: E402
-from pipeline.build_bulkimport import (  # noqa: E402
-    DEFAULT_PART_BYTES,
-    TARGET_OWNER,
-    TARGET_SOURCE,
-    ConceptState,
-    PartInfo,
-    build,
-    write_alignment_csv,
-    write_audit_pair,
-    write_bundle,
-    write_json,
-    write_parts,
+from ocl_pipeline_loader import load  # noqa: E402
+
+TERMINOLOGY = "icd/icd-10"
+
+
+def _pipeline(module: str):
+    return load(TERMINOLOGY, module)
+
+
+asset_registry = _pipeline("assets")
+atih_claml, datasus_csv, datasus_xml, who_claml = (
+    _pipeline(f"adapters.{name}") for name in ("atih_claml", "datasus_csv", "datasus_xml", "who_claml")
 )
-from pipeline.canonical import load_canonical, sha256_file, write_canonical_jsonl  # noqa: E402
-from pipeline.compact import (  # noqa: E402
-    DEFAULT_METHOD,
-    METHODS,
-    build_manifest,
-    create_archive,
+align = _pipeline("align").align
+_bulk = _pipeline("build_bulkimport")
+DEFAULT_PART_BYTES, TARGET_OWNER, TARGET_SOURCE = _bulk.DEFAULT_PART_BYTES, _bulk.TARGET_OWNER, _bulk.TARGET_SOURCE
+ConceptState, PartInfo, build = _bulk.ConceptState, _bulk.PartInfo, _bulk.build
+write_alignment_csv, write_audit_pair = _bulk.write_alignment_csv, _bulk.write_audit_pair
+write_bundle, write_json, write_parts = _bulk.write_bundle, _bulk.write_json, _bulk.write_parts
+_canonical = _pipeline("canonical")
+load_canonical, sha256_file, write_canonical_jsonl = (
+    _canonical.load_canonical, _canonical.sha256_file, _canonical.write_canonical_jsonl,
 )
-from pipeline import export as source_export  # noqa: E402
-from pipeline.model import AdapterResult  # noqa: E402
+source_export = _pipeline("export")
+AdapterResult = _pipeline("model").AdapterResult
+
+from ocl_artifacts import DEFAULT_METHOD, METHODS, build_manifest, create_archive  # noqa: E402
 
 TERMINOLOGY_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = TERMINOLOGY_DIR.parents[2]

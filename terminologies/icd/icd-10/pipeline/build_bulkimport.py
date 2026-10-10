@@ -16,11 +16,19 @@ it: the row is reported as a locale conflict and the concept keeps its current n
 
 from __future__ import annotations
 
-import hashlib
-import json
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
+
+from ocl_artifacts import (  # noqa: F401 - re-exported for the pipeline and its tests
+    BUNDLE_NAME,
+    DEFAULT_PART_BYTES,
+    PartInfo,
+    serialize,
+    write_bundle,
+    write_json,
+    write_parts,
+)
 
 from .align import Alignment
 from .canonical import CanonicalIndex
@@ -223,82 +231,6 @@ def build(
             after_lines.append(after)
             lines.append(after)
     return BuildResult(lines=lines, outcomes=outcomes, before=before_lines, after=after_lines)
-
-
-@dataclass(frozen=True)
-class PartInfo:
-    name: str
-    lines: int
-    sha256: str
-    bytes: int
-
-
-DEFAULT_PART_BYTES = 2 * 1024 * 1024
-BUNDLE_NAME = "bulkimport_bundle.ndjson"
-
-
-def serialize(line: dict) -> bytes:
-    return (json.dumps(line, ensure_ascii=False, separators=(",", ":")) + "\n").encode("utf-8")
-
-
-def _flush(out_dir: Path, stem: str, index: int, chunks: list[bytes]) -> PartInfo:
-    payload = b"".join(chunks)
-    name = f"{stem}_{index:03d}.ndjson"
-    (out_dir / name).write_bytes(payload)
-    return PartInfo(name=name, lines=len(chunks), sha256=hashlib.sha256(payload).hexdigest(), bytes=len(payload))
-
-
-def write_parts(
-    out_dir: Path,
-    lines: list[dict],
-    max_bytes: int = DEFAULT_PART_BYTES,
-    stem: str = "bulkimport_part",
-) -> list[PartInfo]:
-    """Write ``<stem>_001.ndjson`` (…) parts, each at most ``max_bytes`` of serialized payload.
-
-    Parts are cut on resource boundaries in the input order, so concatenating them in numeric
-    order reproduces the bundle exactly. A single resource larger than the limit is an error:
-    a resource is never split. Parts from a previous run with the same stem are removed first.
-    """
-    if max_bytes < 1:
-        raise ValueError("max_bytes must be 1 or more")
-    out_dir = Path(out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    for stale in out_dir.glob(f"{stem}_*.ndjson"):
-        stale.unlink()
-    parts: list[PartInfo] = []
-    chunks: list[bytes] = []
-    size = 0
-    for line in lines:
-        payload = serialize(line)
-        if len(payload) > max_bytes:
-            raise ValueError(
-                f"concept {line.get('id')!r} serializes to {len(payload):,} bytes, above the "
-                f"{max_bytes:,}-byte part limit; a resource cannot be split across parts"
-            )
-        if chunks and size + len(payload) > max_bytes:
-            parts.append(_flush(out_dir, stem, len(parts) + 1, chunks))
-            chunks, size = [], 0
-        chunks.append(payload)
-        size += len(payload)
-    if chunks:
-        parts.append(_flush(out_dir, stem, len(parts) + 1, chunks))
-    return parts
-
-
-def write_bundle(out_dir: Path, lines: list[dict], name: str = BUNDLE_NAME) -> PartInfo:
-    """Write the complete bundle: every line, in order, as one NDJSON file."""
-    out_dir = Path(out_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    payload = b"".join(serialize(line) for line in lines)
-    (out_dir / name).write_bytes(payload)
-    return PartInfo(name=name, lines=len(lines), sha256=hashlib.sha256(payload).hexdigest(), bytes=len(payload))
-
-
-def write_json(path: Path, value) -> None:
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, ensure_ascii=False, indent=2, sort_keys=False) + "\n", encoding="utf-8")
 
 
 @dataclass(frozen=True)

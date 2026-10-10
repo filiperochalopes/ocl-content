@@ -10,19 +10,12 @@ aligned against.
 from __future__ import annotations
 
 import csv
-import hashlib
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from ocl_artifacts import sha256_file  # noqa: F401 - re-exported for the CLI
+
 ATTR_PREFIX = "attr:"
-
-
-def sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as stream:
-        for chunk in iter(lambda: stream.read(1 << 20), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
 
 
 @dataclass(frozen=True)
