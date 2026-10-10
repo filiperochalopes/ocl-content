@@ -12,13 +12,13 @@
     # build the parts, the whole bundle, and the versioned archive
     python3 terminologies/icd/icd-10/pipeline/cli.py build
 
-    # regenerate from live HEAD so the artifacts are safe to upload (read-only GETs)
-    OCL_API_TOKEN=… python3 terminologies/icd/icd-10/pipeline/cli.py build --hydrate
+    # start from a fresh export of the Source so the artifacts are safe to upload (offline)
+    python3 terminologies/icd/icd-10/pipeline/cli.py build --export <WHO_ICD-10-WHO export.json or .zip>
 
-Uploading is manual and stays manual. This CLI never calls an OCL write, import, or upload
-endpoint: it writes local artifacts — ordered parts, the complete bundle, and one zip holding both
-plus a manifest — and an operator uploads the parts through the OCL bulk-import form. ``--hydrate``
-performs authenticated GET requests only, and the token is never printed.
+Uploading is manual and stays manual. This CLI makes no network call at all: it writes local
+artifacts — ordered parts, the complete bundle, and one zip holding both plus a manifest — and an
+operator uploads the parts through the OCL bulk-import form. ``--export`` reads a Source export
+from disk; there is no token, no API client, and no write, import, or upload endpoint.
 """
 
 from __future__ import annotations
@@ -27,12 +27,10 @@ import argparse
 import csv
 import hashlib
 import json
-import os
 import re
 import sys
 import zipfile
 from collections.abc import Callable
-from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -60,7 +58,7 @@ from pipeline.compact import (  # noqa: E402
     build_manifest,
     create_archive,
 )
-from pipeline.hydrate import hydrate  # noqa: E402
+from pipeline import export as source_export  # noqa: E402
 from pipeline.model import AdapterResult  # noqa: E402
 
 TERMINOLOGY_DIR = Path(__file__).resolve().parents[1]
@@ -78,9 +76,17 @@ DEFAULT_ATIH = (
 )
 DEFAULT_WHO_CLAML = ASSETS_DIR / "who" / "icd102019en" / "icd102019en.xml.zip"
 DEFAULT_OUTPUT_DIR = TERMINOLOGY_DIR / "output"
-DEFAULT_API_URL = os.environ.get("OCL_API_URL", "https://api.openconceptlab.org")
 DEFAULT_ARCHIVE = "bulkimport_icd10-who.zip"
 SIZE_RE = re.compile(r"^(\d+)(b|kb|mb|gb)?$", re.IGNORECASE)
+
+
+def display_path(path: Path) -> str:
+    """Repo-relative POSIX path for provenance records; a path outside the repo keeps only its name."""
+    resolved = Path(path).resolve()
+    try:
+        return resolved.relative_to(REPO_ROOT.resolve()).as_posix()
+    except ValueError:
+        return resolved.name
 
 
 def parse_size(text: str) -> int:
@@ -121,10 +127,12 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=Path,
         help="curated CSV of reviewed (code,locale,reason) rows to hold back from the proposal",
     )
-    build_parser.add_argument("--hydrate", action="store_true", help="read the targeted concepts from HEAD first")
-    build_parser.add_argument("--api-url", default=DEFAULT_API_URL)
-    build_parser.add_argument("--token-env", default="OCL_API_TOKEN")
-    build_parser.add_argument("--allow-insecure-localhost", action="store_true")
+    build_parser.add_argument(
+        "--export",
+        type=Path,
+        help="export of WHO/ICD-10-WHO (export.json, NDJSON, or .zip) holding the current concepts; "
+        "marks the artifact upload-ready",
+    )
     build_parser.add_argument("--no-archive", action="store_true", help="skip the zip (parts and bundle only)")
     build_parser.add_argument(
         "--dev-audit",
@@ -226,7 +234,7 @@ def command_build(args: argparse.Namespace) -> int:
     inputs_meta = [
         {
             "role": "canonical-baseline",
-            "path": str(baseline.path),
+            "path": display_path(baseline.path),
             "sha256": baseline.sha256,
             "bytes": baseline.path.stat().st_size,
         }
@@ -249,7 +257,7 @@ def command_build(args: argparse.Namespace) -> int:
         inputs_meta.append(
             {
                 "role": f"translation-{result.locale}",
-                "path": str(Path(path).resolve()),
+                "path": display_path(Path(path)),
                 "sha256": sha256_file(Path(path)) if Path(path).is_file() else "",
                 "bytes": Path(path).stat().st_size if Path(path).is_file() else 0,
                 "authority": result.authority,
@@ -262,40 +270,34 @@ def command_build(args: argparse.Namespace) -> int:
 
     grouped = alignment.by_code()
     codes = sorted(grouped)
-    hydration_meta = None
-    if args.hydrate:
-        token = os.environ.get(args.token_env, "")
-        if not token:
-            print(f"error: --hydrate needs a token in ${args.token_env}", file=sys.stderr)
-            return 1
-        resources, failures = hydrate(
-            args.api_url,
-            TARGET_OWNER,
-            TARGET_SOURCE,
-            codes,
-            token,
-            allow_insecure_localhost=args.allow_insecure_localhost,
+    export_meta = None
+    if args.export:
+        export_path = Path(args.export)
+        found, missing = source_export.select(
+            source_export.load_concepts(export_path, TARGET_OWNER, TARGET_SOURCE), codes
         )
-        hydration_meta = {
+        export_meta = {
+            "path": display_path(export_path),
+            "sha256": sha256_file(export_path),
+            "bytes": export_path.stat().st_size,
             "requested": len(codes),
-            "retrieved": len(resources),
-            "failures": failures,
-            "api_url": args.api_url,
+            "found": len(found),
+            "missing": missing,
         }
-        if failures:
-            print(f"error: {len(failures)} concepts could not be read from HEAD; no artifacts written", file=sys.stderr)
-            for failure in failures[:20]:
-                print(f"  {failure['code']}: {failure['error']}", file=sys.stderr)
+        if missing:
+            print(f"error: {len(missing)} concepts are not in the export; no artifacts written", file=sys.stderr)
+            for entry in missing[:20]:
+                print(f"  {entry['code']}: {entry['error']}", file=sys.stderr)
             return 1
-        states = {code: ConceptState.from_export(resource) for code, resource in resources.items()}
-        mode = "hydrated-head"
-        print(f"hydrated {len(states):,} concepts from {args.api_url}")
+        states = {code: ConceptState.from_export(resource) for code, resource in found.items()}
+        mode = "source-export"
+        print(f"read {len(states):,} concepts from the export {export_path.name}")
     else:
         states = {code: ConceptState.from_canonical(baseline.concepts[code]) for code in codes}
         mode = "offline-baseline"
         print(
             "mode: offline-baseline (draft) — names/descriptions/extras come from the committed baseline; "
-            "regenerate with --hydrate before uploading"
+            "regenerate with --export before uploading"
         )
 
     result = build(alignment, states)
@@ -317,12 +319,11 @@ def command_build(args: argparse.Namespace) -> int:
             "versioned": False,
         }
 
-    generated_at = datetime.now(timezone.utc).isoformat()
-    upload_ready = mode == "hydrated-head"
+    upload_ready = mode == "source-export"
     target = {"owner": TARGET_OWNER, "source": TARGET_SOURCE, "owner_type": "Organization"}
     warning = None if upload_ready else (
-        "Built from the committed baseline, not from live HEAD. The Concept bulk importer is not a "
-        "PATCH: omitting a collection replaces it. Regenerate with --hydrate and re-verify before uploading."
+        "Built from the committed baseline, not from a Source export. The Concept bulk importer is not a "
+        "PATCH: omitting a collection replaces it. Regenerate with --export and re-verify before uploading."
     )
     archive_info = None
     if not args.no_archive:
@@ -330,7 +331,6 @@ def command_build(args: argparse.Namespace) -> int:
             target=target,
             mode=mode,
             upload_ready=upload_ready,
-            generated_at=generated_at,
             parts=[part.__dict__ for part in parts],
             bundle=bundle.__dict__,
             method=args.zip_method,
@@ -346,7 +346,6 @@ def command_build(args: argparse.Namespace) -> int:
 
     audit = {
         "schema_version": 1,
-        "generated_at": generated_at,
         "target": target,
         "mode": mode,
         "upload_ready": upload_ready,
@@ -367,7 +366,7 @@ def command_build(args: argparse.Namespace) -> int:
             "counts": alignment.counts(),
             "accepted_concepts": len(codes),
             "report": report_path.name,
-            "exclusions_file": str(args.exclusions) if args.exclusions else None,
+            "exclusions_file": display_path(args.exclusions) if args.exclusions else None,
         },
         "build": {
             "status_counts": result.status_counts(),
@@ -375,9 +374,9 @@ def command_build(args: argparse.Namespace) -> int:
             "changed_concepts": len(result.lines),
             "max_part_bytes": args.max_part_size,
         },
-        "hydration": hydration_meta,
+        "export": export_meta,
         "output": {
-            "directory": str(output_dir.resolve()),
+            "directory": display_path(output_dir),
             "parts": [part.__dict__ for part in parts],
             "bundle": bundle.__dict__,
             "archive": (
@@ -459,7 +458,6 @@ def command_compact(args: argparse.Namespace) -> int:
         target=audit.get("target", {"owner": TARGET_OWNER, "source": TARGET_SOURCE, "owner_type": "Organization"}),
         mode=audit.get("mode", "unknown"),
         upload_ready=bool(audit.get("upload_ready", False)),
-        generated_at=datetime.now(timezone.utc).isoformat(),
         parts=[info(path) for path in parts],
         bundle=info(bundle),
         method=args.zip_method,

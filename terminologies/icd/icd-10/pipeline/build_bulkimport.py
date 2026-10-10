@@ -24,7 +24,7 @@ from pathlib import Path
 
 from .align import Alignment
 from .canonical import CanonicalIndex
-from .model import DESCRIPTION_FIELDS, NAME_FIELDS, NameCandidate
+from .model import DESCRIPTION_FIELDS, NAME_FIELDS, NAME_TYPE_TRANSLATION, NameCandidate
 
 TARGET_OWNER = "WHO"
 TARGET_SOURCE = "ICD-10-WHO"
@@ -139,6 +139,7 @@ def add_name(state: ConceptState, candidate: NameCandidate) -> tuple[str, str]:
             "name": candidate.label,
             "locale": candidate.locale,
             "locale_preferred": True,
+            "name_type": NAME_TYPE_TRANSLATION,
             "retired": False,
         }
     )

@@ -1,6 +1,5 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-09T02:05:33.216262+00:00",
   "target": {
     "owner": "WHO",
     "source": "ICD-10-WHO",
@@ -8,17 +7,17 @@
   },
   "mode": "offline-baseline",
   "upload_ready": false,
-  "warning": "Built from the committed baseline, not from live HEAD. The Concept bulk importer is not a PATCH: omitting a collection replaces it. Regenerate with --hydrate and re-verify before uploading.",
+  "warning": "Built from the committed baseline, not from a Source export. The Concept bulk importer is not a PATCH: omitting a collection replaces it. Regenerate with --export and re-verify before uploading.",
   "inputs": [
     {
       "role": "canonical-baseline",
-      "path": "/Users/filipelopes/Desktop/Development/ocl-content/ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv",
+      "path": "ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv",
       "sha256": "3eb0575197724cbea98e6cbb65f230eed4bef4a52911e24d073f24c99f38b828",
       "bytes": 1799101
     },
     {
       "role": "translation-pt_BR",
-      "path": "/Users/filipelopes/Desktop/Development/ocl-content/terminologies/icd/icd-10/assets/datasus/2008/CID10CSV.zip",
+      "path": "terminologies/icd/icd-10/assets/datasus/2008/CID10CSV.zip",
       "sha256": "84f23809275575f751255048064bbb244b0de33fd5987ab98df0f98e5f5d2c95",
       "bytes": 306066,
       "authority": "DATASUS",
@@ -26,7 +25,7 @@
     },
     {
       "role": "translation-fr",
-      "path": "/Users/filipelopes/Desktop/Development/ocl-content/ICD-10 for OCL/cim10fr2024syst_claml_20231215/cim10fr2024syst_claml_20231215.xml",
+      "path": "ICD-10 for OCL/cim10fr2024syst_claml_20231215/cim10fr2024syst_claml_20231215.xml",
       "sha256": "7bff2fd4cc9bf6f2af1e4f895e63cb1d5b36684b492bb74e850b01b9ba278be2",
       "bytes": 7171514,
       "authority": "ATIH",
@@ -112,92 +111,92 @@
     "changed_concepts": 12498,
     "max_part_bytes": 2097152
   },
-  "hydration": null,
+  "export": null,
   "output": {
-    "directory": "/Users/filipelopes/Desktop/Development/ocl-content/terminologies/icd/icd-10/output",
+    "directory": "terminologies/icd/icd-10/output",
     "parts": [
       {
         "name": "bulkimport_part_001.ndjson",
-        "lines": 3705,
-        "sha256": "b09abf24a432a9f714d22a9d3b20659752961bb265294c46117fe4592ff13345",
-        "bytes": 2096626
+        "lines": 3360,
+        "sha256": "f7b8934bc3b180693ab3220b88df6a0fc5b7cac259476af7a1ec25c308fd9f70",
+        "bytes": 2097105
       },
       {
         "name": "bulkimport_part_002.ndjson",
-        "lines": 3676,
-        "sha256": "cf0fb35819bc31b8d39c75a9326b31e45df3afb7fd728f6b13e5f670ac8b68a6",
-        "bytes": 2096506
+        "lines": 3385,
+        "sha256": "ef50040104fa8d9745d61fd8759b830f114d05107978bcc7376e7a37f78151dc",
+        "bytes": 2096569
       },
       {
         "name": "bulkimport_part_003.ndjson",
-        "lines": 3473,
-        "sha256": "d6404eea2997810af4897f36bc26a66f35e43f62c012912a36735c217bdc2a0e",
-        "bytes": 2096637
+        "lines": 3233,
+        "sha256": "41c794d4237922c2ff73f2d3488af3ca485a11b1e7e08824eaecc04dcd99da04",
+        "bytes": 2096965
       },
       {
         "name": "bulkimport_part_004.ndjson",
-        "lines": 1644,
-        "sha256": "ec1c0b7701397647832e2a8cb08200276e72a9d1eb9319156bd1048d75137887",
-        "bytes": 1021971
+        "lines": 2520,
+        "sha256": "4b6d7c79aa9a4be0f5577842bcdf588c2bd6bd328efbde74bd0f983f54cbc781",
+        "bytes": 1731021
       }
     ],
     "bundle": {
       "name": "bulkimport_bundle.ndjson",
       "lines": 12498,
-      "sha256": "9c1e59bd5e49f21a5e5336d4b9a11bcd63f2b7f4a6726106756c8bbce72c865b",
-      "bytes": 7311740
+      "sha256": "9d7b986b53b23fc9b4e811a0998c140cbfd989060c7e801eb364736724804a53",
+      "bytes": 8021660
     },
     "archive": {
       "name": "bulkimport_icd10-who.zip",
-      "bytes": 886540,
+      "bytes": 899268,
       "method": "deflate",
-      "payload_bytes": 14625057,
+      "payload_bytes": 16044843,
       "members": [
         {
           "name": "bulkimport_part_001.ndjson",
-          "lines": 3705,
-          "bytes": 2096626,
-          "compressed_bytes": 126179,
-          "sha256": "b09abf24a432a9f714d22a9d3b20659752961bb265294c46117fe4592ff13345"
+          "lines": 3360,
+          "bytes": 2097105,
+          "compressed_bytes": 116099,
+          "sha256": "f7b8934bc3b180693ab3220b88df6a0fc5b7cac259476af7a1ec25c308fd9f70"
         },
         {
           "name": "bulkimport_part_002.ndjson",
-          "lines": 3676,
-          "bytes": 2096506,
-          "compressed_bytes": 131216,
-          "sha256": "cf0fb35819bc31b8d39c75a9326b31e45df3afb7fd728f6b13e5f670ac8b68a6"
+          "lines": 3385,
+          "bytes": 2096569,
+          "compressed_bytes": 116756,
+          "sha256": "ef50040104fa8d9745d61fd8759b830f114d05107978bcc7376e7a37f78151dc"
         },
         {
           "name": "bulkimport_part_003.ndjson",
-          "lines": 3473,
-          "bytes": 2096637,
-          "compressed_bytes": 114949,
-          "sha256": "d6404eea2997810af4897f36bc26a66f35e43f62c012912a36735c217bdc2a0e"
+          "lines": 3233,
+          "bytes": 2096965,
+          "compressed_bytes": 121657,
+          "sha256": "41c794d4237922c2ff73f2d3488af3ca485a11b1e7e08824eaecc04dcd99da04"
         },
         {
           "name": "bulkimport_part_004.ndjson",
-          "lines": 1644,
-          "bytes": 1021971,
-          "compressed_bytes": 71167,
-          "sha256": "ec1c0b7701397647832e2a8cb08200276e72a9d1eb9319156bd1048d75137887"
+          "lines": 2520,
+          "bytes": 1731021,
+          "compressed_bytes": 95176,
+          "sha256": "4b6d7c79aa9a4be0f5577842bcdf588c2bd6bd328efbde74bd0f983f54cbc781"
         },
         {
           "name": "bulkimport_bundle.ndjson",
           "lines": 12498,
-          "bytes": 7311740,
-          "compressed_bytes": 441554,
-          "sha256": "9c1e59bd5e49f21a5e5336d4b9a11bcd63f2b7f4a6726106756c8bbce72c865b"
+          "bytes": 8021660,
+          "compressed_bytes": 448140,
+          "sha256": "9d7b986b53b23fc9b4e811a0998c140cbfd989060c7e801eb364736724804a53"
         },
         {
           "name": "bulkimport_manifest.json",
           "lines": 0,
-          "bytes": 1577,
-          "compressed_bytes": 693,
-          "sha256": "495cd94edd5a0877db4bb7f16e263b051ac3df61e5cb6e208929b04d9d23abd3"
+          "bytes": 1523,
+          "compressed_bytes": 658,
+          "sha256": "54746d97405973c88604cf083f2e4e4880088bcc4338dd6b6dcca716521b1fbb"
         }
       ],
-      "ratio": 0.0606,
-      "sha256": "f10e3e1bc82be155da2e7c20cab5b89406d650c3db270279e75cb864f1a8dde8"
+      "ratio": 0.056,
+      "sha256": "0b26fb69d455f1e5ad1448a7eaabb8fe09449065bfded994b4756abfa2c82de7"
     },
     "versioned": [
       "bulkimport_audit.json",
@@ -212,6 +211,7 @@
       "alignment_report.csv"
     ]
   },
+  "dev_audit": null,
   "projection": {
     "included": [
       "type",

@@ -1,4 +1,4 @@
-"""CLI end-to-end, asset verification, and the read-only hydration guard rails."""
+"""CLI end-to-end, asset verification, offline export reading, and artifact reproducibility."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from pipeline import assets as asset_registry
-from pipeline import hydrate
+from pipeline import export as source_export
 from pipeline.cli import main
 
 
@@ -170,7 +170,7 @@ def test_curated_exclusions_remove_rows_from_the_proposal(tmp_path, baseline_csv
     output = tmp_path / "output"
     audit = json.loads((output / "bulkimport_audit.json").read_text(encoding="utf-8"))
     assert audit["alignment"]["counts"]["excluded-by-curator"] == 2
-    assert audit["alignment"]["exclusions_file"] == str(exclusions)
+    assert audit["alignment"]["exclusions_file"] == "exclusions.csv"  # outside the repo: name only
     lines = [
         json.loads(line)
         for part in sorted(output.glob("bulkimport_part_*.ndjson"))
@@ -188,47 +188,111 @@ def test_missing_exclusions_file_fails_clearly(tmp_path, baseline_csv, datasus_d
     assert main(build_args(tmp_path, baseline_csv, datasus_dir, atih_xml, "--exclusions", str(tmp_path / "nope.csv"))) == 1
 
 
-def test_hydrated_run_marks_the_artifacts_as_upload_ready(tmp_path, baseline_csv, datasus_dir, atih_xml, monkeypatch):
-    monkeypatch.setenv("OCL_API_TOKEN", "not-a-real-token")
-
-    def fake_hydrate(api_url, owner, source, codes, token, allow_insecure_localhost=False):
-        resources = {
-            code: {
-                "id": code,
-                "concept_class": "Code",
-                "names": [{"name": "Live English name", "locale": "en", "locale_preferred": True}],
-                "descriptions": [],
-                "extras": {"hierarchy_level": "3"},
-            }
-            for code in codes
+def write_export(path: Path, ids: list[str], *, source: str = "ICD-10-WHO", extra: list[dict] | None = None) -> Path:
+    concepts = [
+        {
+            "type": "Concept",
+            "id": code,
+            "owner": "WHO",
+            "source": source,
+            "concept_class": "Code",
+            "names": [{"name": "Live English name", "locale": "en", "locale_preferred": True, "uuid": "x"}],
+            "descriptions": [],
+            "extras": {"hierarchy_level": "3"},
         }
-        return resources, []
+        for code in ids
+    ]
+    path.write_text(json.dumps({"type": "Source Version", "concepts": concepts + (extra or [])}), encoding="utf-8")
+    return path
 
-    monkeypatch.setattr("pipeline.cli.hydrate", fake_hydrate)
-    assert main(build_args(tmp_path, baseline_csv, datasus_dir, atih_xml, "--hydrate")) == 0
+
+def _accepted_codes(tmp_path, baseline_csv, datasus_dir, atih_xml) -> list[str]:
+    assert main(build_args(tmp_path / "probe", baseline_csv, datasus_dir, atih_xml)) == 0
+    return sorted({line["id"] for line in _read_parts(tmp_path / "probe" / "output")})
+
+
+def test_export_run_marks_the_artifacts_as_upload_ready(tmp_path, baseline_csv, datasus_dir, atih_xml):
+    codes = _accepted_codes(tmp_path, baseline_csv, datasus_dir, atih_xml)
+    export = write_export(tmp_path / "export.json", codes)
+    assert main(build_args(tmp_path, baseline_csv, datasus_dir, atih_xml, "--export", str(export))) == 0
     audit = json.loads((tmp_path / "output" / "bulkimport_audit.json").read_text(encoding="utf-8"))
-    assert audit["mode"] == "hydrated-head"
+    assert audit["mode"] == "source-export"
     assert audit["upload_ready"] is True
     assert audit["warning"] is None
-    assert audit["hydration"] == {
-        "requested": audit["hydration"]["requested"],
-        "retrieved": audit["hydration"]["requested"],
-        "failures": [],
-        "api_url": "https://api.openconceptlab.org",
+    assert audit["export"] == {
+        "path": "export.json",
+        "sha256": hashlib.sha256(export.read_bytes()).hexdigest(),
+        "bytes": export.stat().st_size,
+        "requested": len(codes),
+        "found": len(codes),
+        "missing": [],
     }
     first = json.loads((tmp_path / "output" / "bulkimport_part_001.ndjson").read_text(encoding="utf-8").split("\n")[0])
     assert first["names"][0]["name"] == "Live English name"
+    assert "uuid" not in first["names"][0]  # server bookkeeping is never sent back
 
 
-def test_hydration_failure_aborts_before_writing(tmp_path, baseline_csv, datasus_dir, atih_xml, monkeypatch):
-    monkeypatch.setenv("OCL_API_TOKEN", "not-a-real-token")
+def test_export_may_be_a_zip_holding_export_json(tmp_path, baseline_csv, datasus_dir, atih_xml):
+    codes = _accepted_codes(tmp_path, baseline_csv, datasus_dir, atih_xml)
+    export = write_export(tmp_path / "export.json", codes)
+    archive = tmp_path / "export.zip"
+    with zipfile.ZipFile(archive, "w") as handle:
+        handle.write(export, "export.json")
+    assert main(build_args(tmp_path, baseline_csv, datasus_dir, atih_xml, "--export", str(archive))) == 0
 
-    def fake_hydrate(api_url, owner, source, codes, token, allow_insecure_localhost=False):
-        return {code: {} for code in codes[:0]}, [{"code": code, "error": "GET failed with HTTP 500"} for code in codes]
 
-    monkeypatch.setattr("pipeline.cli.hydrate", fake_hydrate)
-    assert main(build_args(tmp_path, baseline_csv, datasus_dir, atih_xml, "--hydrate")) == 1
+def test_export_missing_a_targeted_concept_aborts_before_writing(tmp_path, baseline_csv, datasus_dir, atih_xml):
+    export = write_export(tmp_path / "export.json", [])
+    assert main(build_args(tmp_path, baseline_csv, datasus_dir, atih_xml, "--export", str(export))) == 1
     assert not (tmp_path / "output").exists()
+
+
+def test_export_of_another_source_is_refused(tmp_path):
+    export = write_export(tmp_path / "export.json", ["A00"], source="ICD-10-CM")
+    with pytest.raises(ValueError, match="expected 'ICD-10-WHO'"):
+        source_export.load_concepts(export, "WHO", "ICD-10-WHO")
+
+
+def test_export_with_a_duplicate_id_is_refused(tmp_path):
+    export = write_export(tmp_path / "export.json", ["A00", "A00"])
+    with pytest.raises(ValueError, match="appears more than once"):
+        source_export.load_concepts(export, "WHO", "ICD-10-WHO")
+
+
+def test_export_reads_ndjson(tmp_path):
+    path = tmp_path / "export.ndjson"
+    path.write_text(
+        '{"type":"Concept","id":"A00","concept_class":"Code"}\n{"type":"Mapping","id":"m1"}\n', encoding="utf-8"
+    )
+    assert list(source_export.load_concepts(path, "WHO", "ICD-10-WHO")) == ["A00"]
+
+
+def test_missing_export_file_fails_clearly(tmp_path, baseline_csv, datasus_dir, atih_xml):
+    assert main(build_args(tmp_path, baseline_csv, datasus_dir, atih_xml, "--export", str(tmp_path / "nope.json"))) == 1
+    assert not (tmp_path / "output").exists()
+
+
+def test_cli_has_no_network_surface():
+    source = (Path(source_export.__file__).parent / "cli.py").read_text(encoding="utf-8")
+    for marker in ("urllib", "requests", "http.client", "--hydrate", "OCL_API_TOKEN"):
+        assert marker not in source
+
+
+def test_rebuild_is_byte_identical_and_records_no_absolute_paths(tmp_path, baseline_csv, datasus_dir, atih_xml):
+    outputs = []
+    for run in ("first", "second"):
+        run_dir = tmp_path / run
+        run_dir.mkdir()
+        assert main(build_args(run_dir, baseline_csv, datasus_dir, atih_xml)) == 0
+        outputs.append(run_dir / "output")
+    for name in ("bulkimport_audit.json", "bulkimport_icd10-who.zip"):
+        assert (outputs[0] / name).read_bytes() == (outputs[1] / name).read_bytes(), name
+    audit_text = (outputs[0] / "bulkimport_audit.json").read_text(encoding="utf-8")
+    assert str(tmp_path) not in audit_text
+    assert "/Users/" not in audit_text
+    assert "generated_at" not in audit_text
+    with zipfile.ZipFile(outputs[0] / "bulkimport_icd10-who.zip") as archive:
+        assert "generated_at" not in archive.read("bulkimport_manifest.json").decode("utf-8")
 
 
 def test_asset_verification_rejects_a_wrong_hash(tmp_path):
@@ -242,23 +306,6 @@ def test_asset_verification_rejects_a_wrong_hash(tmp_path):
 def test_unknown_asset_key_is_rejected():
     with pytest.raises(KeyError, match="unknown asset"):
         asset_registry.resolve("nope")
-
-
-def test_hydration_refuses_to_send_a_token_over_plain_http():
-    with pytest.raises(ValueError, match="https origin is required"):
-        hydrate.fetch_concept("http://api.example.org", "WHO", "ICD-10-WHO", "A00", "token")
-
-
-def test_hydration_requires_a_token():
-    with pytest.raises(ValueError, match="a token is required"):
-        hydrate.fetch_concept("https://api.openconceptlab.org", "WHO", "ICD-10-WHO", "A00", "")
-
-
-def test_hydration_url_encodes_each_segment():
-    url = hydrate.concept_url("https://api.openconceptlab.org", "WHO", "ICD-10-WHO", "A00.0")
-    assert url == "https://api.openconceptlab.org/orgs/WHO/sources/ICD-10-WHO/concepts/A00.0/"
-    with pytest.raises(ValueError, match="not a valid OCL mnemonic"):
-        hydrate.concept_url("https://api.openconceptlab.org", "WHO", "ICD-10-WHO", "../../etc/passwd")
 
 
 def test_canonical_subcommand_extracts_verifies_and_writes_jsonl(tmp_path, who_claml_zip, baseline_csv, capsys):

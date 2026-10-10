@@ -2,9 +2,15 @@ import json
 import ndjson
 import logging
 import urllib.parse
-error_log = 'C:/Users/jamlung/Documents/LOINC/LOINC_2.72.21AB_OCL.json/Staging Test/Error Log.txt'
-OCL_FILE = 'C:/Users/jamlung/Documents/LOINC/LOINC_2.72.21AB_OCL.json/Staging Test/export.json'
-DIFF_FILE = 'C:/Users/jamlung/Documents/LOINC/LOINC_2.72.21AB_OCL.json/Staging Test/diff.json'
+import argparse
+
+parser = argparse.ArgumentParser(
+    description="Print the OCL export rows whose ids are listed as duplicates in a validator error log."
+)
+parser.add_argument("--error-log", required=True, help="log written by Import_Export_Validator.py")
+parser.add_argument("--ocl-file", required=True, help="export.json downloaded from the OCL Source version")
+args = parser.parse_args()
+error_log, OCL_FILE = args.error_log, args.ocl_file
 
 with open(OCL_FILE, 'r', encoding="utf-8-sig") as f:
     ocl_data = json.load(f)

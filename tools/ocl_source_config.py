@@ -2,13 +2,19 @@
 """Validate and synchronize declarative OCL Source configuration.
 
 The tool manages Source-level metadata that is not part of concept bulk imports:
-property definitions, configured filters, and display metadata. It deliberately
-runs locally by default. Network reads require --check; writes require --apply
-and an exact --confirm-target OWNER/SOURCE acknowledgement.
+property definitions, configured filters, display metadata, and optionally the
+hierarchy settings. It is read-only: it validates the configuration locally and,
+with --check, GETs the live Source and prints the PATCH body that an operator
+would apply by hand. It has no write mode and never changes the Source name or
+description.
+
+Property entries carry a ``display`` key. That is a newer oclapi2 feature (already
+in use on CIEL); an older deployment rejects it, so confirm the target API version
+before applying the printed body.
 
 Use --include-hierarchy only when the configuration explicitly declares a
-synthetic root that already exists in OCL. The tool verifies that concept before
-updating hierarchy_root_url.
+synthetic root that already exists in OCL. With --check the tool verifies that
+concept before printing hierarchy_root_url.
 """
 
 from __future__ import annotations
@@ -17,29 +23,21 @@ import argparse
 import copy
 import json
 import os
-import re
 import sys
 from pathlib import Path
 from typing import Any
-from urllib.error import HTTPError, URLError
-from urllib.parse import quote, urlparse
-from urllib.request import HTTPRedirectHandler, Request, build_opener
+from urllib.parse import quote
 
-DEFAULT_API_URL = "https://api.openconceptlab.org"
-OCL_IDENTIFIER_RE = re.compile(r"^[a-zA-Z0-9._@-]+$")
-LOCALHOST_NAMES = {"localhost", "127.0.0.1", "::1"}
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+import ocl_http  # noqa: E402
+from ocl_http import DEFAULT_API_URL, OCL_IDENTIFIER_RE, NoRedirect  # noqa: E402,F401
+
 PROPERTY_TYPES = {"code", "Coding", "string", "integer", "boolean", "dateTime", "decimal"}
 FILTER_OPERATORS = {
     "=", "is-a", "descendent-of", "is-not-a", "regex", "in", "not-in",
     "generalizes", "child-of", "descendent-leaf", "exists",
 }
-
-
-class NoRedirect(HTTPRedirectHandler):
-    """Reject all redirects so an Authorization header cannot leave the approved origin."""
-
-    def redirect_request(self, req, fp, code, msg, headers, newurl):
-        return None
 
 
 class ConfigError(ValueError):
@@ -198,9 +196,9 @@ def build_patch(
     configured_meta: dict[str, Any] = (
         copy.deepcopy(configured_meta_raw) if isinstance(configured_meta_raw, dict) else {}
     )
+    # Managed fields only. name and description are descriptive inputs of the configuration and
+    # are deliberately not part of the patch, so a run never renames the live Source.
     patch: dict[str, Any] = {
-        "name": config["name"],
-        "description": config["description"],
         "properties": config["properties"],
         "filters": config.get("filters", []),
         "meta": deep_merge(current_meta, configured_meta),
@@ -214,73 +212,34 @@ def build_patch(
     return patch
 
 
-def _request(
-    method: str,
-    url: str,
-    token: str | None = None,
-    payload: dict[str, Any] | None = None,
-) -> dict[str, Any]:
-    headers = {"Accept": "application/json"}
-    data = None
-    if token:
-        headers["Authorization"] = f"Token {token}"
-    if payload is not None:
-        headers["Content-Type"] = "application/json"
-        data = json.dumps(payload).encode("utf-8")
-    request = Request(url, data=data, headers=headers, method=method)
-    try:
-        opener = build_opener(NoRedirect())
-        with opener.open(request, timeout=60) as response:
-            body = response.read().decode("utf-8")
-    except HTTPError as exc:
-        detail = exc.read().decode("utf-8", errors="replace")[:1000]
-        raise ConfigError(f"{method} {url} failed with HTTP {exc.code}: {detail}") from exc
-    except URLError as exc:
-        raise ConfigError(f"{method} {url} failed: {exc.reason}") from exc
-    if not body:
-        return {}
-    try:
-        return json.loads(body)
-    except json.JSONDecodeError as exc:
-        raise ConfigError(f"{method} {url} returned non-JSON content") from exc
-
-
 def validate_api_url(
     api_url: str, *, allow_insecure_localhost: bool = False, allow_custom_api_url: bool = False
 ) -> str:
-    parsed = urlparse(api_url)
-    if not parsed.hostname or parsed.username or parsed.password or parsed.query or parsed.fragment:
-        raise ConfigError("OCL API URL must be an origin without credentials, query, or fragment")
-    if parsed.path not in ("", "/"):
-        raise ConfigError("OCL API URL must not include a path")
-    origin = f"{parsed.scheme}://{parsed.netloc}".rstrip("/")
-    if parsed.scheme == "https":
-        if origin != DEFAULT_API_URL and not allow_custom_api_url:
-            raise ConfigError("a custom OCL API URL requires --allow-custom-api-url")
-        return origin
-    if parsed.scheme == "http" and parsed.hostname in LOCALHOST_NAMES and allow_insecure_localhost:
-        return origin
-    raise ConfigError("OCL API URL must use HTTPS; HTTP is allowed only for explicit localhost development")
+    try:
+        return ocl_http.validate_api_url(
+            api_url, allow_insecure_localhost=allow_insecure_localhost, allow_custom_api_url=allow_custom_api_url
+        )
+    except ocl_http.OclHttpError as exc:
+        raise ConfigError(str(exc)) from None
 
 
 def normalize_api_url(api_url: str) -> str:
     return api_url.rstrip("/")
 
 
+def _get(url: str, token: str) -> dict[str, Any]:
+    try:
+        return ocl_http.get_json(url, token)
+    except ocl_http.OclHttpError as exc:
+        raise ConfigError(str(exc)) from None
+
+
 def fetch_source(api_url: str, token: str, config: dict[str, Any]) -> dict[str, Any]:
-    return _request("GET", f"{normalize_api_url(api_url)}{source_path(config)}", token)
+    return _get(f"{normalize_api_url(api_url)}{source_path(config)}", token)
 
 
 def verify_root(api_url: str, token: str, config: dict[str, Any]) -> None:
-    _request("GET", f"{normalize_api_url(api_url)}{root_concept_path(config)}", token)
-
-
-def apply_patch(api_url: str, token: str, config: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
-    return _request("PATCH", f"{normalize_api_url(api_url)}{source_path(config)}", token, patch)
-
-
-def expected_fields_match(actual: dict[str, Any], patch: dict[str, Any]) -> bool:
-    return all(actual.get(field) == expected for field, expected in patch.items())
+    _get(f"{normalize_api_url(api_url)}{root_concept_path(config)}", token)
 
 
 def parse_args() -> argparse.Namespace:
@@ -300,34 +259,21 @@ def parse_args() -> argparse.Namespace:
         help="allow HTTP only for localhost, 127.0.0.1, or ::1 development servers",
     )
     parser.add_argument("--check", action="store_true", help="read the target Source and print the proposed patch")
-    parser.add_argument("--apply", action="store_true", help="PATCH the target Source after validation")
     parser.add_argument(
         "--include-hierarchy", action="store_true",
         help="also set hierarchy_root_url and hierarchy_meaning after verifying the configured root concept",
-    )
-    parser.add_argument(
-        "--confirm-target",
-        help="required with --apply; must exactly equal OWNER/SOURCE from the configuration",
     )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    if args.apply and not args.check:
-        raise ConfigError("--apply requires --check so the current Source is read before mutation")
-    if args.apply and args.confirm_target is None:
-        raise ConfigError("--apply requires --confirm-target OWNER/SOURCE")
-
     config = load_config(args.config)
-    target = f"{config['owner']}/{config['source']}"
-    if args.apply and args.confirm_target != target:
-        raise ConfigError(f"--confirm-target must exactly equal {target}")
-    if (args.check or args.apply) and not args.token:
-        raise ConfigError("--check and --apply require --token or OCL_API_TOKEN")
+    if args.check and not args.token:
+        raise ConfigError("--check requires --token or OCL_API_TOKEN")
 
     api_url = args.api_url
-    if args.check or args.apply:
+    if args.check:
         api_url = validate_api_url(
             args.api_url,
             allow_insecure_localhost=args.allow_insecure_localhost,
@@ -336,23 +282,14 @@ def main() -> int:
     current: dict[str, Any] = {}
     if args.check:
         current = fetch_source(api_url, args.token, config)
+        if args.include_hierarchy:
+            verify_root(api_url, args.token, config)
     patch = build_patch(config, current, include_hierarchy=args.include_hierarchy)
 
     print(f"target: {source_path(config)}")
-    print("proposed PATCH:")
+    print("proposed PATCH (printed only; this tool has no write mode):")
     print(json.dumps(patch, indent=2, ensure_ascii=False, sort_keys=True))
-
-    if not args.apply:
-        print("dry run only: no OCL resource was modified")
-        return 0
-
-    if args.include_hierarchy:
-        verify_root(api_url, args.token, config)
-    apply_patch(api_url, args.token, config, patch)
-    verified = fetch_source(api_url, args.token, config)
-    if not expected_fields_match(verified, patch):
-        raise ConfigError("PATCH completed but GET verification did not match every configured field")
-    print("verified: OCL Source matches the applied configuration")
+    print("no OCL resource was modified")
     return 0
 
 

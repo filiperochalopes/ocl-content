@@ -11,7 +11,7 @@ support with a file, a URL, or a command.
    and which legacy locations remain authoritative for assets that were not migrated yet.
 2. **OCL target** — owner, Source, synthetic root concept ID, hierarchy meaning.
 3. **Source configuration** — what `source.json` declares and how to validate it locally.
-4. **Validate and synchronize** — local check, read-only check, guarded apply command.
+4. **Validate and synchronize** — local check and read-only check that prints the proposed patch; applying it is manual.
 5. **Validation expectations** — the pre-write checks and the post-write read-back.
 6. **Data sources and provenance** — every input file this workspace consumes.
 7. **Pipeline and output** — the scripts, their commands, and the artifacts they write.

@@ -71,6 +71,8 @@ def test_line_carries_the_complete_projection(baseline_csv):
     assert locales["en"]["name"] == "Cholera due to Vibrio cholerae 01, biovar cholerae"
     assert locales["en"]["locale_preferred"] is True
     assert locales["pt_BR"]["locale_preferred"] is True
+    assert locales["pt_BR"]["name_type"] == "Fully Specified"
+    assert locales["fr"]["name_type"] == "Fully Specified"
     assert line["extras"] == {"hierarchy_level": "4", "chapter_number": "1"}
 
 

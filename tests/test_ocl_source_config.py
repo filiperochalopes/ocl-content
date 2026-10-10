@@ -62,8 +62,7 @@ def test_build_patch_preserves_existing_meta_keys():
 
     payload = subject.build_patch(config(), current)
 
-    assert payload["name"] == "ICD-10 WHO Version"
-    assert payload["description"] == "WHO International Classification of Diseases, Tenth Revision."
+    assert "name" not in payload and "description" not in payload  # never rename the live Source
     assert payload["properties"] == config()["properties"]
     assert payload["filters"] == config()["filters"]
     assert payload["meta"] == {
@@ -129,28 +128,15 @@ def test_validate_api_url_requires_https_unless_localhost_is_explicitly_allowed(
     assert subject.validate_api_url("http://127.0.0.1:8000", allow_insecure_localhost=True) == "http://127.0.0.1:8000"
 
 
-def test_main_blocks_apply_without_check_before_any_remote_request(monkeypatch, tmp_path):
-    path = tmp_path / "source.json"
-    path.write_text(json.dumps(config()), encoding="utf-8")
-    args = argparse.Namespace(
-        config=path,
-        api_url="https://api.openconceptlab.org",
-        token="token",
-        allow_custom_api_url=False,
-        allow_insecure_localhost=False,
-        check=False,
-        apply=True,
-        include_hierarchy=False,
-        confirm_target="WHO/ICD-10-WHO",
-    )
-    monkeypatch.setattr(subject, "parse_args", lambda: args)
-    monkeypatch.setattr(subject, "fetch_source", lambda *unused: pytest.fail("unexpected GET"))
-
-    with pytest.raises(subject.ConfigError, match="requires --check"):
-        subject.main()
+def test_tool_has_no_write_mode():
+    source = (ROOT / "tools" / "ocl_source_config.py").read_text(encoding="utf-8")
+    assert "--apply" not in source and "apply_patch" not in source and "PATCH\"" not in source
+    helper = (ROOT / "tools" / "ocl_http.py").read_text(encoding="utf-8")
+    for verb in ("POST", "PUT", "DELETE", "PATCH"):
+        assert f'method="{verb}"' not in helper
 
 
-def test_main_hierarchy_apply_reads_root_before_patch_and_reads_back(monkeypatch, tmp_path):
+def test_main_check_reads_source_and_root_then_prints_without_writing(monkeypatch, tmp_path, capsys):
     path = tmp_path / "source.json"
     path.write_text(json.dumps(config()), encoding="utf-8")
     args = argparse.Namespace(
@@ -160,24 +146,34 @@ def test_main_hierarchy_apply_reads_root_before_patch_and_reads_back(monkeypatch
         allow_custom_api_url=False,
         allow_insecure_localhost=False,
         check=True,
-        apply=True,
         include_hierarchy=True,
-        confirm_target="WHO/ICD-10-WHO",
     )
     calls = []
-    expected_patch = subject.build_patch(config(), {}, include_hierarchy=True)
-
-    def fake_fetch(*unused):
-        calls.append("get-source")
-        return {} if calls.count("get-source") == 1 else expected_patch
-
     monkeypatch.setattr(subject, "parse_args", lambda: args)
-    monkeypatch.setattr(subject, "fetch_source", fake_fetch)
+    monkeypatch.setattr(subject, "fetch_source", lambda *unused: calls.append("get-source") or {})
     monkeypatch.setattr(subject, "verify_root", lambda *unused: calls.append("get-root"))
-    monkeypatch.setattr(subject, "apply_patch", lambda *unused: calls.append("patch"))
 
     assert subject.main() == 0
-    assert calls == ["get-source", "get-root", "patch", "get-source"]
+    assert calls == ["get-source", "get-root"]
+    assert "no OCL resource was modified" in capsys.readouterr().out
+
+
+def test_main_check_requires_a_token(monkeypatch, tmp_path):
+    path = tmp_path / "source.json"
+    path.write_text(json.dumps(config()), encoding="utf-8")
+    args = argparse.Namespace(
+        config=path, api_url="https://api.openconceptlab.org", token=None, allow_custom_api_url=False,
+        allow_insecure_localhost=False, check=True, include_hierarchy=False,
+    )
+    monkeypatch.setattr(subject, "parse_args", lambda: args)
+    with pytest.raises(subject.ConfigError, match="requires --token"):
+        subject.main()
+
+
+def test_custom_origin_needs_explicit_opt_in():
+    with pytest.raises(subject.ConfigError, match="--allow-custom-api-url"):
+        subject.validate_api_url("https://staging.example.org")
+    assert subject.validate_api_url("https://staging.example.org", allow_custom_api_url=True) == "https://staging.example.org"
 
 
 def test_no_redirect_handler_rejects_redirects_before_a_token_can_follow_them():

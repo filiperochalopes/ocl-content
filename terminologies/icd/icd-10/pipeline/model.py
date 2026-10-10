@@ -7,6 +7,10 @@ from dataclasses import dataclass, field
 LOCALE_PT_BR = "pt_BR"
 LOCALE_FR = "fr"
 
+# Name type given to every translated name the pipeline adds. It is the OCL/NameTypes standard
+# value, and the one the live WHO/ICD-10-WHO English names already carry (e.g. A09).
+NAME_TYPE_TRANSLATION = "Fully Specified"
+
 # Name/description fields kept on an OCL resource. Everything else (uuid, version_*,
 # checksums, display_name, …) is server-side bookkeeping and must not be sent.
 NAME_FIELDS = (

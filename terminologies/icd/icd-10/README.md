@@ -64,27 +64,33 @@ python3 tools/ocl_source_config.py \
   --api-url "$OCL_API_URL"
 ```
 
-Apply **only** the properties, filters, and display configuration after explicit authorization for the intended OCL environment:
+The tool is **read-only by design**: it has no `--apply` and sends nothing to OCL. `--check` prints the
+exact PATCH body for the managed fields — `properties`, `filters`, `meta.display`, and optionally
+the hierarchy settings — and never includes the Source `name` or `description`, so it cannot rename
+the live Source. Applying the printed body is a separate, manually authorized step in the OCL
+environment you intend to change.
 
-```bash
-python3 tools/ocl_source_config.py \
-  --config terminologies/icd/icd-10/source.json \
-  --check --apply \
-  --confirm-target WHO/ICD-10-WHO \
-  --api-url "$OCL_API_URL"
-```
+The tool obtains the token from `OCL_API_TOKEN` unless `--token` is supplied and never prints it.
+It preserves existing unrelated remote `meta` entries in the proposal. Remote calls go through the
+shared guard in [`tools/ocl_http.py`](../../../tools/ocl_http.py): the production API origin by
+default (use `--allow-custom-api-url` only for an approved HTTPS non-production origin), and no
+redirect is ever followed, so a token cannot leave the approved origin.
 
-The tool obtains the token from `OCL_API_TOKEN` unless `--token` is supplied. It never prints the token, preserves existing unrelated remote `meta` entries, and performs a GET verification after a successful PATCH. Remote calls default to the production API origin; use `--allow-custom-api-url` only for an approved HTTPS non-production origin.
+### `display` on properties
+
+Each property in `source.json` carries a `display` label. This is a recent oclapi2 feature, already
+used by `CIEL/CIEL`; an older deployment validates property keys against `code`, `uri`,
+`description`, and `type` only and rejects the others (`Invalid keys in property`). Confirm that the
+target environment runs a version that accepts `display` before applying the proposed body.
 
 ### Hierarchy restoration
 
-The Source already has a populated hierarchy; do **not** use the following command merely to document properties and filters. If a reviewed recovery procedure requires explicitly restoring the Source root, the helper verifies the synthetic root exists before patching the Source:
+The Source already has a populated hierarchy; do **not** use the following command merely to document properties and filters. If a reviewed recovery procedure requires restoring the Source root, add `--include-hierarchy`: the helper first GETs `/concepts/ICD-10/` to verify the synthetic root exists, then includes `hierarchy_meaning` and `hierarchy_root_url` in the printed body.
 
 ```bash
 python3 tools/ocl_source_config.py \
   --config terminologies/icd/icd-10/source.json \
-  --check --apply --include-hierarchy \
-  --confirm-target WHO/ICD-10-WHO \
+  --check --include-hierarchy \
   --api-url "$OCL_API_URL"
 ```
 
@@ -95,8 +101,8 @@ Before any Source update:
 1. Check that the target URL identifies the intended owner and Source.
 2. Review the full proposed PATCH output, including complete `properties` and `filters` arrays.
 3. Confirm the known legacy flags remain coded and unchanged.
-4. For hierarchy work, confirm that `/concepts/ICD-10/` exists before applying the root setting.
-5. After a write, require GET read-back verification from the helper and rebuild Source indexes only under the separately approved operational procedure.
+4. For hierarchy work, confirm that `/concepts/ICD-10/` exists before applying the root setting (`--check --include-hierarchy` does this read).
+5. After any manual write, read the Source back and compare it with the proposal; rebuild Source indexes only under the separately approved operational procedure.
 
 ## Data sources and provenance
 
@@ -186,7 +192,7 @@ terminologies/icd/icd-10/
 │   │   ├── atih_claml.py     # CIM-10-FR fr ClaML
 │   │   └── who_claml.py      # canonical extraction from the WHO ClaML
 │   ├── align.py              # exact-code alignment and refusals
-│   ├── hydrate.py            # read-only HEAD GETs
+│   ├── export.py             # offline reader for a Source export
 │   ├── build_bulkimport.py   # projection, size-capped parts, bundle, reports
 │   └── compact.py            # the versioned zip (parts + bundle + manifest)
 ├── review/exclusions.csv     # curated, reviewed hold-backs
@@ -205,8 +211,8 @@ python3 terminologies/icd/icd-10/pipeline/cli.py canonical \
 # 3. build the parts, the bundle, and the zip from the committed baseline (draft)
 python3 terminologies/icd/icd-10/pipeline/cli.py build
 
-# 4. regenerate from live HEAD so the artifacts are safe to upload (read-only GETs)
-OCL_API_TOKEN=… python3 terminologies/icd/icd-10/pipeline/cli.py build --hydrate
+# 4. regenerate from a fresh export of WHO/ICD-10-WHO so the artifacts are safe to upload (offline)
+python3 terminologies/icd/icd-10/pipeline/cli.py build --export <export.json or export.zip>
 
 # other flags
 #   --skip fr|pt_BR          build one locale only
@@ -215,7 +221,7 @@ OCL_API_TOKEN=… python3 terminologies/icd/icd-10/pipeline/cli.py build --hydra
 #   --zip-method lzma        smaller archive for NDJSON (see below)
 #   --no-archive             parts and bundle only; zip later with `compact`
 #   --output-dir DIR         default: this folder's output/
-#   --api-url, --token-env, --allow-insecure-localhost
+#   --export FILE            Source export holding the current concepts (marks the artifact upload-ready)
 ```
 
 ### Output and what is versioned
@@ -249,8 +255,7 @@ No script, skill, or pipeline in this repository uploads a bulk import to OCL, a
 added. The generated archive is the hand-off: extract the parts, then upload them **in numeric
 order** through the OCL bulk-import form, reusing one Queue ID for all of them. The manifest
 repeats that instruction, and the audit records `"upload": {"mechanism": "manual", "api_upload":
-false}`. The only network calls this pipeline makes are the authenticated read-only GETs of
-`--hydrate`.
+false}`. The pipeline makes **no network call at all**: `--export` reads a file from disk.
 
 Each line carries the complete `names`, `descriptions`, and `extras` of the concept, plus
 `type`, `id`, `concept_class`, `owner`, `owner_type`, and `source`. `datatype`, `external_id`,
@@ -270,11 +275,43 @@ extras. The resulting parts are a **draft** (`"mode": "offline-baseline"`,
 `"upload_ready": false`, with a warning recorded in the audit and in the archive manifest) and
 must not be uploaded: they do not reflect live names, descriptions, or extras.
 
-`build --hydrate` GETs every targeted concept from HEAD first. If any concept cannot be read, the
-command stops and writes nothing. Only a hydrated run records `"upload_ready": true`.
+`build --export <file>` starts from the current state of every targeted concept in an export of
+`WHO/ICD-10-WHO` instead of the baseline. Accepted inputs are the `export.json` of a Source version,
+an NDJSON file of Concept resources, or a `.zip` holding either. The run stops and writes nothing
+when the export belongs to another owner or Source, repeats an id, or lacks a targeted concept.
+Only an export run records `"mode": "source-export"` and `"upload_ready": true`; the audit records
+the export's repo-relative path, SHA-256, and how many concepts were requested and found.
 
-Neither mode ever writes to OCL: the pipeline generates artifacts and performs authenticated GET
-requests only. Any upload is a separate, explicitly authorized action.
+An export is a snapshot, not live HEAD: take it shortly before uploading, because anything changed
+in OCL after it was taken is overwritten by the bulk update. A file read from disk also needs no
+token, no retry or backoff, and no credential guard — the roughly 12,500 sequential GETs the earlier
+design needed are gone.
+
+Neither mode touches the network or writes to OCL. Any upload is a separate, explicitly authorized,
+manual action.
+
+### Reproducibility and recorded paths
+
+A rebuild from the same inputs is byte-identical, including the zip and `bulkimport_audit.json`:
+neither carries a timestamp (when an artifact was produced is what Git history records), and every
+path in the audit is relative to the repository root, so a machine's directory layout never leaks.
+An input outside the repository is recorded by file name only; its SHA-256 identifies it.
+
+### Locales, name type, and Source setup before upload
+
+- **Locale tokens**: `pt_BR` and `fr` (plus the existing `en`). `pt_BR` is a deliberate choice: it
+  is the token `CIEL/CIEL` uses, so names line up across Sources. OCL has both forms in use —
+  `pt-BR` (IETF BCP 47, as `Regenstrief/LOINC` uses) and `pt_BR` (Java locale) are both listed on
+  the `OCL/Locales` Portuguese concept — and a Source can only store one spelling per language, so
+  `pt_BR` serves code and display alike. `fr` needs no region.
+- **Name type**: every name the pipeline adds carries `name_type: "Fully Specified"`, the
+  `OCL/NameTypes` standard value that the live English names already use (`A09` has one English
+  name typed `Fully Specified`). CIEL uses a different set; this Source follows OCL's.
+- **`supported_locales` is a manual step before the first upload.** `WHO/ICD-10-WHO` currently has
+  `default_locale: en` and `supported_locales: [en]`. Add `pt_BR` and `fr` to `supported_locales`
+  in the OCL environment you are loading, and keep `default_locale: en`. Neither `source.json` nor
+  `tools/ocl_source_config.py` manages this field, and a bulk import into locales the Source does
+  not list is the exact case to avoid.
 
 ## Canonical verification
 
@@ -310,7 +347,7 @@ reinterpreted.
 Extras in an extraction are deliberately empty: the baseline's `hierarchy_level`,
 `chapter_number`, `Classification_Place` and `Terminal_Node` come from the legacy import, and the
 WHO `Meta` mortality codes are a different set. Use the extraction to verify structure, and the
-baseline or a hydrated HEAD read to populate an artifact.
+baseline or a Source export to populate an artifact.
 
 ## Before/after dev audit (diff review)
 
@@ -358,8 +395,8 @@ python3 -m pytest tests/icd10
 They cover the DATASUS CSV schema and encoding handling, the DATASUS XML entities and structure,
 the ClaML variant, chapter and modifier-expansion rules, the WHO extraction and baseline
 verification, the alignment outcomes, the projection, the size-capped parts and their order, the
-bundle and the versioned archive, idempotency and determinism, the hydrated versus draft modes,
-the token/origin guard rails, and asset verification.
+bundle and the versioned archive, idempotency and byte-for-byte determinism, the export versus
+draft modes, the offline-only guarantee, and asset verification.
 
 ```bash
 python3 -m pytest            # root tooling + terminology pipelines
@@ -368,9 +405,9 @@ python3 -m pytest tests/icd10
 
 ## Known limits
 
-- **Locale tokens**: `pt_BR`, `fr`, and `en` are used as OCL locale values. Confirm the Source's
-  default and supported locales, and the exact spelling it stores, before the first upload; the
-  hydrated mode preserves whatever the live concepts already carry.
+- **Locale tokens**: `pt_BR`, `fr`, and `en` are used as OCL locale values; see
+  [Locales, name type, and Source setup before upload](#locales-name-type-and-source-setup-before-upload).
+  Confirm the Source's `supported_locales` before the first upload.
 - **Baseline name composition**: the 2021 baseline prefixes some names with their parent's wording
   (782 such cases). The name pipeline copies the baseline name as-is for the `en` locale, so keep
   the convention when regenerating the baseline from the WHO extraction.
@@ -386,8 +423,8 @@ python3 -m pytest tests/icd10
 - **Release choice**: the pinned WHO asset is the 2019 edition (including COVID-19 updates), the
   newest the WHO index offers — see [`assets/README.md`](assets/README.md#where-these-inputs-come-from-edition-discovery).
   A different edition means a different Source release decision, not a swap of the URL.
-- **Hydration has not been run against production** from this repository; the `--hydrate` path is
-  covered by tests with an injected transport only.
+- **No export from production has been run through the pipeline yet**; `--export` is covered by
+  tests with synthetic exports only. Try the flow against a replica of `WHO/ICD-10-WHO` first.
 
 ## Related assets
 

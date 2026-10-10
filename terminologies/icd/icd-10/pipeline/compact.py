@@ -134,7 +134,6 @@ def build_manifest(
     target: dict,
     mode: str,
     upload_ready: bool,
-    generated_at: str,
     parts: list[dict],
     bundle: dict,
     method: str,
@@ -142,7 +141,6 @@ def build_manifest(
     """The manifest stored inside the archive, aimed at the human doing the upload."""
     return {
         "schema_version": 1,
-        "generated_at": generated_at,
         "target": target,
         "mode": mode,
         "upload_ready": upload_ready,
