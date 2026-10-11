@@ -26,18 +26,43 @@ single terminology exists.
 
 ## Source configuration
 
-[`source.json`](source.json) declares the Source properties, filters, display metadata, and the
-hierarchy root. Every property maps to an `extras` key the pipeline writes. Validate it locally, then
-read-only against the API (the tool prints the proposed PATCH and has no write mode):
+[`source.json`](source.json) declares the Source properties, filters, display metadata, and hierarchy root. Each declared property must correspond to an `extras` key emitted by the concept builder, in addition to `concept_class`. Validate it locally, then read-only against the API (the tool prints the proposed PATCH and has no write mode):
 
 ```bash
 uv run python tools/ocl_source_config.py --config terminologies/icd/icd-11/source.json
 uv run python tools/ocl_source_config.py --config terminologies/icd/icd-11/source.json --check --include-hierarchy
 ```
 
+### Source properties and concept extras
+
+OCL distinguishes a Source-declared property from an arbitrary concept `extras` key. The latter can still appear under “customized” in the UI; registering it in `properties` gives it a declared display label/type and makes it available to Source-level presentation and filtering. The ICD-11 builder emits these eight extras, so all eight are declared below (the `concept_class` property is OCL concept metadata, not an extra):
+
+| Property code / extra key | Type | Display | Meaning |
+| --- | --- | --- | --- |
+| `concept_class` | `code` | Concept class | OCL class: `Root`, `Chapter`, `Block`, or `Diagnosis`. |
+| `ChapterNo` | `string` | Chapter | WHO chapter identifier as supplied, including extension chapter `X`; kept as text to preserve the identifier. |
+| `DepthInKind` | `integer` | Depth in kind | Simple Tabulation depth within the same kind; for categories, depth 2 means its parent is a category and the parent's parent is not. |
+| `IsResidual` | `code` | Residual | WHO residual-category flag, stored as the source's `True`/`False` code value; not inferred from the label. |
+| `isLeaf` | `code` | Leaf | Whether the entity has no children in this tabulation, stored as `True`/`False`. This describes this release's tabulation, not all post-coordinated ICD-11 content. |
+| `BlockId` | `string` | Block ID | Tabulation block identifier when supplied; absent values are omitted. |
+| `BrowserLink` | `string` | Browser link | WHO browser URL pinned to release `2026-01` and English, not a moving `latestrelease` URL. |
+| `Foundation URI` | `string` | Foundation URI | WHO ICD-11 Foundation entity URI from the Simple Tabulation. |
+| `Linearization URI` | `string` | Linearization URI | WHO MMS linearization URI from the Simple Tabulation; identifies the MMS entity. |
+
+`filters` currently defines two equality filters: `concept_class=Diagnosis` (exclude root/chapter/block concepts from the diagnosis-focused listing) and `isLeaf=True` (leaf concepts). `meta.display.concept_summary_properties` shows class, chapter and depth in the summary; `concept_filter_order` orders class, chapter and leaf controls. These display lists do not themselves add filter definitions. Empty extras are omitted from a concept, so a declared property need not be present on every resource.
+
+`source.json` is the canonical desired configuration. After changing its `properties`, `filters` or `meta.display`, synchronize the local Source with the reviewed complete arrays and rebuild the concept search index: a Source PATCH alone does not refresh the index. Check the asynchronous indexing task to `SUCCESS`, then exercise representative property filters/searches. The local API flow is:
+
+```text
+POST /orgs/WHO/sources/ICD-11-WHO/concepts/indexes/  body: {}  -> 202, a Task
+GET  /tasks/<task id>/                                         -> poll until SUCCESS
+```
+
+Property searches use the `extras.` namespace, for example `?extras.exact.isLeaf=True`; test the endpoint against the local API version and verify returned concept IDs/values, not only the Source read-back. Reindexing is asynchronous and may take several minutes for this 37k-concept Source. Do not reindex production without separate explicit authorization. The ICD-10 procedure and indexing semantics are also documented in [ICD-10's index guidance](../icd-10/README.md#rebuild-the-concept-index-after-changing-properties-or-filters).
+
 The property `display` keys need an oclapi2 version that accepts them (see
 [`../icd-10/README.md`](../icd-10/README.md#display-on-properties)). Applying the printed body is a
-manual, separately authorized step.
+manual step; local rehearsal Source changes may be applied directly to the local API.
 
 ## Data sources and provenance
 

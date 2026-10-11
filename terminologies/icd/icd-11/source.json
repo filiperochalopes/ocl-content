@@ -37,6 +37,30 @@
       "type": "code",
       "display": "Leaf",
       "description": "True when the entity has no children in the tabulation, verbatim from the Simple Tabulation."
+    },
+    {
+      "code": "BlockId",
+      "type": "string",
+      "display": "Block ID",
+      "description": "WHO Simple Tabulation block identifier associated with the entity, when supplied."
+    },
+    {
+      "code": "BrowserLink",
+      "type": "string",
+      "display": "Browser link",
+      "description": "WHO ICD-11 browser URL pinned to the imported release and language."
+    },
+    {
+      "code": "Foundation URI",
+      "type": "string",
+      "display": "Foundation URI",
+      "description": "WHO ICD-11 Foundation entity URI supplied by the Simple Tabulation."
+    },
+    {
+      "code": "Linearization URI",
+      "type": "string",
+      "display": "Linearization URI",
+      "description": "WHO ICD-11 MMS linearization URI supplied by the Simple Tabulation."
     }
   ],
   "filters": [
