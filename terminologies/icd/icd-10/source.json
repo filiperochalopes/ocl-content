@@ -24,7 +24,7 @@
       "code": "Classification_Place",
       "type": "code",
       "display": "Classification place",
-      "description": "Legacy ICD-10 classification-place flag preserved verbatim from the 10 November 2021 import artifact. Observed values are N and T; the tracked source artifact does not define their business meaning, so consumers must not infer a clinical assertion from this flag."
+      "description": "Legacy flag preserved from the 10 November 2021 import. N (non-terminal): the concept has child concepts in the hierarchy (chapters, groups and subdivided categories). T (terminal): the concept has no children (leaf). Verified on all 12,586 concepts of the HEAD export (N: 1,913, all with children; T: 10,673, none with children). The expansion of the letters is inferred; it was not documented upstream."
     },
     {
       "code": "chapter_number",
@@ -36,7 +36,7 @@
       "code": "Terminal_Node",
       "type": "code",
       "display": "Terminal node",
-      "description": "Legacy terminal-node flag preserved verbatim from the 10 November 2021 import artifact. Observed values are X and S; it is not modeled as boolean until the upstream definition is recovered and validated."
+      "description": "Legacy flag preserved from the 10 November 2021 import. Despite its name it does not identify leaf concepts: X nodes can have children. S (1,058 concepts): leaf codes of the fourth character (4 have a fifth) whose WHO name is composed as 'parent title: qualifier', for example E10.0 'Type 1 diabetes mellitus: With coma'; every child of such a parent is S. X (11,243 concepts): all others, including chapters, groups and categories with children. Observed pattern on the HEAD export; the meaning of the letters was not documented upstream."
     }
   ],
   "filters": [

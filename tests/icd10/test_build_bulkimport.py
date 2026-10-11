@@ -133,10 +133,10 @@ def test_parts_are_limited_by_size_and_preserve_order(tmp_path, baseline_csv):
         candidate("J09", "Influenza aviária", "pt_BR"),
     )
     result = build(alignment, states)
-    limit = 600
+    limit = 450  # the cap applies to each part's COMPRESSED upload zip
     parts = write_parts(tmp_path, result.lines, max_bytes=limit)
     assert len(parts) > 1
-    assert all(part.bytes <= limit for part in parts)
+    assert all(part.zip_bytes <= limit for part in parts)
     assert [part.name for part in parts] == [f"bulkimport_part_{n:03d}.ndjson" for n in range(1, len(parts) + 1)]
     combined = b"".join((tmp_path / part.name).read_bytes() for part in parts)
     bundle = write_bundle(tmp_path, result.lines)
@@ -162,9 +162,11 @@ def test_a_smaller_rerun_removes_stale_parts(tmp_path, baseline_csv):
         candidate("J09", "Influenza aviária", "pt_BR"),
     )
     result = build(alignment, states)
-    assert len(write_parts(tmp_path, result.lines, max_bytes=500)) > 1
+    assert len(write_parts(tmp_path, result.lines, max_bytes=450)) > 1
     assert len(write_parts(tmp_path, result.lines, max_bytes=10 ** 6)) == 1
-    assert [path.name for path in sorted(tmp_path.glob("bulkimport_part_*.ndjson"))] == ["bulkimport_part_001.ndjson"]
+    assert [path.name for path in sorted(tmp_path.glob("bulkimport_part_*"))] == [
+        "bulkimport_part_001.ndjson", "bulkimport_part_001.zip",
+    ]
 
 
 def test_build_is_deterministic(baseline_csv):

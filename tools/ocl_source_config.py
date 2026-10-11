@@ -30,6 +30,7 @@ from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import ocl_env  # noqa: E402
 import ocl_http  # noqa: E402
 from ocl_http import DEFAULT_API_URL, OCL_IDENTIFIER_RE, NoRedirect  # noqa: E402,F401
 
@@ -243,7 +244,9 @@ def verify_root(api_url: str, token: str, config: dict[str, Any]) -> None:
 
 
 def parse_args() -> argparse.Namespace:
+    env = ocl_env.bootstrap()  # honors --env-file / OCL_ENV_FILE / .env before the defaults below are read
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--env-file", type=Path, help="env file with OCL_API_URL / OCL_API_TOKEN (default: .env)")
     parser.add_argument("--config", type=Path, required=True, help="path to declarative source.json")
     parser.add_argument(
         "--api-url", default=os.getenv("OCL_API_URL", DEFAULT_API_URL),
@@ -263,7 +266,9 @@ def parse_args() -> argparse.Namespace:
         "--include-hierarchy", action="store_true",
         help="also set hierarchy_root_url and hierarchy_meaning after verifying the configured root concept",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    args.env = env
+    return args
 
 
 def main() -> int:
@@ -279,6 +284,7 @@ def main() -> int:
             allow_insecure_localhost=args.allow_insecure_localhost,
             allow_custom_api_url=args.allow_custom_api_url,
         )
+        print(ocl_env.describe_target(api_url, args.token, getattr(args, "env", None)))
     current: dict[str, Any] = {}
     if args.check:
         current = fetch_source(api_url, args.token, config)

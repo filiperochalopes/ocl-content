@@ -9,7 +9,14 @@ dist/
 build/
 .venv/
 venv/
+# Per-instance OCL settings (tools/ocl_env.py): .env, .env.local, .env.production, ... can hold a token.
 .env
+.env.*
+!.env.example
+
+# OCL exports downloaded for local rehearsals (large; each has a .provenance.json next to it).
+# Evidence reports written by tools/ocl_verify_update.py are small and ARE versioned.
+/exports/
 
 # Jupyter
 .ipynb_checkpoints/

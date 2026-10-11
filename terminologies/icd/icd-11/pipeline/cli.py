@@ -86,7 +86,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     build_parser = subparsers.add_parser("build", help="write the bulk-import parts, bundle, audit, and archive")
     build_parser.add_argument("--input", type=Path, default=DEFAULT_INPUT, help="Simple Tabulation .zip or .txt")
     build_parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
-    build_parser.add_argument("--max-part-size", type=parse_size, default=DEFAULT_PART_BYTES, metavar="SIZE")
+    build_parser.add_argument("--max-part-size", type=parse_size, default=DEFAULT_PART_BYTES, metavar="SIZE",
+        help="cap on the COMPRESSED size of each part's upload ZIP (default 2mb)")
     build_parser.add_argument("--zip-method", choices=sorted(METHODS), default=DEFAULT_METHOD)
     build_parser.add_argument("--archive-name", default=DEFAULT_ARCHIVE)
     build_parser.add_argument("--no-archive", action="store_true", help="skip the zip (parts and bundle only)")
@@ -168,7 +169,7 @@ def command_build(args: argparse.Namespace) -> int:
             "lines": len(result.lines),
             "class_counts": result.class_counts,
             "rooted_without_parent": result.rooted_without_parent,
-            "max_part_bytes": args.max_part_size,
+            "max_part_zip_bytes": args.max_part_size,
         },
         "output": {
             "directory": display_path(output_dir),
@@ -184,8 +185,8 @@ def command_build(args: argparse.Namespace) -> int:
                 if archive_info
                 else None
             ),
-            "versioned": sorted([path.name for path in output_dir.glob("*.zip")] + ["bulkimport_audit.json"]),
-            "not_versioned": [part.name for part in parts] + [bundle.name],
+            "versioned": sorted(([archive_info.name] if archive_info else []) + ["bulkimport_audit.json"]),
+            "not_versioned": [part.name for part in parts] + [part.zip for part in parts] + [bundle.name],
         },
         "projection": {
             "included": [
@@ -198,8 +199,9 @@ def command_build(args: argparse.Namespace) -> int:
             "mechanism": "manual",
             "api_upload": False,
             "note": (
-                "No tool in this repository uploads to OCL. Extract the parts from the archive and upload them "
-                "in numeric order through the OCL bulk-import form, reusing one Queue ID."
+                "No tool in this repository uploads to OCL. Upload the part ZIPs (bulkimport_part_NNN.zip, each "
+                "within the compressed part cap) in numeric order through the OCL bulk-import form, reusing one "
+                "Queue ID. `build` recreates them byte for byte; the archive holds the NDJSON they were built from."
             ),
         },
     }
@@ -208,7 +210,7 @@ def command_build(args: argparse.Namespace) -> int:
     print(f"mode: {mode}   upload_ready: False")
     print(f"lines: {len(result.lines):,}   classes: {result.class_counts}")
     for part in parts:
-        print(f"  {part.name}  {part.lines:,} lines  {part.bytes:,} bytes  sha256={part.sha256[:12]}…")
+        print(f"  {part.zip}  {part.lines:,} lines  {part.bytes:,} bytes → {part.zip_bytes:,} bytes zipped  sha256={part.zip_sha256[:12]}…")
     print(f"bundle: {bundle.name}  {bundle.lines:,} lines  {bundle.bytes:,} bytes")
     if archive_info:
         print(f"archive: {archive_info.name}  {archive_info.bytes:,} bytes ({archive_info.method}, ratio {archive_info.ratio:.3f})")

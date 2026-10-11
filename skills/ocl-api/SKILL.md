@@ -25,12 +25,14 @@ Do not use this skill to infer a terminology's Source ID, synthetic root, hierar
 
 ## Prerequisites
 
-Set only the variables needed for the selected environment; never commit them:
+The project reads two variables, `OCL_API_URL` and `OCL_API_TOKEN`, from the shell or from an env file (`.env`, or `--env-file .env.local` / `.env.production`, one file per instance; see `.env.example`). Never commit them and never print the token. A shell export wins over a file:
 
 ```bash
-export OCL_API_URL="https://api.openconceptlab.org"
+export OCL_API_URL="https://api.openconceptlab.org"   # or http://api.ocl.localhost for the local instance
 export OCL_API_TOKEN="<token>"
 ```
+
+Production requires a token even to read. A local `http://api.ocl.localhost` needs `--allow-insecure-localhost`. Read exports with `tools/ocl_export_download.py` (GET only; never triggers generation) and prove an update or a new Source with `tools/ocl_verify_update.py`; the local-first flow is in `tests/README.md`.
 
 Check for the CLI by running `ocl --help` in a shell. The CLI handles common repository, concept, mapping, import, and task operations. Its current `ocl repo update` interface does not expose Source `properties`, `filters`, or `meta.display`; use `tools/ocl_source_config.py` for those fields.
 

@@ -8,6 +8,7 @@
 # the parts and the bundle are byte-reproducible from the inputs the audit records, and the
 # alignment report is a review surface rather than a kept record.
 */*/output/*.ndjson
+*/*/output/*_part_*.zip
 */*/output/*.jsonl
 */*/output/alignment_report.csv
 */*/output/*.dev.audit.json

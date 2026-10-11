@@ -61,8 +61,8 @@ Bulk-import artifacts live in the workspace's `output/` directory:
 └── bulkimport_<name>.zip           # parts + bundle + manifest  → versioned
 ```
 
-- Cut parts on resource boundaries **in order**, cap each one (2 MB is the house default), and
-  verify that concatenating them reproduces the bundle. Never split a single resource.
+- Cut parts on resource boundaries **in order**, cap each one's **compressed** size (a zip of at most 2 MB is the house default and the unit you upload),
+  and verify that concatenating the NDJSON parts reproduces the bundle. Never split a single resource.
 - Also emit the pretty-printed before/after **dev audit pair** in the same run (same IDs, same
   order, same fields) so a curator can review the proposal as a diff in a JSON-aware viewer
   (diffchecker.com); keep it opt-in, label it a review aid, and never version it.

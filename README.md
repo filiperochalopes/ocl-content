@@ -54,7 +54,14 @@ Source commands.
 
 - [`tools/ocl_source_config.py`](tools/ocl_source_config.py): validates and reads Source-level properties, filters, display metadata, and—only when requested—hierarchy metadata, and prints the proposed patch. It is read-only and has no write mode.
 - [`tools/ocl_http.py`](tools/ocl_http.py), [`tools/ocl_artifacts.py`](tools/ocl_artifacts.py), [`tools/ocl_assets.py`](tools/ocl_assets.py), [`tools/ocl_pipeline_loader.py`](tools/ocl_pipeline_loader.py): the shared HTTP guard, bulk-import artifact writers, pinned-asset fetching, and by-path pipeline imports that every terminology pipeline uses.
+- [`tools/ocl_env.py`](tools/ocl_env.py), [`tools/ocl_export_download.py`](tools/ocl_export_download.py), [`tools/ocl_export.py`](tools/ocl_export.py), [`tools/ocl_verify_update.py`](tools/ocl_verify_update.py), [`tools/ocl_replica_seed.py`](tools/ocl_replica_seed.py): the project-wide `OCL_API_URL`/`OCL_API_TOKEN` settings, the read-only export downloader, the shared export reader, the offline verifier that turns a local rehearsal into evidence, and the converter that turns a production export into a replica seed for the local instance.
 - [`skills/ocl-api/SKILL.md`](skills/ocl-api/SKILL.md): operating guidance for the OCL CLI and the HTTP fallback used by pipeline tools.
+
+## OCL settings and the local rehearsal
+
+Every tool that talks to OCL reads two variables, `OCL_API_URL` and `OCL_API_TOKEN`, from the shell or from an env file (`.env`, or one file per instance chosen with `--env-file`). Copy [`.env.example`](.env.example) to `.env.local` (your local oclapi2, `http://api.ocl.localhost`) and `.env.production`; every `.env*` file except the example is ignored by Git, and the token is never printed.
+
+Official content is updated, or a Source is created, **on a local OCL instance first**: seed a replica from a production export, build and apply the update by hand, then prove it with `tools/ocl_verify_update.py`. The flow, the commands, and the evidence a PR should carry are in [`tests/README.md`](tests/README.md).
 
 ## Development
 

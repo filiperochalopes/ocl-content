@@ -15,6 +15,14 @@ This repository manages terminology content, operational configuration, and repe
 - Tools that mutate OCL must require an explicit opt-in flag, an explicit target, and a read-back verification.
 - A Source configuration update must preserve unrelated `meta` entries and must not set a hierarchy root unless the root concept exists.
 
+## OCL environments and the local rehearsal
+
+- The whole project uses two variables, `OCL_API_URL` and `OCL_API_TOKEN`, read by `tools/ocl_env.py` from the shell, `--env-file`/`$OCL_ENV_FILE`, or `.env`. Keep one env file per instance (`.env.local`, `.env.production`); every `.env*` file except `.env.example` is ignored. Never put a second spelling of these variables in a new tool, and never print the token.
+- Every tool prints its target (`OCL target: <url> | token: set`) before the first request, and sends the token only through `tools/ocl_http.py`: the production origin by default, `*.localhost` over HTTP only with `--allow-insecure-localhost`, no redirect carrying the token.
+- **Local first.** An update to an existing Source, and the creation of a new one, run against a local OCL instance before production: seed a replica from a read-only production export, build with `--export`, upload by hand, download the result, and verify it with `tools/ocl_verify_update.py` (`--mode update` or `--mode create`). The commit or PR carries the report. Flow, commands, and evidence are in [`tests/README.md`](tests/README.md).
+- The rehearsal tests inside the suite simulate the importer; they are not evidence about a server. Only the verified local run is.
+- Production remains read-only for every tool here. Downloading an export is a `GET`; a tool never asks the server to generate one, and `bulk_import_refactor.py --upload` from the sibling repository is not part of this flow.
+
 ## Source configuration
 
 Each new or migrated terminology Source should keep a reviewed `source.json` next to its documentation. It declares the Source-level `properties`, `filters`, and `meta.display` settings; it does not contain credentials.

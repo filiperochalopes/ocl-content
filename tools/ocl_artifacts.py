@@ -1,6 +1,7 @@
 """Shared mechanics for versioned bulk-import artifacts, used by every terminology pipeline.
 
-Ordered, size-capped NDJSON parts, the whole bundle, a manifest, and the one zip that holds them.
+Ordered NDJSON parts (each also written as an upload ZIP capped by its COMPRESSED size), the whole bundle,
+a manifest, and the one zip that holds them.
 Only the zip and the audit are versioned; the parts and the bundle are deterministically
 regenerable and stay out of Git (see ``terminologies/.gitignore``).
 
@@ -15,8 +16,10 @@ The compression method is selectable: ``deflate`` (level 9, maximum portability)
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import zipfile
+import zlib
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -147,10 +150,11 @@ def build_manifest(
         "upload": {
             "mechanism": "manual",
             "note": (
-                "No tool in this repository uploads to OCL. Extract the parts and upload them in "
-                "numeric order through the OCL bulk-import form, reusing one Queue ID."
+                "No tool in this repository uploads to OCL. Upload the part ZIPs (each at most the part cap, "
+                "compressed) in numeric order through the OCL bulk-import form, reusing one Queue ID. The "
+                "archive holds the NDJSON each ZIP was built from; `build` recreates the ZIPs byte for byte."
             ),
-            "order": [part["name"] for part in parts],
+            "order": [part.get("zip") or part["name"] for part in parts],
         },
         "bundle": bundle,
         "parts": parts,
@@ -161,25 +165,65 @@ def build_manifest(
 
 @dataclass(frozen=True)
 class PartInfo:
+    """One part. ``name``/``sha256``/``bytes`` describe the NDJSON; ``zip*`` describe the upload file."""
+
     name: str
     lines: int
     sha256: str
     bytes: int
+    zip: str = ""
+    zip_bytes: int = 0
+    zip_sha256: str = ""
 
 
+# The cap is on the COMPRESSED size of a part: an upload unit is a ZIP of at most this many bytes, so a
+# large Source needs a handful of parts instead of hundreds of raw 2 MB files.
 DEFAULT_PART_BYTES = 2 * 1024 * 1024
 BUNDLE_NAME = "bulkimport_bundle.ndjson"
+ZIP_DATE = (1980, 1, 1, 0, 0, 0)  # fixed, so re-zipping is reproducible
+ESTIMATE_MARGIN = 48 * 1024  # headroom for what the compressor still buffers when the estimate stops
 
 
 def serialize(line: dict) -> bytes:
     return (json.dumps(line, ensure_ascii=False, separators=(",", ":")) + "\n").encode("utf-8")
 
 
-def _flush(out_dir: Path, stem: str, index: int, chunks: list[bytes]) -> PartInfo:
-    payload = b"".join(chunks)
-    name = f"{stem}_{index:03d}.ndjson"
-    (out_dir / name).write_bytes(payload)
-    return PartInfo(name=name, lines=len(chunks), sha256=hashlib.sha256(payload).hexdigest(), bytes=len(payload))
+def zip_payload(member: str, payload: bytes) -> bytes:
+    """A deterministic deflate (level 9) ZIP holding one member: the form's upload unit."""
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+        info = zipfile.ZipInfo(member, ZIP_DATE)
+        info.compress_type = zipfile.ZIP_DEFLATED
+        info.external_attr = 0o644 << 16
+        archive.writestr(info, payload, compresslevel=9)
+    return buffer.getvalue()
+
+
+def _cut(payloads: list[bytes], start: int, member: str, max_bytes: int, ids: list[str]) -> tuple[int, bytes]:
+    """The longest run of lines from ``start`` whose real ZIP is at most ``max_bytes``.
+
+    A streaming compressor estimates how many lines fit; the real ZIP is then built and, if it is
+    still too big, the run is shortened until it fits. Parts are cut on resource boundaries only.
+    """
+    compressor = zlib.compressobj(9, zlib.DEFLATED, -15)
+    budget = max(max_bytes - ESTIMATE_MARGIN, max_bytes // 2)
+    produced, end = 0, start
+    while end < len(payloads):
+        produced += len(compressor.compress(payloads[end]))
+        end += 1
+        if produced >= budget:
+            break
+    while True:
+        data = zip_payload(member, b"".join(payloads[start:end]))
+        if len(data) <= max_bytes:
+            return end, data
+        if end - start == 1:
+            raise ValueError(
+                f"concept {ids[start]!r} compresses to {len(data):,} bytes, above the "
+                f"{max_bytes:,}-byte part limit; a resource cannot be split across parts"
+            )
+        drop = max(1, (end - start) * (len(data) - max_bytes) // len(data) + 1)
+        end = max(start + 1, end - drop)
 
 
 def write_parts(
@@ -188,36 +232,51 @@ def write_parts(
     max_bytes: int = DEFAULT_PART_BYTES,
     stem: str = "bulkimport_part",
 ) -> list[PartInfo]:
-    """Write ``<stem>_001.ndjson`` (…) parts, each at most ``max_bytes`` of serialized payload.
+    """Write ``<stem>_001.ndjson`` and ``<stem>_001.zip`` (...) parts; each ZIP is at most ``max_bytes``.
 
-    Parts are cut on resource boundaries in the input order, so concatenating them in numeric
-    order reproduces the bundle exactly. A single resource larger than the limit is an error:
-    a resource is never split. Parts from a previous run with the same stem are removed first.
+    ``max_bytes`` is the COMPRESSED size of the upload file. Parts are cut on resource boundaries in
+    the input order, so concatenating the NDJSON files in numeric order reproduces the bundle
+    exactly. A single resource whose own ZIP exceeds the limit is an error: a resource is never
+    split. Parts from a previous run with the same stem are removed first.
     """
     if max_bytes < 1:
         raise ValueError("max_bytes must be 1 or more")
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    for stale in out_dir.glob(f"{stem}_*.ndjson"):
+    for stale in [*out_dir.glob(f"{stem}_*.ndjson"), *out_dir.glob(f"{stem}_*.zip")]:
         stale.unlink()
+    payloads = [serialize(line) for line in lines]
+    ids = [str(line.get("id")) for line in lines]
     parts: list[PartInfo] = []
-    chunks: list[bytes] = []
-    size = 0
-    for line in lines:
-        payload = serialize(line)
-        if len(payload) > max_bytes:
-            raise ValueError(
-                f"concept {line.get('id')!r} serializes to {len(payload):,} bytes, above the "
-                f"{max_bytes:,}-byte part limit; a resource cannot be split across parts"
+    start = 0
+    while start < len(payloads):
+        member = f"{stem}_{len(parts) + 1:03d}.ndjson"
+        end, archive = _cut(payloads, start, member, max_bytes, ids)
+        payload = b"".join(payloads[start:end])
+        (out_dir / member).write_bytes(payload)
+        zip_name = member[: -len(".ndjson")] + ".zip"
+        (out_dir / zip_name).write_bytes(archive)
+        parts.append(
+            PartInfo(
+                name=member, lines=end - start, sha256=hashlib.sha256(payload).hexdigest(), bytes=len(payload),
+                zip=zip_name, zip_bytes=len(archive), zip_sha256=hashlib.sha256(archive).hexdigest(),
             )
-        if chunks and size + len(payload) > max_bytes:
-            parts.append(_flush(out_dir, stem, len(parts) + 1, chunks))
-            chunks, size = [], 0
-        chunks.append(payload)
-        size += len(payload)
-    if chunks:
-        parts.append(_flush(out_dir, stem, len(parts) + 1, chunks))
+        )
+        start = end
     return parts
+
+
+def part_info_from_disk(ndjson: Path) -> PartInfo:
+    """Describe a part already on disk, including its upload ZIP when one sits next to it."""
+    ndjson = Path(ndjson)
+    payload = ndjson.read_bytes()
+    archive = ndjson.with_suffix(".zip")
+    extra = {}
+    if archive.is_file():
+        data = archive.read_bytes()
+        extra = {"zip": archive.name, "zip_bytes": len(data), "zip_sha256": hashlib.sha256(data).hexdigest()}
+    return PartInfo(name=ndjson.name, lines=payload.count(b"\n"), sha256=hashlib.sha256(payload).hexdigest(),
+                    bytes=len(payload), **extra)
 
 
 def write_bundle(out_dir: Path, lines: list[dict], name: str = BUNDLE_NAME) -> PartInfo:

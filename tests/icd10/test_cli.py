@@ -51,7 +51,9 @@ def test_build_end_to_end_offline_is_marked_as_a_draft(tmp_path, baseline_csv, d
 
     parts = sorted(output.glob("bulkimport_part_*.ndjson"))
     assert parts
-    assert all(part.stat().st_size <= 1024 for part in parts)
+    zips = sorted(output.glob("bulkimport_part_*.zip"))
+    assert [z.stem for z in zips] == [p.stem for p in parts]
+    assert all(z.stat().st_size <= 1024 for z in zips)        # --max-part-size caps the COMPRESSED upload zip
     for part in parts:
         for line in part.read_text(encoding="utf-8").strip().split("\n"):
             resource = json.loads(line)
@@ -77,19 +79,22 @@ def test_parts_rebuild_the_bundle_and_the_archive_carries_both(tmp_path, baselin
         assert archive.read(bundle.name) == bundle.read_bytes()
         manifest = json.loads(archive.read("bulkimport_manifest.json"))
     assert manifest["upload"]["mechanism"] == "manual"
-    assert manifest["upload"]["order"] == [part.name for part in parts]
+    assert manifest["upload"]["order"] == [part.with_suffix(".zip").name for part in parts]
     assert manifest["upload_ready"] is False
     assert manifest["bundle"]["sha256"] == audit["output"]["bundle"]["sha256"]
     assert audit["upload"]["api_upload"] is False
     assert audit["output"]["archive"]["sha256"] == hashlib.sha256(archive_path.read_bytes()).hexdigest()
-    assert audit["output"]["not_versioned"] == [part.name for part in parts] + [bundle.name, "alignment_report.csv"]
+    assert audit["output"]["not_versioned"] == (
+        [part.name for part in parts] + [part.with_suffix(".zip").name for part in parts] + [bundle.name, "alignment_report.csv"]
+    )
+    assert audit["output"]["versioned"] == sorted([archive_path.name, "bulkimport_audit.json"])  # part zips are upload-only
 
 
 def test_archive_can_be_skipped_and_rebuilt_with_compact(tmp_path, baseline_csv, datasus_dir, atih_xml):
     args = build_args(tmp_path, baseline_csv, datasus_dir, atih_xml, "--no-archive")
     assert main(args) == 0
     output = tmp_path / "output"
-    assert not list(output.glob("*.zip"))
+    assert [z.name for z in output.glob("*.zip") if "_part_" not in z.name] == []  # no archive (upload zips remain)
 
     assert main(["compact", "--output-dir", str(output)]) == 0
     archive_path = output / "bulkimport_icd10-who.zip"

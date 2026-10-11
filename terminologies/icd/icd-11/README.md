@@ -77,7 +77,8 @@ uv run python terminologies/icd/icd-11/pipeline/cli.py build
 
 ```text
 output/
-├── bulkimport_part_001.ndjson … 012   # ≤ 2 MB, ordered      → NOT versioned
+├── bulkimport_part_001.zip … NNN      # upload files, ≤ 2 MB compressed → NOT versioned
+├── bulkimport_part_001.ndjson … NNN   # what each zip holds, ordered     → NOT versioned
 ├── bulkimport_bundle.ndjson           # every line, in order → NOT versioned
 ├── bulkimport_audit.json              # provenance + counts + hashes → versioned
 └── bulkimport_icd11-who.zip           # parts + bundle + manifest    → versioned
@@ -126,6 +127,10 @@ parts and upload them **in numeric order** through the OCL bulk-import form with
 lines create complete concepts, so load them only into an **empty** `WHO/ICD-11-WHO` Source — the
 importer would overwrite an existing concept's names and extras. Add `en` to `supported_locales` and
 set the hierarchy root as described above before loading.
+
+## Local rehearsal before production
+
+This workspace is the *create a new Source* case. Create the empty `WHO/ICD-11-WHO` Source on a local OCL instance (the body to apply comes from `tools/ocl_source_config.py`), upload the parts by hand, download the resulting export, and run `tools/ocl_verify_update.py --mode create`: every artifact concept must exist with exactly its names, extras, and class, and the Source must hold no other concept. Commit the report under `evidence/`. See [`../../../tests/README.md`](../../../tests/README.md) (Flow B).
 
 ## Tests
 

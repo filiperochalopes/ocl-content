@@ -44,7 +44,7 @@ classification hierarchy; changing this value requires a separate semantic revie
 - display order for concept summary properties and filters;
 - the synthetic root identifier used only with `--include-hierarchy`.
 
-The legacy fields `Classification_Place` (`N`/`T`) and `Terminal_Node` (`X`/`S`) are intentionally preserved as coded values. Their original business definitions were not found in the tracked artifact, so this configuration does not recast them as booleans or clinical assertions.
+The legacy fields `Classification_Place` (`N`/`T`) and `Terminal_Node` (`X`/`S`) are intentionally preserved as coded values. Their original definitions were not found in any documentation (WHO ClaML, DATASUS and this repository were checked), so they are described by what the HEAD export shows and are not recast as booleans or clinical assertions. `Classification_Place`: `N` = has children, `T` = no children, exact on all 12,586 concepts. `Terminal_Node` does **not** mean leaf: `S` marks 1,058 leaf codes whose WHO name is composed as `parent title: qualifier` (1,054 at the fourth character, 4 at the fifth, all present in the WHO canonical file); `X` is everything else, nodes included. The expansion of the letters is inferred, not documented.
 
 ## Validate and synchronize
 
@@ -83,6 +83,23 @@ used by `CIEL/CIEL`; an older deployment validates property keys against `code`,
 `description`, and `type` only and rejects the others (`Invalid keys in property`). Confirm that the
 target environment runs a version that accepts `display` before applying the proposed body.
 
+### Rebuild the concept index after changing properties or filters
+
+Changing `properties`, `filters` or `meta.display` does not reindex the concepts. Filters and property
+searches are served from the search index, so rebuild it to make a configuration change effective. (On the
+rehearsal instance the index was rebuilt right after the PATCH and the counts below matched the export; the
+state before the rebuild was not measured.)
+
+```text
+POST /orgs/WHO/sources/ICD-10-WHO/concepts/indexes/        body: {}        -> 202, a Task (state PENDING)
+GET  /tasks/<task id>/                                                     -> wait for state SUCCESS
+```
+
+- It rebuilds the index of the **HEAD** concepts of this Source; use `/{version}/concepts/indexes/` for a released version. It is asynchronous: poll the task, do not assume.
+- Like any write, it is manually authorized and **local first**. Run it against production only with explicit consent, after the production PATCH and its read-back.
+- Verify with a property search, not with the Source read-back. Property filters on concepts use the `extras.` prefix (`?extras.exact.Terminal_Node=S`). Expected on the HEAD export of 2026-10-11 (12,587 concepts): `Classification_Place=T` 10,673; `Terminal_Node=S` 1,058; `Terminal_Node=X` 11,243; `chapter_number=1` 945.
+- No tool in this repository calls this endpoint, in line with the read-only design of `ocl_source_config.py`.
+
 ### Hierarchy restoration
 
 The Source already has a populated hierarchy; do **not** use the following command merely to document properties and filters. If a reviewed recovery procedure requires restoring the Source root, add `--include-hierarchy`: the helper first GETs `/concepts/ICD-10/` to verify the synthetic root exists, then includes `hierarchy_meaning` and `hierarchy_root_url` in the printed body.
@@ -102,7 +119,8 @@ Before any Source update:
 2. Review the full proposed PATCH output, including complete `properties` and `filters` arrays.
 3. Confirm the known legacy flags remain coded and unchanged.
 4. For hierarchy work, confirm that `/concepts/ICD-10/` exists before applying the root setting (`--check --include-hierarchy` does this read).
-5. After any manual write, read the Source back and compare it with the proposal; rebuild Source indexes only under the separately approved operational procedure.
+5. After any manual write, read the Source back and compare it with the proposal.
+6. **Rebuild the concept search index** (see "Rebuild the concept index" above) whenever `properties`, `filters` or `meta.display` changed. The PATCH only stores the configuration; filters and property searches are served from the search index, which is not updated by it.
 
 ## Data sources and provenance
 
@@ -217,7 +235,7 @@ python3 terminologies/icd/icd-10/pipeline/cli.py build --export <export.json or 
 # other flags
 #   --skip fr|pt_BR          build one locale only
 #   --exclusions FILE        apply the curated hold-backs
-#   --max-part-size SIZE     cap each part (default 2mb)
+#   --max-part-size SIZE     cap on each part's COMPRESSED upload zip (default 2mb)
 #   --zip-method lzma        smaller archive for NDJSON (see below)
 #   --no-archive             parts and bundle only; zip later with `compact`
 #   --output-dir DIR         default: this folder's output/
@@ -228,8 +246,9 @@ python3 terminologies/icd/icd-10/pipeline/cli.py build --export <export.json or 
 
 ```text
 output/
-├── bulkimport_part_001.ndjson      # ≤ 2 MB, ordered    → NOT versioned
-├── bulkimport_part_002.ndjson      # …
+├── bulkimport_part_001.zip         # upload file, ≤ 2 MB compressed → NOT versioned
+├── bulkimport_part_001.ndjson      # what that zip holds, ordered   → NOT versioned
+├── bulkimport_part_002.zip / .ndjson   # …
 ├── bulkimport_bundle.ndjson        # every line, in order → NOT versioned
 ├── alignment_report.csv            # review surface      → NOT versioned
 ├── bulkimport_audit.json           # provenance + counts + hashes → versioned
@@ -237,8 +256,9 @@ output/
 ```
 
 Parts are cut on resource boundaries **in the input order** and each is capped at
-`--max-part-size` (default 2 MB); concatenating them in numeric order reproduces the bundle
-byte for byte, and a single resource larger than the cap is an error rather than a split. The zip
+`--max-part-size` (default 2 MB **compressed**: the cap is on the size of each part's upload zip, so a large Source needs
+few parts, not hundreds of raw 2 MB files); the zips are what you upload, in numeric order. Concatenating the NDJSON parts
+in numeric order reproduces the bundle byte for byte, and a single resource larger than the cap is an error rather than a split. The zip
 carries the parts, the whole bundle, and a `bulkimport_manifest.json` that lists the target, the
 mode, whether the artifact is upload-ready, and every part's SHA-256.
 
@@ -373,6 +393,10 @@ collections the importer would otherwise replace. Neither file of the pair is up
 versioned — the pair is a review aid, ignored by `terminologies/.gitignore`
 (`*/*/output/*.dev.audit.json`).
 
+## Local rehearsal before production
+
+An update of `WHO/ICD-10-WHO` runs on a local OCL instance first: seed a replica from a production export, `build --export <local BEFORE export>`, upload the parts by hand, download the local AFTER export, and run `tools/ocl_verify_update.py --mode update` with `--audit bulkimport_audit.json`. The verifier checks that no existing name was removed or changed, that the only added names are the proposed `pt_BR`/`fr` ones typed `Fully Specified`, that descriptions, extras, class, and the retired flag did not move, and that every untargeted concept and the concept count are unchanged. Commit the report under `evidence/`. The flow, commands, and PR evidence are in [`../../../tests/README.md`](../../../tests/README.md).
+
 ## Review workflow
 
 `output/alignment_report.csv` lists every candidate with its status and reason. When a reviewed
@@ -413,8 +437,8 @@ python3 -m pytest tests/icd10
   the convention when regenerating the baseline from the WHO extraction.
 - **`Z31.2`**: present in the baseline but absent from the WHO ClaML `Class` list. Unexplained;
   do not silently drop or redefine it.
-- **Unresolved legacy flags**: the meaning of `Classification_Place` (`N`/`T`) and
-  `Terminal_Node` (`X`/`S`) is still undocumented; the DATASUS `CLASSIF`, `RESTRSEXO`, and
+- **Legacy flags with an inferred meaning**: `Classification_Place` (`N`/`T`) and
+  `Terminal_Node` (`X`/`S`) are described by observed behavior (see Source configuration); their original definitions remain undocumented; the DATASUS `CLASSIF`, `RESTRSEXO`, and
   `CAUSAOBITO` columns (and the XML `duplaclassificacao`/`restricoes` elements) are different
   concepts and are not used as substitutes.
 - **Optional subdivisions**: 265 codes exist in the WHO extraction but not in the baseline (254 of
@@ -423,6 +447,7 @@ python3 -m pytest tests/icd10
 - **Release choice**: the pinned WHO asset is the 2019 edition (including COVID-19 updates), the
   newest the WHO index offers — see [`assets/README.md`](assets/README.md#where-these-inputs-come-from-edition-discovery).
   A different edition means a different Source release decision, not a swap of the URL.
+- **Production data anomaly (observed 2026-10-11 in the HEAD export, 12,587 concepts)**: `B07` has no parent (`/parents/` is empty on the live API) and two versions created minutes apart on 2026-09-17 with `update_comment: "error"`; its parent group `B00-B09` gained a version in the same window, and nine concepts (`B00`–`B06`, `B08`, `B09`) list two versions of that one parent. It looks like a failed operation, not an intended state. A replica copies it as is (`B07` stays orphaned) and records it in `replica_manifest.json`; it is not corrected here, and an update built on that snapshot inherits it.
 - **No export from production has been run through the pipeline yet**; `--export` is covered by
   tests with synthetic exports only. Try the flow against a replica of `WHO/ICD-10-WHO` first.
 

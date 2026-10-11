@@ -68,14 +68,16 @@ def test_a_parent_that_comes_later_is_refused(tabulation_txt):
 
 
 def build_args(tmp_path: Path, source: Path, *extra: str) -> list[str]:
-    return ["build", "--input", str(source), "--output-dir", str(tmp_path / "output"), "--max-part-size", "1kb", *extra]
+    return ["build", "--input", str(source), "--output-dir", str(tmp_path / "output"), "--max-part-size", "600b", *extra]
 
 
 def test_cli_writes_ordered_capped_parts_a_bundle_an_archive_and_an_audit(tmp_path, ordered_txt):
     assert main(build_args(tmp_path, ordered_txt)) == 0
     output = tmp_path / "output"
     parts = sorted(output.glob("bulkimport_part_*.ndjson"))
-    assert len(parts) > 1 and all(part.stat().st_size <= 1024 for part in parts)
+    zips = sorted(output.glob("bulkimport_part_*.zip"))
+    assert len(parts) > 1 and [z.stem for z in zips] == [p.stem for p in parts]
+    assert all(z.stat().st_size <= 600 for z in zips)          # the cap is on the COMPRESSED upload zip
     assert b"".join(part.read_bytes() for part in parts) == (output / "bulkimport_bundle.ndjson").read_bytes()
     audit = json.loads((output / "bulkimport_audit.json").read_text(encoding="utf-8"))
     assert audit["target"] == {"owner": "WHO", "source": "ICD-11-WHO", "owner_type": "Organization"}

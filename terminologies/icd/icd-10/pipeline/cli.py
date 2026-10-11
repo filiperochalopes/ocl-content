@@ -25,7 +25,6 @@ from __future__ import annotations
 
 import argparse
 import csv
-import hashlib
 import json
 import re
 import sys
@@ -65,7 +64,7 @@ load_canonical, sha256_file, write_canonical_jsonl = (
 source_export = _pipeline("export")
 AdapterResult = _pipeline("model").AdapterResult
 
-from ocl_artifacts import DEFAULT_METHOD, METHODS, build_manifest, create_archive  # noqa: E402
+from ocl_artifacts import DEFAULT_METHOD, METHODS, build_manifest, create_archive, part_info_from_disk  # noqa: E402
 
 TERMINOLOGY_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = TERMINOLOGY_DIR.parents[2]
@@ -126,7 +125,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     build_parser.add_argument("--datasus", type=Path, default=DEFAULT_DATASUS, help="CID10CSV.zip or CID10XML.zip")
     build_parser.add_argument("--atih", type=Path, default=DEFAULT_ATIH)
     build_parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
-    build_parser.add_argument("--max-part-size", type=parse_size, default=DEFAULT_PART_BYTES, metavar="SIZE")
+    build_parser.add_argument("--max-part-size", type=parse_size, default=DEFAULT_PART_BYTES, metavar="SIZE",
+        help="cap on the COMPRESSED size of each part's upload ZIP (default 2mb)")
     build_parser.add_argument("--skip", action="append", choices=["pt_BR", "fr"], default=[])
     build_parser.add_argument(
         "--exclusions",
@@ -378,7 +378,7 @@ def command_build(args: argparse.Namespace) -> int:
             "status_counts": result.status_counts(),
             "locale_counts": result.locale_counts(),
             "changed_concepts": len(result.lines),
-            "max_part_bytes": args.max_part_size,
+            "max_part_zip_bytes": args.max_part_size,
         },
         "export": export_meta,
         "output": {
@@ -395,10 +395,9 @@ def command_build(args: argparse.Namespace) -> int:
                 if archive_info
                 else None
             ),
-            "versioned": sorted(
-                [path.name for path in output_dir.glob("*.zip")] + ["bulkimport_audit.json"]
-            ),
+            "versioned": sorted(([archive_info.name] if archive_info else []) + ["bulkimport_audit.json"]),
             "not_versioned": [part.name for part in parts]
+            + [part.zip for part in parts]
             + [bundle.name, report_path.name]
             + ([dev_audit_info.before, dev_audit_info.after] if dev_audit_info else []),
         },
@@ -416,8 +415,9 @@ def command_build(args: argparse.Namespace) -> int:
             "mechanism": "manual",
             "api_upload": False,
             "note": (
-                "No tool in this repository uploads to OCL. Extract the parts from the archive and upload them "
-                "in numeric order through the OCL bulk-import form, reusing one Queue ID."
+                "No tool in this repository uploads to OCL. Upload the part ZIPs (bulkimport_part_NNN.zip, each "
+                "within the compressed part cap) in numeric order through the OCL bulk-import form, reusing one "
+                "Queue ID. `build` recreates them byte for byte; the archive holds the NDJSON they were built from."
             ),
         },
     }
@@ -426,7 +426,7 @@ def command_build(args: argparse.Namespace) -> int:
     print(f"mode: {mode}   upload_ready: {upload_ready}")
     print(f"changed concepts: {len(result.lines):,}   by locale: {result.locale_counts()}")
     for part in parts:
-        print(f"  {part.name}  {part.lines:,} lines  {part.bytes:,} bytes  sha256={part.sha256[:12]}…")
+        print(f"  {part.zip}  {part.lines:,} lines  {part.bytes:,} bytes → {part.zip_bytes:,} bytes zipped  sha256={part.zip_sha256[:12]}…")
     print(f"bundle: {bundle.name}  {bundle.lines:,} lines  {bundle.bytes:,} bytes")
     if archive_info:
         print(
@@ -452,13 +452,7 @@ def command_compact(args: argparse.Namespace) -> int:
     audit = json.loads(audit_path.read_text(encoding="utf-8")) if audit_path.is_file() else {}
 
     def info(path: Path) -> dict:
-        payload = path.read_bytes()
-        return PartInfo(
-            name=path.name,
-            lines=payload.count(b"\n"),
-            sha256=hashlib.sha256(payload).hexdigest(),
-            bytes=len(payload),
-        ).__dict__
+        return part_info_from_disk(path).__dict__
 
     manifest = build_manifest(
         target=audit.get("target", {"owner": TARGET_OWNER, "source": TARGET_SOURCE, "owner_type": "Organization"}),
