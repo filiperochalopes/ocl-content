@@ -79,14 +79,20 @@ uv run python terminologies/icd/icd-11/pipeline/cli.py build
 output/
 ├── bulkimport_part_001.zip … NNN      # upload files, ≤ 2 MB compressed → NOT versioned
 ├── bulkimport_part_001.ndjson … NNN   # what each zip holds, ordered     → NOT versioned
-├── bulkimport_bundle.ndjson           # every line, in order → NOT versioned
-├── bulkimport_audit.json              # provenance + counts + hashes → versioned
-└── bulkimport_icd11-who.zip           # parts + bundle + manifest    → versioned
+├── bulkimport_bundle.ndjson                # every line in order                  → NOT versioned
+├── bulkimport_icd11-who.bundle.zip         # one member: bulkimport_bundle.ndjson → versioned; direct upload
+├── bulkimport_icd11-who.parts.zip          # inner part ZIPs + manifest            → NOT versioned; extract first
+└── bulkimport_audit.json                   # provenance + counts + hashes          → versioned
 ```
 
-Parts, bundle, manifest, and zip come from the shared `tools/ocl_artifacts.py`, so they behave exactly
-as the ICD-10 ones: parts cut on resource boundaries in order, concatenation equals the bundle, a
-rebuild is byte-identical, and the audit holds repo-relative paths and no timestamp.
+The `.bundle.zip` is a single-member archive for one full import. The `.parts.zip` is only a distribution wrapper:
+extract it and upload the inner `bulkimport_part_NNN.zip` files in numeric order, one Queue ID. Never upload the outer
+`.parts.zip`; each inner part ZIP contains exactly one NDJSON file. Parts, nested upload ZIPs, the distribution ZIP,
+and bundle NDJSON are reproducible and gitignored; only the bundle ZIP and audit are versioned.
+
+Parts, bundle, manifest, and both hand-off ZIPs come from the shared `tools/ocl_artifacts.py`, so they behave exactly
+as the ICD-10 ones: parts cut on resource boundaries in order, concatenation equals the bundle, a rebuild is byte-identical,
+and the audit holds repo-relative paths and no timestamp.
 
 ### Rules the reader applies
 
@@ -122,11 +128,13 @@ skipped count are identical.
 
 ## Uploading is manual
 
-No script in this repository uploads a bulk import to OCL. The hand-off is the archive: extract the
-parts and upload them **in numeric order** through the OCL bulk-import form with one Queue ID. The
-lines create complete concepts, so load them only into an **empty** `WHO/ICD-11-WHO` Source — the
-importer would overwrite an existing concept's names and extras. Add `en` to `supported_locales` and
-set the hierarchy root as described above before loading.
+No script in this repository uploads a bulk import to OCL. A one-shot import uses
+`bulkimport_icd11-who.bundle.zip` (one NDJSON member). For multipart import, extract
+`bulkimport_icd11-who.parts.zip` and upload only the inner `bulkimport_part_NNN.zip` files **in
+numeric order** through the OCL bulk-import form with one Queue ID. Never upload the outer
+`.parts.zip`. The lines create complete concepts, so load them only into an **empty**
+`WHO/ICD-11-WHO` Source — the importer would overwrite an existing concept's names and extras. Add
+`en` to `supported_locales` and set the hierarchy root as described above before loading.
 
 ## Local rehearsal before production
 

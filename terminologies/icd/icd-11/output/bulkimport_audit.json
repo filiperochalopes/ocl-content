@@ -37,216 +37,80 @@
       "Root": 1
     },
     "rooted_without_parent": 0,
-    "max_part_bytes": 2097152
+    "max_part_zip_bytes": 2097152
   },
   "output": {
     "directory": "terminologies/icd/icd-11/output",
     "parts": [
       {
         "name": "bulkimport_part_001.ndjson",
-        "lines": 3340,
-        "sha256": "9c3a92d53941e995937028c51e0457f70053185114387c182f586d601df6bcca",
-        "bytes": 2096893
-      },
-      {
-        "name": "bulkimport_part_002.ndjson",
-        "lines": 3330,
-        "sha256": "bb0922936768b4af8689b3886bd8891910867a779d8147816479a429bd6467c3",
-        "bytes": 2096691
-      },
-      {
-        "name": "bulkimport_part_003.ndjson",
-        "lines": 3353,
-        "sha256": "6ee947bd40e79de63eb17af438d62bd90a1347c47e93111486b142cdbb8d0cd4",
-        "bytes": 2096654
-      },
-      {
-        "name": "bulkimport_part_004.ndjson",
-        "lines": 3320,
-        "sha256": "e9f46d05ed0948367b6adb667dbaf172ee61b8d752f7472e9ed134eb054e9ae9",
-        "bytes": 2096753
-      },
-      {
-        "name": "bulkimport_part_005.ndjson",
-        "lines": 3275,
-        "sha256": "234a28e5b50c5d6b9c0a707e5f8bf3a91de686fc297bc24eb39c21403b192ad5",
-        "bytes": 2097148
-      },
-      {
-        "name": "bulkimport_part_006.ndjson",
-        "lines": 3287,
-        "sha256": "c895b35e64ba224038a004b980860c84f4e7e8990f214956be4b0158b461f2ab",
-        "bytes": 2096791
-      },
-      {
-        "name": "bulkimport_part_007.ndjson",
-        "lines": 3384,
-        "sha256": "a0ba5efbd198b0ed3f483ddce9e7455bf603a5e8abea5afc4ab03abe98927236",
-        "bytes": 2096915
-      },
-      {
-        "name": "bulkimport_part_008.ndjson",
-        "lines": 3336,
-        "sha256": "c9017e8e5fc9bb5dd5a1ee3a2c7e74e24b5a1f3904bfa6728abbdda97448f391",
-        "bytes": 2096874
-      },
-      {
-        "name": "bulkimport_part_009.ndjson",
-        "lines": 3332,
-        "sha256": "c71f92ce4ee5f51dbd3320649425052a1c671ae08b30169f4efd4913bd683c5a",
-        "bytes": 2096644
-      },
-      {
-        "name": "bulkimport_part_010.ndjson",
-        "lines": 3396,
-        "sha256": "1f6fa0208b8b49d28e55a430b43d4b4604b8b11ac6306db57b18c29c192d3e60",
-        "bytes": 2097076
-      },
-      {
-        "name": "bulkimport_part_011.ndjson",
-        "lines": 3398,
-        "sha256": "a5f954007fe841093a84c026f970c97599b20a85d639c7626f23c475c231e072",
-        "bytes": 2096685
-      },
-      {
-        "name": "bulkimport_part_012.ndjson",
-        "lines": 302,
-        "sha256": "d938b4b9266640132a37d9477cc1564db942bde99764ca6ef812f907a5ab3706",
-        "bytes": 189750
+        "lines": 37053,
+        "sha256": "545ed4e5d885b7632985b1362350e81d4e1d02f3278f7f7fdd2ea01b429eef54",
+        "bytes": 23254874,
+        "zip": "bulkimport_part_001.zip",
+        "zip_bytes": 1152095,
+        "zip_sha256": "761e631884e9999bac3caa59db1371f641c4db1adaa003212d2d7a896f68a60c"
       }
     ],
     "bundle": {
       "name": "bulkimport_bundle.ndjson",
       "lines": 37053,
       "sha256": "545ed4e5d885b7632985b1362350e81d4e1d02f3278f7f7fdd2ea01b429eef54",
-      "bytes": 23254874
+      "bytes": 23254874,
+      "zip": "",
+      "zip_bytes": 0,
+      "zip_sha256": ""
     },
-    "archive": {
-      "name": "bulkimport_icd11-who.zip",
-      "bytes": 2312569,
+    "bundle_archive": {
+      "name": "bulkimport_icd11-who.bundle.zip",
+      "bytes": 1152091,
       "method": "deflate",
-      "payload_bytes": 46513038,
+      "payload_bytes": 23254874,
       "members": [
-        {
-          "name": "bulkimport_part_001.ndjson",
-          "lines": 3340,
-          "bytes": 2096893,
-          "compressed_bytes": 99730,
-          "sha256": "9c3a92d53941e995937028c51e0457f70053185114387c182f586d601df6bcca"
-        },
-        {
-          "name": "bulkimport_part_002.ndjson",
-          "lines": 3330,
-          "bytes": 2096691,
-          "compressed_bytes": 97822,
-          "sha256": "bb0922936768b4af8689b3886bd8891910867a779d8147816479a429bd6467c3"
-        },
-        {
-          "name": "bulkimport_part_003.ndjson",
-          "lines": 3353,
-          "bytes": 2096654,
-          "compressed_bytes": 102945,
-          "sha256": "6ee947bd40e79de63eb17af438d62bd90a1347c47e93111486b142cdbb8d0cd4"
-        },
-        {
-          "name": "bulkimport_part_004.ndjson",
-          "lines": 3320,
-          "bytes": 2096753,
-          "compressed_bytes": 101153,
-          "sha256": "e9f46d05ed0948367b6adb667dbaf172ee61b8d752f7472e9ed134eb054e9ae9"
-        },
-        {
-          "name": "bulkimport_part_005.ndjson",
-          "lines": 3275,
-          "bytes": 2097148,
-          "compressed_bytes": 96859,
-          "sha256": "234a28e5b50c5d6b9c0a707e5f8bf3a91de686fc297bc24eb39c21403b192ad5"
-        },
-        {
-          "name": "bulkimport_part_006.ndjson",
-          "lines": 3287,
-          "bytes": 2096791,
-          "compressed_bytes": 102421,
-          "sha256": "c895b35e64ba224038a004b980860c84f4e7e8990f214956be4b0158b461f2ab"
-        },
-        {
-          "name": "bulkimport_part_007.ndjson",
-          "lines": 3384,
-          "bytes": 2096915,
-          "compressed_bytes": 104946,
-          "sha256": "a0ba5efbd198b0ed3f483ddce9e7455bf603a5e8abea5afc4ab03abe98927236"
-        },
-        {
-          "name": "bulkimport_part_008.ndjson",
-          "lines": 3336,
-          "bytes": 2096874,
-          "compressed_bytes": 109737,
-          "sha256": "c9017e8e5fc9bb5dd5a1ee3a2c7e74e24b5a1f3904bfa6728abbdda97448f391"
-        },
-        {
-          "name": "bulkimport_part_009.ndjson",
-          "lines": 3332,
-          "bytes": 2096644,
-          "compressed_bytes": 113367,
-          "sha256": "c71f92ce4ee5f51dbd3320649425052a1c671ae08b30169f4efd4913bd683c5a"
-        },
-        {
-          "name": "bulkimport_part_010.ndjson",
-          "lines": 3396,
-          "bytes": 2097076,
-          "compressed_bytes": 108323,
-          "sha256": "1f6fa0208b8b49d28e55a430b43d4b4604b8b11ac6306db57b18c29c192d3e60"
-        },
-        {
-          "name": "bulkimport_part_011.ndjson",
-          "lines": 3398,
-          "bytes": 2096685,
-          "compressed_bytes": 109014,
-          "sha256": "a5f954007fe841093a84c026f970c97599b20a85d639c7626f23c475c231e072"
-        },
-        {
-          "name": "bulkimport_part_012.ndjson",
-          "lines": 302,
-          "bytes": 189750,
-          "compressed_bytes": 11405,
-          "sha256": "d938b4b9266640132a37d9477cc1564db942bde99764ca6ef812f907a5ab3706"
-        },
         {
           "name": "bulkimport_bundle.ndjson",
           "lines": 37053,
           "bytes": 23254874,
           "compressed_bytes": 1151945,
           "sha256": "545ed4e5d885b7632985b1362350e81d4e1d02f3278f7f7fdd2ea01b429eef54"
+        }
+      ],
+      "ratio": 0.0495,
+      "sha256": "c02ad8a0ddf4a4477ac286aa42f4a8ba8537638666e1e219bf8cef2ea05652a0"
+    },
+    "parts_archive": {
+      "name": "bulkimport_icd11-who.parts.zip",
+      "bytes": 1146274,
+      "method": "deflate",
+      "payload_bytes": 1153460,
+      "members": [
+        {
+          "name": "bulkimport_part_001.zip",
+          "lines": 5735,
+          "bytes": 1152095,
+          "compressed_bytes": 1145397,
+          "sha256": "761e631884e9999bac3caa59db1371f641c4db1adaa003212d2d7a896f68a60c"
         },
         {
           "name": "bulkimport_manifest.json",
           "lines": 0,
-          "bytes": 3290,
-          "compressed_bytes": 1096,
-          "sha256": "ae69cdfa4051224a31322ac595385510292497d559e0cfae9714af3a923a5ee4"
+          "bytes": 1365,
+          "compressed_bytes": 609,
+          "sha256": "d41072d49a435e59bcd395db98198cd5a1680bc608da3505692436b0f64c2a46"
         }
       ],
-      "ratio": 0.0497,
-      "sha256": "d0bdc2af9d5bc2538c52b0d26e0d0a1167932eb96f49344a232dc3e387ed5e79"
+      "ratio": 0.9938,
+      "sha256": "1eac21b2b22f7793ed4961e51d164225d44ee68401c96a50596d05e0dcab3205"
     },
     "versioned": [
       "bulkimport_audit.json",
-      "bulkimport_icd11-who.zip"
+      "bulkimport_icd11-who.bundle.zip"
     ],
     "not_versioned": [
       "bulkimport_part_001.ndjson",
-      "bulkimport_part_002.ndjson",
-      "bulkimport_part_003.ndjson",
-      "bulkimport_part_004.ndjson",
-      "bulkimport_part_005.ndjson",
-      "bulkimport_part_006.ndjson",
-      "bulkimport_part_007.ndjson",
-      "bulkimport_part_008.ndjson",
-      "bulkimport_part_009.ndjson",
-      "bulkimport_part_010.ndjson",
-      "bulkimport_part_011.ndjson",
-      "bulkimport_part_012.ndjson",
-      "bulkimport_bundle.ndjson"
+      "bulkimport_part_001.zip",
+      "bulkimport_bundle.ndjson",
+      "bulkimport_icd11-who.parts.zip"
     ]
   },
   "projection": {
@@ -273,6 +137,6 @@
   "upload": {
     "mechanism": "manual",
     "api_upload": false,
-    "note": "No tool in this repository uploads to OCL. Extract the parts from the archive and upload them in numeric order through the OCL bulk-import form, reusing one Queue ID."
+    "note": "The .bundle.zip contains exactly one complete NDJSON file and can be uploaded as one import. The .parts.zip is a distribution container, not an OCL upload: extract it, then upload each inner bulkimport_part_NNN.zip in numeric order through the OCL form, reusing one Queue ID. Each inner part ZIP contains exactly one NDJSON file."
   }
 }

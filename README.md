@@ -37,7 +37,8 @@ python3 tools/ocl_source_config.py --config terminologies/icd/icd-10/source.json
 The same workspace owns the translation pipeline that proposes `pt_BR` names from the Brazilian
 CID-10 (DATASUS) and `fr` names from the French CIM-10-FR (ATIH) for codes that exist in the
 canonical baseline, verifies that baseline against the WHO ClaML release, and writes ordered
-size-capped bulk-import parts (plus the whole bundle and the versioned archive):
+size-capped bulk-import parts, the whole bundle, a single-member `*.bundle.zip`, and a `*.parts.zip`
+distribution wrapper that contains the individual upload ZIPs:
 
 ```bash
 python3 terminologies/icd/icd-10/pipeline/cli.py fetch-assets --asset all
@@ -45,10 +46,7 @@ python3 terminologies/icd/icd-10/pipeline/cli.py canonical --compare "ICD-10 for
 python3 terminologies/icd/icd-10/pipeline/cli.py build
 ```
 
-Only the archive and the audit are committed; uploading the parts stays a manual step through the
-OCL bulk-import form. See the terminology README for the provenance table, the alignment rules,
-the canonical verification results, the draft versus upload-ready distinction, and the guarded
-Source commands.
+Only the single-member bundle ZIP and the audit are committed. Upload one bundle ZIP for a full import, or extract `.parts.zip` and upload each inner part ZIP manually in numeric order through the OCL bulk-import form. Never upload the outer `.parts.zip` container. See the terminology README for the provenance table, alignment rules, canonical verification results, draft versus upload-ready distinction, and guarded Source commands.
 
 ## Shared tooling
 

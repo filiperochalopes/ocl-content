@@ -41,7 +41,7 @@ Use `--check` for a read-only comparison. The tool prints the proposed PATCH bod
 
 - New repeatable terminology workflows are tested Python modules under `terminologies/<authority>/<terminology>/pipeline/`. Keep a chunk of code shared only when more than one pipeline genuinely uses it: the part, bundle, manifest, and zip writers (`tools/ocl_artifacts.py`), the pinned-asset fetcher (`tools/ocl_assets.py`), and the by-path importer (`tools/ocl_pipeline_loader.py`) are shared by ICD-10 and ICD-11.
 - A national edition is not a translation of a canonical release: align names by exact code, keep codes that exist only in the national edition out of scope, and record curated decisions in `review/` instead of encoding them as heuristics.
-- Bulk-import artifacts belong in `terminologies/<authority>/<terminology>/output/`: ordered parts capped in size, the complete bundle, an alignment report, a machine-readable audit, and one zip holding parts + bundle + manifest. Only the **zip** and `bulkimport_audit.json` are versioned; parts and reports are byte-reproducible and stay out of Git.
+- Bulk-import artifacts belong in `terminologies/<authority>/<terminology>/output/`: ordered parts capped by compressed ZIP size, the complete bundle, a single-member `*.bundle.zip`, a `*.parts.zip` distribution wrapper, an alignment report, and a machine-readable audit. Only the **bundle ZIP** and `bulkimport_audit.json` are versioned; extract `.parts.zip` and upload its inner part ZIPs individually in numeric order, one Queue ID. Never upload the `.parts.zip` container itself.
 - Review the proposal as a diff, not as a 12k-line NDJSON: `--dev-audit` writes the pretty-printed before/after pair (same IDs, same order, same fields) for pasting into a JSON-aware diff viewer. It is opt-in, never uploaded, and never versioned — the sibling `ciel-scripts` repository documents the same pair as *the canonical audit diff input*.
 - A generated artifact must state whether it is upload-ready. Artifacts built from a committed snapshot are a draft; only a run that read every targeted concept from a Source export (`--export`) may be labelled upload-ready, and a missing concept must abort before anything is written. Artifacts and audits record repo-relative paths and no timestamps, so a rebuild is byte-identical.
 
@@ -56,7 +56,7 @@ Every pipeline folder is called `pipeline`, so a top-level `import pipeline` res
 ## Uploading is manual
 
 - Never add a script, helper, or skill that uploads a bulk import to OCL through the API, and never document one as an option. Generation produces local artifacts only.
-- The hand-off is the archive: an operator extracts the parts and uploads them in numeric order through the OCL bulk-import form using one Queue ID. Record `"upload": {"mechanism": "manual", "api_upload": false}` in the audit and repeat the instruction in the manifest.
+- The hand-off is either the single-member `*.bundle.zip` for one import, or the outer `*.parts.zip` as a distribution wrapper: extract it and upload only its inner one-member part ZIPs in numeric order through the OCL bulk-import form using one Queue ID. Never upload the outer parts wrapper. Record this distinction in the audit and manifest.
 
 ## Tests
 

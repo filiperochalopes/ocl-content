@@ -63,9 +63,7 @@ The token is never printed. Two instance facts the tools rely on:
 
 - **Production is read-only here.** Tools in this repository only `GET`. A production write needs
   your explicit, separate approval and is done by hand.
-- **Uploads are manual**, locally too: extract the parts and upload them in numeric order through the
-  OCL bulk-import form with one Queue ID. No script here uploads, and the sibling `ciel-scripts`
-  option `bulk_import_refactor.py --upload` is deliberately **not** used.
+- **Uploads are manual**, locally too: upload the single-member `*.bundle.zip`, or extract `*.parts.zip` and upload each inner part ZIP in numeric order through the OCL bulk-import form with one Queue ID. Never upload the outer `.parts.zip`; no script here uploads, and the sibling `ciel-scripts` option `bulk_import_refactor.py --upload` is deliberately **not** used.
 - **Never ask the server to generate an export** from a tool: `ocl_export_download.py` stops on `204`
   (no export ready) and tells you to generate it in OCL.
 - An export is a snapshot. Build from a fresh one, and keep its SHA-256: the audit records it, and the
@@ -97,7 +95,7 @@ flowchart TD
     end
 
     subgraph APPLY["A3 · Apply on the local instance"]
-        L1["Extract the parts from the zip, upload in numeric order<br/>one Queue ID, bulk-import form"]:::manual
+        L1["Choose bundle ZIP or extract parts ZIP,<br/>upload one-member files in order, one Queue ID"]:::manual
         L2["Wait for the import task to finish"]:::manual
         L3["Download the local export = AFTER<br/>ocl_export_download.py --env-file .env.local"]:::auto
     end
@@ -172,7 +170,10 @@ uv run python tools/ocl_verify_update.py \
 uv run python terminologies/icd/icd-10/pipeline/cli.py build --dev-audit \
     --export exports/local/before/WHO_ICD-10-WHO_HEAD.zip
 
-# A3. by hand: extract the parts from output/bulkimport_icd10-who.zip and upload them, in order, to the local form.
+# A3. by hand: choose ONE route:
+#     full import: upload output/bulkimport_icd10-who.bundle.zip (contains exactly one NDJSON file), OR
+#     multipart: extract output/bulkimport_icd10-who.parts.zip, then upload each inner bulkimport_part_NNN.zip
+#     in numeric order, using one Queue ID. Never upload the outer .parts.zip.
 
 # A4. after the task finishes
 uv run python tools/ocl_export_download.py --env-file .env.local --allow-insecure-localhost \
@@ -180,7 +181,7 @@ uv run python tools/ocl_export_download.py --env-file .env.local --allow-insecur
 
 uv run python tools/ocl_verify_update.py \
     --before exports/local/before/WHO_ICD-10-WHO_HEAD.zip --after exports/local/after/WHO_ICD-10-WHO_HEAD.zip \
-    --artifact terminologies/icd/icd-10/output/bulkimport_icd10-who.zip \
+    --artifact terminologies/icd/icd-10/output/bulkimport_icd10-who.bundle.zip \
     --audit terminologies/icd/icd-10/output/bulkimport_audit.json \
     --report terminologies/icd/icd-10/evidence/local-update.report.json
 ```
@@ -283,7 +284,7 @@ uv run python tools/ocl_export_download.py --env-file .env.local --allow-insecur
     --owner WHO --source ICD-11-WHO --out exports/local/after/WHO_ICD-11-WHO_HEAD.zip
 uv run python tools/ocl_verify_update.py --mode create --owner WHO --source ICD-11-WHO \
     --after exports/local/after/WHO_ICD-11-WHO_HEAD.zip \
-    --artifact terminologies/icd/icd-11/output/bulkimport_icd11-who.zip \
+    --artifact terminologies/icd/icd-11/output/bulkimport_icd11-who.bundle.zip \
     --report terminologies/icd/icd-11/evidence/local-create.report.json
 ```
 
@@ -314,8 +315,8 @@ A short PR block:
 **Local rehearsal** — OCL 2.3.208-dev at http://api.ocl.localhost
 - Snapshot: WHO/ICD-10-WHO HEAD, sha256 `…`, taken YYYY-MM-DD
 - Replica fidelity: PASS
-- Artifact: `bulkimport_icd10-who.zip` sha256 `…`, audit export.sha256 == BEFORE
-- Upload: queue `…`, 4 parts in order, task SUCCESS
+- Artifact: `bulkimport_icd10-who.bundle.zip` sha256 `…`, audit export.sha256 == BEFORE
+- Upload: queue `…`; one `*.bundle.zip` OR the inner part ZIPs in numeric order; task SUCCESS
 - Verification: `terminologies/icd/icd-10/evidence/local-update.report.json` → PASS (N concepts, +X pt_BR, +Y fr)
 - Not covered: …
 ```

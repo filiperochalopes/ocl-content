@@ -1,13 +1,13 @@
 """Shared mechanics for versioned bulk-import artifacts, used by every terminology pipeline.
 
-Ordered NDJSON parts (each also written as an upload ZIP capped by its COMPRESSED size), the whole bundle,
-a manifest, and the one zip that holds them.
-Only the zip and the audit are versioned; the parts and the bundle are deterministically
-regenerable and stay out of Git (see ``terminologies/.gitignore``).
+Ordered NDJSON parts (each also written as a one-member upload ZIP capped by its COMPRESSED size), the whole bundle, a
+single-member ``*.bundle.zip`` for direct full-bundle upload, and a ``*.parts.zip`` distribution archive containing
+the individual part ZIPs plus a manifest. Only the bundle ZIP and audit are versioned; the parts ZIP, its nested upload
+parts, and the raw bundle are deterministically regenerable and stay out of Git (see ``terminologies/.gitignore``).
 
-Uploading is deliberately manual. Nothing here — and nothing in any pipeline — calls an OCL
-upload or bulk-import endpoint; an operator extracts the parts and uploads them in order through
-the OCL bulk-import form. This module performs no network call.
+Uploading is deliberately manual. Never upload ``*.parts.zip`` itself: extract it, then upload each inner
+``*_part_NNN.zip`` (each contains exactly one NDJSON member) in order through the OCL bulk-import form. The
+``*.bundle.zip`` also contains exactly one NDJSON member and can be uploaded as one import.
 
 The compression method is selectable: ``deflate`` (level 9, maximum portability), ``bzip2``, or
 ``lzma`` (smallest for NDJSON but not readable by every archive tool).
@@ -61,26 +61,24 @@ def sha256_bytes(payload: bytes) -> str:
 def create_archive(
     out_dir: Path,
     *,
-    parts: list[Path],
-    bundle: Path,
-    manifest: dict,
+    files: list[Path],
     archive_name: str,
+    manifest: dict | None = None,
     method: str = DEFAULT_METHOD,
 ) -> ArchiveInfo:
-    """Zip ``parts`` (in the given order) plus ``bundle`` and the manifest."""
+    """Create a deterministic ZIP from ``files`` and optionally add a JSON manifest."""
     if method not in METHODS:
         raise ValueError(f"unknown compression method {method!r}; use one of {', '.join(sorted(METHODS))}")
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     archive_path = out_dir / archive_name
-    if archive_path.exists():
-        archive_path.unlink()
+    archive_path.unlink(missing_ok=True)
 
     payload_bytes = 0
     members: list[MemberInfo] = []
     compression = METHODS[method]
     with zipfile.ZipFile(archive_path, "w", compression, compresslevel=9) as archive:
-        sources = [Path(part) for part in parts] + [Path(bundle)]
+        sources = [Path(source) for source in files]
         for source in sources:
             if not source.is_file():
                 raise FileNotFoundError(f"cannot archive missing artifact: {source}")
@@ -88,7 +86,7 @@ def create_archive(
             payload_bytes += len(payload)
             info = zipfile.ZipInfo(source.name)
             info.compress_type = compression
-            info.date_time = (1980, 1, 1, 0, 0, 0)  # fixed, so re-zipping is reproducible
+            info.date_time = (1980, 1, 1, 0, 0, 0)
             info.external_attr = 0o644 << 16
             archive.writestr(info, payload, compresslevel=9)
             entry = archive.getinfo(source.name)
@@ -101,23 +99,24 @@ def create_archive(
                     sha256=sha256_bytes(payload),
                 )
             )
-        manifest_payload = (json.dumps(manifest, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
-        payload_bytes += len(manifest_payload)
-        info = zipfile.ZipInfo(MANIFEST_NAME)
-        info.compress_type = compression
-        info.date_time = (1980, 1, 1, 0, 0, 0)
-        info.external_attr = 0o644 << 16
-        archive.writestr(info, manifest_payload, compresslevel=9)
-        entry = archive.getinfo(MANIFEST_NAME)
-        members.append(
-            MemberInfo(
-                name=MANIFEST_NAME,
-                lines=0,
-                bytes=len(manifest_payload),
-                compressed_bytes=entry.compress_size,
-                sha256=sha256_bytes(manifest_payload),
+        if manifest is not None:
+            manifest_payload = (json.dumps(manifest, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+            payload_bytes += len(manifest_payload)
+            info = zipfile.ZipInfo(MANIFEST_NAME)
+            info.compress_type = compression
+            info.date_time = (1980, 1, 1, 0, 0, 0)
+            info.external_attr = 0o644 << 16
+            archive.writestr(info, manifest_payload, compresslevel=9)
+            entry = archive.getinfo(MANIFEST_NAME)
+            members.append(
+                MemberInfo(
+                    name=MANIFEST_NAME,
+                    lines=0,
+                    bytes=len(manifest_payload),
+                    compressed_bytes=entry.compress_size,
+                    sha256=sha256_bytes(manifest_payload),
+                )
             )
-        )
     return ArchiveInfo(
         name=archive_name,
         bytes=archive_path.stat().st_size,
@@ -139,8 +138,10 @@ def build_manifest(
     parts: list[dict],
     bundle: dict,
     method: str,
+    bundle_archive: str,
+    parts_archive: str,
 ) -> dict:
-    """The manifest stored inside the archive, aimed at the human doing the upload."""
+    """The manifest stored inside the parts distribution ZIP for the person doing the upload."""
     return {
         "schema_version": 1,
         "target": target,
@@ -150,10 +151,13 @@ def build_manifest(
         "upload": {
             "mechanism": "manual",
             "note": (
-                "No tool in this repository uploads to OCL. Upload the part ZIPs (each at most the part cap, "
-                "compressed) in numeric order through the OCL bulk-import form, reusing one Queue ID. The "
-                "archive holds the NDJSON each ZIP was built from; `build` recreates the ZIPs byte for byte."
+                "The .bundle.zip contains exactly one complete NDJSON file and can be uploaded as one import. "
+                "The .parts.zip is a distribution container, not an OCL upload: extract it, then upload each "
+                "inner bulkimport_part_NNN.zip in numeric order through the OCL form, reusing one Queue ID. "
+                "Each inner part ZIP contains exactly one NDJSON file."
             ),
+            "bundle_archive": bundle_archive,
+            "parts_archive": parts_archive,
             "order": [part.get("zip") or part["name"] for part in parts],
         },
         "bundle": bundle,

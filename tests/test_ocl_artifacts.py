@@ -96,9 +96,13 @@ def test_the_manifest_lists_the_upload_zips_in_order(tmp_path):
     parts = subject.write_parts(tmp_path, incompressible(400), 15_000)
     bundle = subject.write_bundle(tmp_path, incompressible(400))
     manifest = subject.build_manifest(target={}, mode="m", upload_ready=False, parts=[p.__dict__ for p in parts],
-                                      bundle=bundle.__dict__, method="deflate")
+                                      bundle=bundle.__dict__, method="deflate",
+                                      bundle_archive="x.bundle.zip", parts_archive="x.parts.zip")
     assert manifest["upload"]["order"] == [p.zip for p in parts]
-    assert "part ZIPs" in manifest["upload"]["note"] and manifest["upload"]["mechanism"] == "manual"
+    assert ".bundle.zip" in manifest["upload"]["note"] and ".parts.zip" in manifest["upload"]["note"]
+    assert manifest["upload"]["bundle_archive"] == "x.bundle.zip"
+    assert manifest["upload"]["parts_archive"] == "x.parts.zip"
+    assert manifest["upload"]["mechanism"] == "manual"
 
 
 def test_zip_payload_is_a_plain_deflate_zip_any_importer_can_read():

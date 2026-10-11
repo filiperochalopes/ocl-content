@@ -46,7 +46,7 @@ Offline converter from an export to a **replica seed** for a local instance: `so
 
 ## `ocl_artifacts.py`, `ocl_assets.py`, `ocl_pipeline_loader.py`
 
-Shared by every terminology pipeline. `ocl_artifacts.py` writes the ordered, size-capped NDJSON parts, the whole bundle, the manifest, and the one zip, with fixed timestamps so a rebuild is byte-identical. `ocl_assets.py` downloads a pinned public input and verifies its SHA-256 before keeping it. `ocl_pipeline_loader.py` imports a terminology's `pipeline` package by path (`load("icd/icd-10", "align")`), so two pipelines named `pipeline` can coexist in one process. None of them talks to OCL.
+Shared by every terminology pipeline. `ocl_artifacts.py` writes ordered NDJSON parts, one-member ZIPs for each part, the complete bundle, a single-member `*.bundle.zip` for direct upload, and a `*.parts.zip` distribution wrapper with the nested part ZIPs and manifest. The outer `.parts.zip` is never uploaded; extract it and submit each inner part ZIP in numeric order. Only the bundle ZIP and audit are versioned; all generated parts and the parts wrapper are reproducible and ignored by Git. `ocl_assets.py` downloads a pinned public input and verifies its SHA-256 before keeping it. `ocl_pipeline_loader.py` imports a terminology's `pipeline` package by path (`load("icd/icd-10", "align")`), so two pipelines named `pipeline` can coexist in one process. None of them talks to OCL.
 
 ## `ocl_http.py`
 

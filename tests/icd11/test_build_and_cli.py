@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 import json
 import zipfile
 from pathlib import Path
@@ -84,8 +85,17 @@ def test_cli_writes_ordered_capped_parts_a_bundle_an_archive_and_an_audit(tmp_pa
     assert audit["upload_ready"] is False and audit["warning"]
     assert audit["upload"] == {**audit["upload"], "mechanism": "manual", "api_upload": False}
     assert audit["inputs"][0]["release"] == "2026-01"
-    with zipfile.ZipFile(output / "bulkimport_icd11-who.zip") as archive:
-        assert {"bulkimport_bundle.ndjson", "bulkimport_manifest.json"} <= set(archive.namelist())
+    with zipfile.ZipFile(output / "bulkimport_icd11-who.bundle.zip") as archive:
+        assert archive.namelist() == ["bulkimport_bundle.ndjson"]
+        assert archive.getinfo("bulkimport_bundle.ndjson").file_size == (output / "bulkimport_bundle.ndjson").stat().st_size
+    with zipfile.ZipFile(output / "bulkimport_icd11-who.parts.zip") as archive:
+        assert [name for name in archive.namelist() if name.endswith(".zip")] == [p.name for p in zips]
+        assert "bulkimport_manifest.json" in archive.namelist()
+        for part_zip in zips:
+            with zipfile.ZipFile(io.BytesIO(archive.read(part_zip.name))) as upload_zip:
+                assert len(upload_zip.namelist()) == 1 and upload_zip.namelist()[0].endswith(".ndjson")
+    assert audit["output"]["bundle_archive"]["name"] == "bulkimport_icd11-who.bundle.zip"
+    assert audit["output"]["parts_archive"]["name"] == "bulkimport_icd11-who.parts.zip"
 
 
 def test_rebuild_is_byte_identical_and_records_no_absolute_paths(tmp_path, ordered_txt):
@@ -95,7 +105,10 @@ def test_rebuild_is_byte_identical_and_records_no_absolute_paths(tmp_path, order
         run_dir.mkdir()
         assert main(build_args(run_dir, ordered_txt)) == 0
         outputs.append(run_dir / "output")
-    for name in ("bulkimport_audit.json", "bulkimport_icd11-who.zip", "bulkimport_bundle.ndjson"):
+    for name in (
+        "bulkimport_audit.json", "bulkimport_icd11-who.bundle.zip", "bulkimport_icd11-who.parts.zip",
+        "bulkimport_bundle.ndjson",
+    ):
         assert (outputs[0] / name).read_bytes() == (outputs[1] / name).read_bytes(), name
     text = (outputs[0] / "bulkimport_audit.json").read_text(encoding="utf-8")
     assert str(tmp_path) not in text and "/Users/" not in text and "generated_at" not in text

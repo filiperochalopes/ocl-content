@@ -71,7 +71,7 @@ def rehearsal(tmp_path, baseline_csv, datasus_dir, atih_xml):
 
 def verify_args(tmp_path, before_zip, after_zip):
     return ["--before", str(before_zip), "--after", str(after_zip),
-            "--artifact", str(tmp_path / "output" / "bulkimport_icd10-who.zip"),
+            "--artifact", str(tmp_path / "output" / "bulkimport_icd10-who.bundle.zip"),
             "--audit", str(tmp_path / "output" / "bulkimport_audit.json")]
 
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import zipfile
 from pathlib import Path
@@ -70,42 +71,58 @@ def test_parts_rebuild_the_bundle_and_the_archive_carries_both(tmp_path, baselin
     assert combined == bundle.read_bytes()
 
     audit = json.loads((output / "bulkimport_audit.json").read_text(encoding="utf-8"))
-    archive_path = output / audit["output"]["archive"]["name"]
-    assert archive_path.is_file()
-    with zipfile.ZipFile(archive_path) as archive:
-        names = archive.namelist()
-        assert names[: len(parts)] == [part.name for part in parts]
-        assert names[-2:] == [bundle.name, "bulkimport_manifest.json"]
+    bundle_archive_path = output / audit["output"]["bundle_archive"]["name"]
+    parts_archive_path = output / audit["output"]["parts_archive"]["name"]
+    assert bundle_archive_path.is_file() and parts_archive_path.is_file()
+    with zipfile.ZipFile(bundle_archive_path) as archive:
+        assert archive.namelist() == [bundle.name]
         assert archive.read(bundle.name) == bundle.read_bytes()
+    with zipfile.ZipFile(parts_archive_path) as archive:
+        assert archive.namelist() == [part.with_suffix(".zip").name for part in parts] + ["bulkimport_manifest.json"]
+        for part in parts:
+            member = part.with_suffix(".zip").name
+            with zipfile.ZipFile(io.BytesIO(archive.read(member))) as upload_zip:
+                assert upload_zip.namelist() == [part.name]
         manifest = json.loads(archive.read("bulkimport_manifest.json"))
     assert manifest["upload"]["mechanism"] == "manual"
     assert manifest["upload"]["order"] == [part.with_suffix(".zip").name for part in parts]
     assert manifest["upload_ready"] is False
     assert manifest["bundle"]["sha256"] == audit["output"]["bundle"]["sha256"]
     assert audit["upload"]["api_upload"] is False
-    assert audit["output"]["archive"]["sha256"] == hashlib.sha256(archive_path.read_bytes()).hexdigest()
+    assert audit["output"]["bundle_archive"]["sha256"] == hashlib.sha256(bundle_archive_path.read_bytes()).hexdigest()
     assert audit["output"]["not_versioned"] == (
-        [part.name for part in parts] + [part.with_suffix(".zip").name for part in parts] + [bundle.name, "alignment_report.csv"]
+        [part.name for part in parts] + [part.with_suffix(".zip").name for part in parts]
+        + [bundle.name, "alignment_report.csv", parts_archive_path.name]
     )
-    assert audit["output"]["versioned"] == sorted([archive_path.name, "bulkimport_audit.json"])  # part zips are upload-only
+    assert audit["output"]["versioned"] == sorted([bundle_archive_path.name, "bulkimport_audit.json"])
 
 
 def test_archive_can_be_skipped_and_rebuilt_with_compact(tmp_path, baseline_csv, datasus_dir, atih_xml):
     args = build_args(tmp_path, baseline_csv, datasus_dir, atih_xml, "--no-archive")
     assert main(args) == 0
     output = tmp_path / "output"
-    assert [z.name for z in output.glob("*.zip") if "_part_" not in z.name] == []  # no archive (upload zips remain)
+    assert not (output / "bulkimport_icd10-who.bundle.zip").exists()
+    assert not (output / "bulkimport_icd10-who.parts.zip").exists()
 
     assert main(["compact", "--output-dir", str(output)]) == 0
-    archive_path = output / "bulkimport_icd10-who.zip"
-    assert archive_path.is_file()
-    with zipfile.ZipFile(archive_path) as archive:
-        assert "bulkimport_manifest.json" in archive.namelist()
+    bundle_zip = output / "bulkimport_icd10-who.bundle.zip"
+    parts_zip = output / "bulkimport_icd10-who.parts.zip"
+    assert bundle_zip.is_file() and parts_zip.is_file()
+    with zipfile.ZipFile(bundle_zip) as archive:
+        assert archive.namelist() == ["bulkimport_bundle.ndjson"]
         assert archive.getinfo("bulkimport_bundle.ndjson").compress_type == zipfile.ZIP_DEFLATED
+    with zipfile.ZipFile(parts_zip) as archive:
+        assert "bulkimport_manifest.json" in archive.namelist()
+        upload_parts = [name for name in archive.namelist() if name.endswith(".zip")]
+        assert upload_parts == ["bulkimport_part_001.zip"]
+        with zipfile.ZipFile(io.BytesIO(archive.read(upload_parts[0]))) as upload_zip:
+            assert upload_zip.namelist() == ["bulkimport_part_001.ndjson"]
 
     assert main(["compact", "--output-dir", str(output), "--zip-method", "lzma"]) == 0
-    with zipfile.ZipFile(archive_path) as archive:
+    with zipfile.ZipFile(bundle_zip) as archive:
         assert archive.getinfo("bulkimport_bundle.ndjson").compress_type == zipfile.ZIP_LZMA
+    with zipfile.ZipFile(parts_zip) as archive:
+        assert archive.getinfo("bulkimport_manifest.json").compress_type == zipfile.ZIP_LZMA
 
 
 def test_dev_audit_pair_is_written_only_when_requested(tmp_path, baseline_csv, datasus_dir, atih_xml):
@@ -291,13 +308,15 @@ def test_rebuild_is_byte_identical_and_records_no_absolute_paths(tmp_path, basel
         run_dir.mkdir()
         assert main(build_args(run_dir, baseline_csv, datasus_dir, atih_xml)) == 0
         outputs.append(run_dir / "output")
-    for name in ("bulkimport_audit.json", "bulkimport_icd10-who.zip"):
+    for name in ("bulkimport_audit.json", "bulkimport_icd10-who.bundle.zip", "bulkimport_icd10-who.parts.zip"):
         assert (outputs[0] / name).read_bytes() == (outputs[1] / name).read_bytes(), name
     audit_text = (outputs[0] / "bulkimport_audit.json").read_text(encoding="utf-8")
     assert str(tmp_path) not in audit_text
     assert "/Users/" not in audit_text
     assert "generated_at" not in audit_text
-    with zipfile.ZipFile(outputs[0] / "bulkimport_icd10-who.zip") as archive:
+    with zipfile.ZipFile(outputs[0] / "bulkimport_icd10-who.bundle.zip") as archive:
+        assert archive.namelist() == ["bulkimport_bundle.ndjson"]
+    with zipfile.ZipFile(outputs[0] / "bulkimport_icd10-who.parts.zip") as archive:
         assert "generated_at" not in archive.read("bulkimport_manifest.json").decode("utf-8")
 
 

@@ -212,9 +212,9 @@ terminologies/icd/icd-10/
 │   ├── align.py              # exact-code alignment and refusals
 │   ├── export.py             # offline reader for a Source export
 │   ├── build_bulkimport.py   # projection, size-capped parts, bundle, reports
-│   └── (parts, bundle, manifest, and zip: shared in tools/ocl_artifacts.py)
+│   └── (parts, bundle, single-member bundle ZIP, parts distribution ZIP + manifest: shared in tools/ocl_artifacts.py)
 ├── review/exclusions.csv     # curated, reviewed hold-backs
-└── output/                   # versioned: the zip and the audit
+└── output/                   # versioned: the single-member bundle ZIP and audit
 ```
 
 ```bash
@@ -226,7 +226,7 @@ python3 terminologies/icd/icd-10/pipeline/cli.py canonical \
   --who-claml terminologies/icd/icd-10/assets/who/icd102019en/icd102019en.xml.zip \
   --compare "ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv"
 
-# 3. build the parts, the bundle, and the zip from the committed baseline (draft)
+# 3. build the parts, bundle, and the two ZIP hand-offs from the committed baseline (draft)
 python3 terminologies/icd/icd-10/pipeline/cli.py build
 
 # 4. regenerate from a fresh export of WHO/ICD-10-WHO so the artifacts are safe to upload (offline)
@@ -237,7 +237,7 @@ python3 terminologies/icd/icd-10/pipeline/cli.py build --export <export.json or 
 #   --exclusions FILE        apply the curated hold-backs
 #   --max-part-size SIZE     cap on each part's COMPRESSED upload zip (default 2mb)
 #   --zip-method lzma        smaller archive for NDJSON (see below)
-#   --no-archive             parts and bundle only; zip later with `compact`
+#   --no-archive             write raw artifacts only; create both ZIP hand-offs later with `compact`
 #   --output-dir DIR         default: this folder's output/
 #   --export FILE            Source export holding the current concepts (marks the artifact upload-ready)
 ```
@@ -246,36 +246,38 @@ python3 terminologies/icd/icd-10/pipeline/cli.py build --export <export.json or 
 
 ```text
 output/
-├── bulkimport_part_001.zip         # upload file, ≤ 2 MB compressed → NOT versioned
-├── bulkimport_part_001.ndjson      # what that zip holds, ordered   → NOT versioned
+├── bulkimport_part_001.zip         # one-NDJSON-member upload file, ≤ 2 MB compressed → NOT versioned
+├── bulkimport_part_001.ndjson      # content inside that upload ZIP                  → NOT versioned
 ├── bulkimport_part_002.zip / .ndjson   # …
-├── bulkimport_bundle.ndjson        # every line, in order → NOT versioned
-├── alignment_report.csv            # review surface      → NOT versioned
-├── bulkimport_audit.json           # provenance + counts + hashes → versioned
-└── bulkimport_icd10-who.zip        # parts + bundle + manifest       → versioned
+├── bulkimport_bundle.ndjson        # complete ordered payload                      → NOT versioned
+├── bulkimport_icd10-who.bundle.zip # exactly one member: bulkimport_bundle.ndjson  → versioned; upload as one file
+├── bulkimport_icd10-who.parts.zip  # individual part ZIPs + manifest               → NOT versioned; extract first
+├── alignment_report.csv            # review surface                                → NOT versioned
+└── bulkimport_audit.json           # provenance + counts + hashes                 → versioned
 ```
 
 Parts are cut on resource boundaries **in the input order** and each is capped at
-`--max-part-size` (default 2 MB **compressed**: the cap is on the size of each part's upload zip, so a large Source needs
-few parts, not hundreds of raw 2 MB files); the zips are what you upload, in numeric order. Concatenating the NDJSON parts
-in numeric order reproduces the bundle byte for byte, and a single resource larger than the cap is an error rather than a split. The zip
-carries the parts, the whole bundle, and a `bulkimport_manifest.json` that lists the target, the
-mode, whether the artifact is upload-ready, and every part's SHA-256.
+`--max-part-size` (default 2 MB **compressed**: the cap is on the size of each individual upload ZIP, so a large Source needs
+few parts, not hundreds of raw 2 MB files); the inner part ZIPs are the files you upload, in numeric order. Concatenating the NDJSON parts
+in numeric order reproduces the bundle byte for byte, and a single resource larger than the cap is an error rather than a split. The
+`.bundle.zip` contains exactly one file (`bulkimport_bundle.ndjson`) and is for a single full-bundle import. The `.parts.zip` is a
+**distribution wrapper**, not an OCL upload: it contains the individual part ZIPs and `bulkimport_manifest.json`; extract it, then
+upload only the inner `bulkimport_part_NNN.zip` files. Each inner upload ZIP contains exactly one NDJSON file.
 
-Only the zip and the audit are committed: the parts, the bundle, the canonical extraction and the
-alignment report are byte-reproducible from the inputs the audit records, and they would weigh
-several megabytes in history on every run. `compact` (re)builds the zip from what is already on
-disk — `--zip-method deflate` (default, maximum portability) or `lzma`, which is smaller for
-NDJSON but not readable by every archive tool. On the current draft: 7,311,740 bytes of payload →
-886,540 bytes with `deflate` (ratio 0.061) or ~727 KB with `lzma` (ratio 0.050).
+Only the bundle ZIP and the audit are committed. The parts archive, individual part ZIPs, parts, bundle NDJSON, the canonical
+extraction and the alignment report are byte-reproducible from the inputs the audit records and remain unversioned. `compact`
+(re)builds both ZIP hand-offs from existing parts — `--zip-method deflate` (default, maximum portability) or `lzma`, which is
+smaller for the outer archives but not readable by every archive tool. The individual upload part ZIPs always use deflate.
 
 ### Uploading is manual
 
 No script, skill, or pipeline in this repository uploads a bulk import to OCL, and none will be
-added. The generated archive is the hand-off: extract the parts, then upload them **in numeric
-order** through the OCL bulk-import form, reusing one Queue ID for all of them. The manifest
-repeats that instruction, and the audit records `"upload": {"mechanism": "manual", "api_upload":
-false}`. The pipeline makes **no network call at all**: `--export` reads a file from disk.
+added. For one upload, submit `bulkimport_icd10-who.bundle.zip` (one NDJSON member). For multipart
+uploads, extract `bulkimport_icd10-who.parts.zip`, then submit only its inner
+`bulkimport_part_NNN.zip` files **in numeric order** through the OCL bulk-import form, reusing one
+Queue ID for all of them. Do not upload the outer `.parts.zip`: it contains multiple files. The
+manifest repeats these instructions, and the audit records `"upload": {"mechanism": "manual",
+"api_upload": false}`. The pipeline makes **no network call at all**: `--export` reads a file from disk.
 
 Each line carries the complete `names`, `descriptions`, and `extras` of the concept, plus
 `type`, `id`, `concept_class`, `owner`, `owner_type`, and `source`. `datatype`, `external_id`,
@@ -285,14 +287,13 @@ one, while OCL preserves omitted scalar values and hierarchy and treats an empty
 payload as a no-op. A translation is added only when its locale has no active name; an existing
 name in that locale is never replaced and is reported instead.
 
-The committed pair is the archive and the audit; the parts are rebuilt on demand and are never
-committed.
+The committed pair is the single-member bundle ZIP and the audit; the parts archive, inner upload ZIPs, and raw parts are rebuilt on demand and never committed.
 
 ### Draft versus upload-ready
 
 `build` reads the committed baseline, which carries only the 2021 English names and the legacy
 extras. The resulting parts are a **draft** (`"mode": "offline-baseline"`,
-`"upload_ready": false`, with a warning recorded in the audit and in the archive manifest) and
+`"upload_ready": false`, with a warning recorded in the audit and in the parts-distribution manifest) and
 must not be uploaded: they do not reflect live names, descriptions, or extras.
 
 `build --export <file>` starts from the current state of every targeted concept in an export of
@@ -312,7 +313,7 @@ manual action.
 
 ### Reproducibility and recorded paths
 
-A rebuild from the same inputs is byte-identical, including the zip and `bulkimport_audit.json`:
+A rebuild from the same inputs is byte-identical, including both hand-off ZIPs and `bulkimport_audit.json`:
 neither carries a timestamp (when an artifact was produced is what Git history records), and every
 path in the audit is relative to the repository root, so a machine's directory layout never leaks.
 An input outside the repository is recorded by file name only; its SHA-256 identifies it.
@@ -372,19 +373,28 @@ baseline or a Source export to populate an artifact.
 ## Before/after dev audit (diff review)
 
 The proposal can be reviewed as a diff instead of reading a 12,498-line NDJSON. `--dev-audit`
-writes a pretty-printed pair, in the same run and with the same content as the payload:
+writes a pretty-printed pair, in the same run and with the same content as the payload. Run it on
+the same seeded build you will upload, so the `before` side is the target instance's real state:
 
 ```bash
-uv run python terminologies/icd/icd-10/pipeline/cli.py build --dev-audit
+uv run python terminologies/icd/icd-10/pipeline/cli.py build \
+  --export exports/local/WHO_ICD-10-WHO_HEAD.zip \
+  --dev-audit
 
-# output/bulkimport_before.dev.audit.json   (6.4 MB — the 2021 baseline state)
-# output/bulkimport_after.dev.audit.json    (10.5 MB — with the pt_BR/fr names added)
+# output/bulkimport_before.dev.audit.json   (7.3 MB — the export's current state)
+# output/bulkimport_after.dev.audit.json    (12.4 MB — with the pt_BR/fr names added)
 ```
+
+`--dev-audit` works in either mode, but only the `--export` build describes the update that will
+actually be uploaded; a draft (`offline-baseline`) pair describes the committed baseline instead.
 
 Both arrays carry exactly the same concept IDs, in the same order, with the same import-relevant
 fields, so a JSON-aware diff viewer shows only the changed values. Open
 <https://www.diffchecker.com/> (or any JSON diff), paste the two files, and read the proposal as
 before/after per concept — `A09` gains a `fr` and a `pt_BR` name, `U07.10` is absent, and so on.
+The pair is several megabytes; if the viewer rejects a file of that size, diff one slice at a time
+(the files are one JSON array, so a single chapter's range can be extracted) or use a local
+JSON diff. The whole pair stays readable per concept because the IDs and the order match.
 
 This mirrors the contract documented in the sibling `ciel-scripts` repository
 (`CONTRIBUTING.md`, "OCL bulk-import artifacts"): `--before-json-output` is *the canonical audit
@@ -418,8 +428,8 @@ python3 -m pytest tests/icd10
 
 They cover the DATASUS CSV schema and encoding handling, the DATASUS XML entities and structure,
 the ClaML variant, chapter and modifier-expansion rules, the WHO extraction and baseline
-verification, the alignment outcomes, the projection, the size-capped parts and their order, the
-bundle and the versioned archive, idempotency and byte-for-byte determinism, the export versus
+verification, the alignment outcomes, the projection, the size-capped parts and their order,
+the bundle and both ZIP hand-offs, idempotency and byte-for-byte determinism, the export versus
 draft modes, the offline-only guarantee, and asset verification.
 
 ```bash

@@ -36,7 +36,7 @@ def verify(tmp_path, concepts):
     return ocl_verify_update.main([
         "--mode", "create", "--owner", "WHO", "--source", "ICD-11-WHO",
         "--after", str(write_export(tmp_path / "after.zip", concepts)),
-        "--artifact", str(tmp_path / "output" / "bulkimport_icd11-who.zip"),
+        "--artifact", str(tmp_path / "output" / "bulkimport_icd11-who.bundle.zip"),
     ])
 
 

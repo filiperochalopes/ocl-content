@@ -54,30 +54,33 @@ Bulk-import artifacts live in the workspace's `output/` directory:
 
 ```text
 <terminology>/output/
-├── bulkimport_part_001.ndjson      # ordered, size-capped      → NOT versioned
-├── bulkimport_bundle.ndjson        # every line, in order      → NOT versioned
-├── alignment_report.csv            # review surface            → NOT versioned
-├── bulkimport_audit.json           # provenance, counts, hashes → versioned
-└── bulkimport_<name>.zip           # parts + bundle + manifest  → versioned
+├── bulkimport_part_001.zip         # each: one NDJSON member, capped compressed → NOT versioned
+├── bulkimport_part_001.ndjson      # raw part files, concatenated = bundle      → NOT versioned
+├── bulkimport_bundle.ndjson        # every line, in order                       → NOT versioned
+├── bulkimport_<name>.bundle.zip    # one member: full NDJSON bundle             → versioned; direct upload
+├── bulkimport_<name>.parts.zip     # individual part ZIPs + manifest           → NOT versioned; extract first
+├── alignment_report.csv            # review surface                             → NOT versioned
+└── bulkimport_audit.json           # provenance, counts, hashes                 → versioned
 ```
 
-- Cut parts on resource boundaries **in order**, cap each one's **compressed** size (a zip of at most 2 MB is the house default and the unit you upload),
+- Cut parts on resource boundaries **in order**, cap each individual upload ZIP's **compressed** size (2 MB is the house default),
   and verify that concatenating the NDJSON parts reproduces the bundle. Never split a single resource.
+- Always create two hand-offs: `*.bundle.zip` has exactly one member (the full NDJSON) for a single import; `*.parts.zip`
+  is a distribution wrapper containing the individual one-member upload ZIPs plus a manifest. The wrapper is not uploaded.
 - Also emit the pretty-printed before/after **dev audit pair** in the same run (same IDs, same
   order, same fields) so a curator can review the proposal as a diff in a JSON-aware viewer
   (diffchecker.com); keep it opt-in, label it a review aid, and never version it.
-- Ship the parts, the whole bundle, and a manifest (target, mode, upload-ready flag, per-part
-  SHA-256) inside one zip; that zip plus the audit are the only versioned artifacts. Parts and
-  reports are byte-reproducible from the inputs the audit records, so they do not belong in Git
-  history.
-- Let the operator choose the compression method: `deflate` (level 9, portable) by default, with a
-  higher-ratio option such as `lzma` documented alongside its compatibility caveat.
+- The single-member bundle zip plus the audit are the only versioned artifacts. The parts distribution zip, inner part
+  ZIPs, raw parts and reports are byte-reproducible from the inputs the audit records and stay out of Git.
+- Let the operator choose the compression method for the outer hand-offs: `deflate` (level 9, portable) by default, with a
+  higher-ratio option such as `lzma` documented alongside its compatibility caveat. Individual OCL upload part ZIPs always use deflate.
 - State whether the committed artifacts are upload-ready or a draft that must be regenerated from
   a live or exported snapshot before upload, and name the command that does it.
 
 ## Uploading stays manual
 
 Do not build — and do not document — a pipeline, helper, or skill that uploads a bulk import to
-OCL through the API. Generation ends with local artifacts; an operator uploads the extracted parts
-through the OCL bulk-import form, in numeric order, reusing one Queue ID. Record that in the audit
-and in the archive manifest so the hand-off cannot be mistaken for an automated step.
+OCL through the API. Generation ends with local artifacts; an operator uploads either the one-member
+`*.bundle.zip`, or extracts `*.parts.zip` and uploads the inner part ZIPs through the OCL bulk-import
+form in numeric order, reusing one Queue ID. Never upload the outer `*.parts.zip` container. Record
+that in the audit and in the manifest so the hand-off cannot be mistaken for an automated step.

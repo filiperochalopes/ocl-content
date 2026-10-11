@@ -9,15 +9,17 @@
       --out terminologies/icd/icd-10/output/canonical_who_icd10.jsonl \
       --compare "ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv"
 
-    # build the parts, the whole bundle, and the versioned archive
+    # build ordered parts, a complete bundle, and two upload hand-offs
     python3 terminologies/icd/icd-10/pipeline/cli.py build
 
     # start from a fresh export of the Source so the artifacts are safe to upload (offline)
     python3 terminologies/icd/icd-10/pipeline/cli.py build --export <WHO_ICD-10-WHO export.json or .zip>
 
 Uploading is manual and stays manual. This CLI makes no network call at all: it writes local
-artifacts — ordered parts, the complete bundle, and one zip holding both plus a manifest — and an
-operator uploads the parts through the OCL bulk-import form. ``--export`` reads a Source export
+artifacts — ordered parts and their one-member upload ZIPs, the complete NDJSON bundle, a single-member
+`.bundle.zip`, and a `.parts.zip` distribution wrapper containing the inner part ZIPs plus a manifest.
+Upload the `.bundle.zip` directly for one full import, or extract `.parts.zip` and upload each inner
+part ZIP in numeric order. Never upload the outer `.parts.zip`. `--export` reads a Source export
 from disk; there is no token, no API client, and no write, import, or upload endpoint.
 """
 
@@ -81,7 +83,9 @@ DEFAULT_ATIH = (
 )
 DEFAULT_WHO_CLAML = ASSETS_DIR / "who" / "icd102019en" / "icd102019en.xml.zip"
 DEFAULT_OUTPUT_DIR = TERMINOLOGY_DIR / "output"
-DEFAULT_ARCHIVE = "bulkimport_icd10-who.zip"
+DEFAULT_BUNDLE_ARCHIVE = "bulkimport_icd10-who.bundle.zip"
+DEFAULT_PARTS_ARCHIVE = "bulkimport_icd10-who.parts.zip"
+LEGACY_ARCHIVE = "bulkimport_icd10-who.zip"
 SIZE_RE = re.compile(r"^(\d+)(b|kb|mb|gb)?$", re.IGNORECASE)
 
 
@@ -139,18 +143,20 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="export of WHO/ICD-10-WHO (export.json, NDJSON, or .zip) holding the current concepts; "
         "marks the artifact upload-ready",
     )
-    build_parser.add_argument("--no-archive", action="store_true", help="skip the zip (parts and bundle only)")
+    build_parser.add_argument("--no-archive", action="store_true", help="skip both hand-off ZIPs (parts and bundle remain)")
     build_parser.add_argument(
         "--dev-audit",
         action="store_true",
         help="also write the pretty-printed before/after pair for diff review (not versioned)",
     )
     build_parser.add_argument("--zip-method", choices=sorted(METHODS), default=DEFAULT_METHOD)
-    build_parser.add_argument("--archive-name", default=DEFAULT_ARCHIVE)
+    build_parser.add_argument("--archive-name", default=DEFAULT_BUNDLE_ARCHIVE, help="single-member full-bundle ZIP")
+    build_parser.add_argument("--parts-archive-name", default=DEFAULT_PARTS_ARCHIVE, help="distribution ZIP containing each upload-part ZIP")
 
     compact = subparsers.add_parser("compact", help="(re)create the versioned zip from parts already on disk")
     compact.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
-    compact.add_argument("--archive-name", default=DEFAULT_ARCHIVE)
+    compact.add_argument("--archive-name", default=DEFAULT_BUNDLE_ARCHIVE, help="single-member full-bundle ZIP")
+    compact.add_argument("--parts-archive-name", default=DEFAULT_PARTS_ARCHIVE, help="distribution ZIP containing each upload-part ZIP")
     compact.add_argument("--zip-method", choices=sorted(METHODS), default=DEFAULT_METHOD)
     return parser.parse_args(argv)
 
@@ -331,7 +337,8 @@ def command_build(args: argparse.Namespace) -> int:
         "Built from the committed baseline, not from a Source export. The Concept bulk importer is not a "
         "PATCH: omitting a collection replaces it. Regenerate with --export and re-verify before uploading."
     )
-    archive_info = None
+    bundle_archive_info = None
+    parts_archive_info = None
     if not args.no_archive:
         manifest = build_manifest(
             target=target,
@@ -340,15 +347,35 @@ def command_build(args: argparse.Namespace) -> int:
             parts=[part.__dict__ for part in parts],
             bundle=bundle.__dict__,
             method=args.zip_method,
+            bundle_archive=args.archive_name,
+            parts_archive=args.parts_archive_name,
         )
-        archive_info = create_archive(
+        bundle_archive_info = create_archive(
             output_dir,
-            parts=[output_dir / part.name for part in parts],
-            bundle=output_dir / bundle.name,
-            manifest=manifest,
+            files=[output_dir / bundle.name],
             archive_name=args.archive_name,
             method=args.zip_method,
         )
+        parts_archive_info = create_archive(
+            output_dir,
+            files=[output_dir / part.zip for part in parts],
+            manifest=manifest,
+            archive_name=args.parts_archive_name,
+            method=args.zip_method,
+        )
+
+    if LEGACY_ARCHIVE not in {args.archive_name, args.parts_archive_name}:
+        (output_dir / LEGACY_ARCHIVE).unlink(missing_ok=True)
+
+    def archive_record(info):
+        if info is None:
+            return None
+        return {
+            **{key: value for key, value in info.__dict__.items() if key != "members"},
+            "members": [member.__dict__ for member in info.members],
+            "ratio": round(info.ratio, 4),
+            "sha256": sha256_file(output_dir / info.name),
+        }
 
     audit = {
         "schema_version": 1,
@@ -385,20 +412,13 @@ def command_build(args: argparse.Namespace) -> int:
             "directory": display_path(output_dir),
             "parts": [part.__dict__ for part in parts],
             "bundle": bundle.__dict__,
-            "archive": (
-                {
-                    **{key: value for key, value in archive_info.__dict__.items() if key != "members"},
-                    "members": [member.__dict__ for member in archive_info.members],
-                    "ratio": round(archive_info.ratio, 4),
-                    "sha256": sha256_file(output_dir / archive_info.name),
-                }
-                if archive_info
-                else None
-            ),
-            "versioned": sorted(([archive_info.name] if archive_info else []) + ["bulkimport_audit.json"]),
+            "bundle_archive": archive_record(bundle_archive_info),
+            "parts_archive": archive_record(parts_archive_info),
+            "versioned": sorted(([bundle_archive_info.name] if bundle_archive_info else []) + ["bulkimport_audit.json"]),
             "not_versioned": [part.name for part in parts]
             + [part.zip for part in parts]
             + [bundle.name, report_path.name]
+            + ([parts_archive_info.name] if parts_archive_info else [])
             + ([dev_audit_info.before, dev_audit_info.after] if dev_audit_info else []),
         },
         "dev_audit": dev_audit_meta,
@@ -415,9 +435,10 @@ def command_build(args: argparse.Namespace) -> int:
             "mechanism": "manual",
             "api_upload": False,
             "note": (
-                "No tool in this repository uploads to OCL. Upload the part ZIPs (bulkimport_part_NNN.zip, each "
-                "within the compressed part cap) in numeric order through the OCL bulk-import form, reusing one "
-                "Queue ID. `build` recreates them byte for byte; the archive holds the NDJSON they were built from."
+                "The .bundle.zip contains exactly one complete NDJSON file and can be uploaded as one import. "
+                "The .parts.zip is a distribution container, not an OCL upload: extract it, then upload each "
+                "inner bulkimport_part_NNN.zip in numeric order through the OCL form, reusing one Queue ID. "
+                "Each inner part ZIP contains exactly one NDJSON file."
             ),
         },
     }
@@ -428,11 +449,9 @@ def command_build(args: argparse.Namespace) -> int:
     for part in parts:
         print(f"  {part.zip}  {part.lines:,} lines  {part.bytes:,} bytes → {part.zip_bytes:,} bytes zipped  sha256={part.zip_sha256[:12]}…")
     print(f"bundle: {bundle.name}  {bundle.lines:,} lines  {bundle.bytes:,} bytes")
-    if archive_info:
-        print(
-            f"archive: {archive_info.name}  {archive_info.bytes:,} bytes "
-            f"({archive_info.method}, ratio {archive_info.ratio:.3f})"
-        )
+    for info in (bundle_archive_info, parts_archive_info):
+        if info:
+            print(f"archive: {info.name}  {info.bytes:,} bytes ({info.method}, ratio {info.ratio:.3f})")
     print(f"audit: {output_dir / 'bulkimport_audit.json'}")
     print(f"alignment report (not versioned): {report_path}")
     if dev_audit_info:
@@ -443,39 +462,42 @@ def command_build(args: argparse.Namespace) -> int:
 
 def command_compact(args: argparse.Namespace) -> int:
     output_dir = Path(args.output_dir)
-    parts = sorted(output_dir.glob("bulkimport_part_*.ndjson"))
+    parts = [part_info_from_disk(path) for path in sorted(output_dir.glob("bulkimport_part_*.ndjson"))]
     bundle = output_dir / "bulkimport_bundle.ndjson"
     if not parts or not bundle.is_file():
         print(f"error: no parts/bundle to archive in {output_dir}", file=sys.stderr)
         return 1
     audit_path = output_dir / "bulkimport_audit.json"
     audit = json.loads(audit_path.read_text(encoding="utf-8")) if audit_path.is_file() else {}
-
-    def info(path: Path) -> dict:
-        return part_info_from_disk(path).__dict__
-
     manifest = build_manifest(
         target=audit.get("target", {"owner": TARGET_OWNER, "source": TARGET_SOURCE, "owner_type": "Organization"}),
         mode=audit.get("mode", "unknown"),
         upload_ready=bool(audit.get("upload_ready", False)),
-        parts=[info(path) for path in parts],
-        bundle=info(bundle),
+        parts=[part.__dict__ for part in parts],
+        bundle=part_info_from_disk(bundle).__dict__,
         method=args.zip_method,
+        bundle_archive=args.archive_name,
+        parts_archive=args.parts_archive_name,
     )
-    archive_info = create_archive(
+    bundle_archive_info = create_archive(
         output_dir,
-        parts=parts,
-        bundle=bundle,
-        manifest=manifest,
+        files=[bundle],
         archive_name=args.archive_name,
         method=args.zip_method,
     )
-    print(
-        f"archive: {archive_info.name}  {archive_info.bytes:,} bytes ({archive_info.method}, "
-        f"ratio {archive_info.ratio:.3f})  members: {len(archive_info.members)}"
+    parts_archive_info = create_archive(
+        output_dir,
+        files=[output_dir / part.zip for part in parts],
+        manifest=manifest,
+        archive_name=args.parts_archive_name,
+        method=args.zip_method,
     )
-    for member in archive_info.members:
-        print(f"  {member.name}  {member.bytes:,} → {member.compressed_bytes:,} bytes")
+    if LEGACY_ARCHIVE not in {args.archive_name, args.parts_archive_name}:
+        (output_dir / LEGACY_ARCHIVE).unlink(missing_ok=True)
+    for info in (bundle_archive_info, parts_archive_info):
+        print(f"archive: {info.name}  {info.bytes:,} bytes ({info.method}, ratio {info.ratio:.3f})")
+        for member in info.members:
+            print(f"  {member.name}  {member.bytes:,} → {member.compressed_bytes:,} bytes")
     return 0
 
 
