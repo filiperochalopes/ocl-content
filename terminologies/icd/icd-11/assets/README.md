@@ -24,4 +24,7 @@ temporary file.
 - The archive holds `readme.txt` (column definitions), the tab-separated `.txt`, and the same table as
   `.xlsx`. The pipeline reads the `.txt`; its content was cross-checked against the XLSX (see the
   workspace README).
-- License and redistribution terms were not verified from this repository.
+- License and redistribution: ICD-11 is © WHO 2020, licensed **CC BY-ND 3.0 IGO**. The file is
+  fetched on demand and kept out of Git; do not commit it. The terms that govern redistribution
+  and how this workspace meets them are in the workspace README,
+  [License and compliance](../README.md#license-and-compliance).

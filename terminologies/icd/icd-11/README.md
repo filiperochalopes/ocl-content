@@ -45,7 +45,7 @@ OCL distinguishes a Source-declared property from an arbitrary concept `extras` 
 | `IsResidual` | `code` | Residual | WHO residual-category flag, stored as the source's `True`/`False` code value; not inferred from the label. |
 | `isLeaf` | `code` | Leaf | Whether the entity has no children in this tabulation, stored as `True`/`False`. This describes this release's tabulation, not all post-coordinated ICD-11 content. |
 | `BlockId` | `string` | Block ID | Tabulation block identifier when supplied; absent values are omitted. |
-| `BrowserLink` | `string` | Browser link | WHO browser URL pinned to release `2026-01` and English, not a moving `latestrelease` URL. |
+| `BrowserLink` | `string` | BrowserLink (latest) | WHO browser URL, verbatim from the Simple Tabulation cell — a `latestrelease` link (it moves with WHO releases), not pinned to the imported release. |
 | `Foundation URI` | `string` | Foundation URI | WHO ICD-11 Foundation entity URI from the Simple Tabulation. |
 | `Linearization URI` | `string` | Linearization URI | WHO MMS linearization URI from the Simple Tabulation; identifies the MMS entity. |
 
@@ -85,6 +85,65 @@ release** (`Version:2025 Jan 24`) with a different hash, so it does not reproduc
 ```bash
 uv run python terminologies/icd/icd-11/pipeline/cli.py fetch-assets   # downloads and verifies the hash
 ```
+
+## License and compliance
+
+ICD-11 is published by the World Health Organization and is **© WHO 2020, licensed under the
+Creative Commons Attribution-NoDerivatives 3.0 IGO licence (CC BY-ND 3.0 IGO)**. The licence, and
+WHO's own clarifications of it, are in the *Digital Version Terms of Use and License Agreement*
+(citation at the end of this section). The clauses that govern this workspace:
+
+| Clause | What it requires | How this workspace complies |
+| --- | --- | --- |
+| 1.2.2 | Incorporating the classification into software is **not** an adaptation, provided the material is not renamed/remodelled, is attributed, and keeps its codes and URIs | The concept `id` is the WHO code, the name is the WHO title, and the Foundation/Linearization URIs are extras; the Source is attributed (below) |
+| 1.2.3 | Storage and transmission must include the code, title and URI | `id` = code, `names[].name` = title, `extras["Foundation URI"]`/`extras["Linearization URI"]` = URIs, on every entity that has them |
+| 1.2.4 | Mappings/crosswalks and translations are **not** covered and need a separate written agreement | This pipeline adds **no** mappings and **no** translations (see "Scope and compatibility") |
+| 1.2.5 | Added data fields must be clearly identified as additions that do not originate from WHO | Every Source property description states its provenance; the WHO columns say so, and the non-WHO items (the synthetic root and `concept_class`) are flagged (below) |
+| 1.2.1 | Must not be used to develop or promulgate a different standard | A faithful load of the WHO MMS Simple Tabulation, not a new standard |
+| 1.3 | Published mentions must carry the WHO citation | Recorded below and in the Source `description` |
+
+### What originates from WHO, and what this pipeline adds
+
+All eight concept extras are columns of the WHO Simple Tabulation; none is invented here:
+
+| Extra / property | Origin |
+| --- | --- |
+| `Foundation URI`, `Linearization URI` | WHO column, verbatim |
+| `BlockId`, `ChapterNo`, `DepthInKind`, `IsResidual`, `isLeaf` | WHO column, verbatim |
+| `BrowserLink` | WHO column, verbatim — the URL from the `=hyperlink(...)` cell kept as WHO wrote it (a `latestrelease` link, not pinned) |
+| `concept_class` | **Not a WHO field**: OCL metadata derived from the WHO `ClassKind` column |
+
+Two further items are **ours**, not WHO's, and must be recognisable as non-WHO additions: the
+synthetic root concept `ICD-11-Root` (its name and description are written by this pipeline) and
+the `Chapter-<No>` id fallback for a chapter row with no `Code`. The Source `description` and the
+property `description`s in [`source.json`](source.json) state this.
+
+The Source `description` above is applied **by hand**: the read-only `tools/ocl_source_config.py`
+deliberately never patches the Source `name` or `description`, so set it on the Source when it is
+created or updated (see the local-rehearsal step and [`tests/README.md`](../../../tests/README.md),
+Flow B).
+
+### The committed artifact
+
+`bulkimport_icd11-who.bundle.zip` is versioned and carries WHO content (codes, titles, URIs).
+Reproducing and redistributing the classification is permitted under 1.2.2/1.2.3 with the
+attribution below and with codes and URIs kept intact — both hold in the artifact. The raw WHO
+file is **not** committed (`assets/**/*.zip` is gitignored). Revisit this if the repository's own
+licence or the WHO terms change.
+
+### Citation
+
+> International Classification of Diseases, Eleventh Revision (ICD-11), World Health Organization
+> (WHO) 2019, <https://icd.who.int/browse11>. Licensed under the Creative Commons
+> Attribution-NoDerivatives 3.0 IGO licence (CC BY-ND 3.0 IGO).
+
+Vancouver (clauses 1.2.2–1.2.5 and 1.3 are on p. 2):
+
+> World Health Organization. International Statistical Classification of Diseases and Related
+> Health Problems (ICD), International Classification of Functioning, Disability and Health (ICF),
+> International Classification of Health Interventions (ICHI): digital version terms of use and
+> license agreement [Internet]. Geneva: World Health Organization; 2020 [cited 2026 Oct 12].
+> Available from: <https://icd.who.int/en/docs/ICD11-license.pdf>
 
 ## Pipeline and output
 
@@ -133,7 +192,8 @@ and the audit holds repo-relative paths and no timestamp.
 - **Order**: file order, root first. The build refuses a parent that is missing or later than its
   child, because OCL imports lines in order.
 - **Extras**: `Foundation URI`, `Linearization URI`, `BlockId`, `DepthInKind`, `IsResidual`,
-  `ChapterNo`, `BrowserLink` (pinned to the release instead of `latestrelease`), `isLeaf`; empty
+  `ChapterNo`, `BrowserLink` (the URL from the `=hyperlink(...)` cell, verbatim — a `latestrelease`
+  link, deliberately **not** pinned to the release), `isLeaf`; empty
   values are dropped.
 
 ### Current result
@@ -149,7 +209,10 @@ and the audit holds repo-relative paths and no timestamp.
 **Cross-check**: the 37,052 rows were compared with the reference loader's own parse of the XLSX
 (same release, `release_tag=2026-01`). All twelve compared fields (id, title, class kind, parent,
 both URIs, block id, depth, residual flag, chapter, browser link, leaf flag), the order, and the
-skipped count are identical.
+skipped count are identical. One field is now deliberately different: the reference loader pins
+`BrowserLink` to the release (`/browse/2026-01/…`), while this pipeline keeps the WHO cell verbatim
+(`/browse/latestrelease/…`) — modifying WHO content is not permitted under CC BY-ND 3.0 IGO (see
+[License and compliance](#license-and-compliance)), so the value is reproduced as-is.
 
 ## Uploading is manual
 

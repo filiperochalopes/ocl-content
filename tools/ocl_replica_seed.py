@@ -36,12 +36,12 @@ import ocl_artifacts  # noqa: E402
 import ocl_export  # noqa: E402
 
 CONCEPT_FIELDS = (
-    "id", "external_id", "concept_class", "datatype", "names", "descriptions",
+    "id", "concept_class", "datatype", "names", "descriptions",
     "extras", "retired", "retire_reason", "parent_concept_urls",
 )
-NAME_FIELDS = ("name", "external_id", "locale", "locale_preferred", "name_type", "retired", "retire_reason")
+NAME_FIELDS = ("name", "locale", "locale_preferred", "name_type", "retired", "retire_reason")
 DESCRIPTION_FIELDS = (
-    "description", "external_id", "locale", "locale_preferred", "description_type", "retired", "retire_reason",
+    "description", "locale", "locale_preferred", "description_type", "retired", "retire_reason",
 )
 MAPPING_FIELDS = (
     "id", "external_id", "map_type", "retired", "retire_reason", "sort_weight", "extras",

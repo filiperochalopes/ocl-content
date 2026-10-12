@@ -63,9 +63,9 @@ def test_a_parent_defined_later_in_the_file_is_still_resolved(tabulation_txt):
     assert rows["600"].parent == "XA1B2C"
 
 
-def test_browser_link_is_pinned_to_the_release(tabulation_txt):
+def test_browser_link_is_verbatim_from_the_who_cell(tabulation_txt):
     rows = by_id(st.read(tabulation_txt))
-    assert rows["1A00"].browser_link == "https://icd.who.int/browse/2026-01/mms/en#300"
+    assert rows["1A00"].browser_link == "https://icd.who.int/browse/latestrelease/mms/en#300"
 
 
 def test_a_file_without_a_version_cell_is_refused(tmp_path):

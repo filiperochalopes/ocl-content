@@ -13,9 +13,14 @@ NAME_TYPE_TRANSLATION = "Fully Specified"
 
 # Name/description fields kept on an OCL resource. Everything else (uuid, version_*,
 # checksums, display_name, …) is server-side bookkeeping and must not be sent.
+#
+# ``external_id`` is deliberately absent. It carries a source's own identifier for provenance
+# when one OCL Source aggregates several upstream sources (the CIEL/CIEL case); it has no use
+# here, and an OCL Source export serializes a null value as the literal string "None", which a
+# bulk import would then write back onto every name. Names and descriptions are emitted without
+# it. See the README, "Names, descriptions, and external_id".
 NAME_FIELDS = (
     "name",
-    "external_id",
     "locale",
     "locale_preferred",
     "name_type",
@@ -24,7 +29,6 @@ NAME_FIELDS = (
 )
 DESCRIPTION_FIELDS = (
     "description",
-    "external_id",
     "locale",
     "locale_preferred",
     "description_type",

@@ -108,6 +108,7 @@ flowchart TD
     end
 
     subgraph PROD["A5 · Production, only with explicit approval"]
+        PR0["Add pt_BR and fr to supported_locales (Source PATCH),<br/>apply the Source config + reindex, by hand"]:::manual
         PR1["Fresh production export, rebuild with --export<br/>the audit must name that snapshot"]:::auto
         PR2["Upload by hand, parts in order"]:::manual
         PR3["Read-only export AFTER + verify on production<br/>attach the report"]:::auto
@@ -126,7 +127,7 @@ flowchart TD
     V2 -- no --> D
     V2 -- yes --> V3 --> R --> AP
     AP -- no --> D
-    AP -- yes --> PR1 --> PR2 --> PR3
+    AP -- yes --> PR0 --> PR1 --> PR2 --> PR3
 
     classDef auto fill:#e8f1ff,stroke:#2563eb,color:#111
     classDef manual fill:#fff4d6,stroke:#b7791f,color:#111
@@ -184,6 +185,24 @@ uv run python tools/ocl_verify_update.py \
     --artifact terminologies/icd/icd-10/output/bulkimport_icd10-who.bundle.zip \
     --audit terminologies/icd/icd-10/output/bulkimport_audit.json \
     --report terminologies/icd/icd-10/evidence/local-update.report.json
+
+# A5. production, only with explicit approval — by hand
+#   -> PATCH supported_locales on WHO/ICD-10-WHO to ["en", "pt_BR", "fr"] and read it back;
+#      the exact call is in terminologies/icd/icd-10/README.md ->
+#      "Locales, name type, and Source setup before upload".
+#   -> apply the Source config body (properties/filters/meta) and rebuild the concept index.
+uv run python tools/ocl_export_download.py --env-file .env.production \
+    --owner WHO --source ICD-10-WHO --out exports/prod/WHO_ICD-10-WHO_HEAD.zip
+uv run python terminologies/icd/icd-10/pipeline/cli.py build \
+    --export exports/prod/WHO_ICD-10-WHO_HEAD.zip
+#   -> upload by hand, parts in order, one Queue ID, wait for the task
+uv run python tools/ocl_export_download.py --env-file .env.production \
+    --owner WHO --source ICD-10-WHO --out exports/prod/after/WHO_ICD-10-WHO_HEAD.zip
+uv run python tools/ocl_verify_update.py \
+    --before exports/prod/WHO_ICD-10-WHO_HEAD.zip --after exports/prod/after/WHO_ICD-10-WHO_HEAD.zip \
+    --artifact terminologies/icd/icd-10/output/bulkimport_icd10-who.bundle.zip \
+    --audit terminologies/icd/icd-10/output/bulkimport_audit.json \
+    --report terminologies/icd/icd-10/evidence/production-update.report.json
 ```
 
 If the local server returns `204` for an export, generate the export in the local OCL and run the

@@ -7,7 +7,9 @@ and ``extras`` of the concept it targets, and nothing else. This mirrors the pro
 the audited CIEL name update in the sibling ``ciel-scripts`` repository, which relies on OCL
 preserving omitted scalar values and hierarchy and on an empty ``mappings`` payload being a
 no-op, so ``datatype``, ``external_id``, ``retired``, ``parent_concept_urls``, and ``mappings``
-are deliberately not sent.
+are deliberately not sent. Names and descriptions are emitted without ``external_id`` too (see
+``model.NAME_FIELDS``): it has no use here and an OCL export serializes a null value as the
+literal string ``"None"``, which a bulk import would otherwise write back.
 
 A translation is added only when its locale has no active name on the concept. If the concept
 already has an active name in that locale with different text, the pipeline does not overwrite

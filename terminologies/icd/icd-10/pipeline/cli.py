@@ -425,10 +425,13 @@ def command_build(args: argparse.Namespace) -> int:
         "projection": {
             "included": ["type", "id", "concept_class", "names", "descriptions", "extras", "owner", "owner_type", "source"],
             "omitted": ["datatype", "external_id", "retired", "parent_concept_urls", "mappings"],
+            "name_fields_omitted": ["external_id"],
             "rationale": (
                 "OCL preserves omitted scalar values and hierarchy, and an empty mappings payload is a no-op, "
                 "while a Concept bulk update replaces an omitted names/descriptions collection with an empty one. "
-                "Full names/descriptions/extras are therefore always sent."
+                "Full names/descriptions/extras are therefore always sent. Name and description external_id are "
+                "not sent: it is a multi-source provenance field with no use here, and an OCL export serializes a "
+                "null value as the literal string \"None\"."
             ),
         },
         "upload": {

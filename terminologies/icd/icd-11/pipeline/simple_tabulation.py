@@ -23,7 +23,10 @@ from pathlib import Path
 
 ROOT_ID = "ICD-11-Root"
 ROOT_NAME = "ICD-11 Root"
-ROOT_DESCRIPTION = "Root concept for ICD-11 WHO classification"
+ROOT_DESCRIPTION = (
+    "Synthetic root concept for the ICD-11 WHO classification, added by this pipeline "
+    "(not WHO content)."
+)
 
 CLASS_BY_KIND = {"chapter": "Chapter", "block": "Block", "category": "Diagnosis"}
 FALLBACK_CLASS = "Diagnosis"
@@ -74,16 +77,17 @@ def normalize_title(title: str) -> str:
     return re.sub(r"^[- ]+", "", title or "").strip()
 
 
-def normalize_browser_link(value: str, release: str | None) -> str:
-    """Extract the URL from the ``=hyperlink(...)`` cell and pin it to the release instead of ``latestrelease``."""
+def extract_browser_link(value: str) -> str:
+    """Return the URL of the WHO ``=hyperlink("url","browser")`` cell, verbatim.
+
+    The cell is an Excel formula; only the URL is taken out of it, and it is kept as WHO wrote it
+    (a ``latestrelease`` link). It is **not** pinned to the release: under the ICD-11 licence
+    (CC BY-ND 3.0 IGO) the WHO content must not be modified, so the value is reproduced as-is and
+    the Source property is displayed as ``BrowserLink (latest)`` to make the moving link explicit.
+    """
     text = (value or "").strip()
     match = URL_RE.search(text)
-    if not match:
-        return text
-    url = match.group(0)
-    if release:
-        url = url.replace("/browse/latestrelease/", f"/browse/{release}/")
-    return url
+    return match.group(0) if match else text
 
 
 def _after(uri: str, marker: str) -> str:
@@ -168,7 +172,7 @@ def read(path: Path) -> Tabulation:
                         depth_in_kind=cell(row, "DepthInKind"),
                         is_residual=cell(row, "IsResidual"),
                         chapter_no=chapter_no,
-                        browser_link=normalize_browser_link(cell(row, "BrowserLink"), release),
+                        browser_link=extract_browser_link(cell(row, "BrowserLink")),
                         is_leaf=cell(row, "isLeaf"),
                         source_row=number,
                     ),

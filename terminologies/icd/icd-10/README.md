@@ -287,6 +287,23 @@ one, while OCL preserves omitted scalar values and hierarchy and treats an empty
 payload as a no-op. A translation is added only when its locale has no active name; an existing
 name in that locale is never replaced and is reported instead.
 
+#### Names, descriptions, and `external_id`
+
+Names and descriptions are emitted **without** `external_id`. That field exists to carry a
+source's own identifier for provenance when one OCL Source aggregates several upstream sources
+(the `CIEL/CIEL` case); it has no use in this Source, and an OCL Source **export** serializes a
+null `external_id` as the literal string `"None"`. Because the bulk importer replaces the whole
+`names` collection, carrying that value would write the string `"None"` onto every English name —
+a spurious change. The pipeline therefore drops `external_id` on concepts, names and descriptions
+(see `pipeline/model.py`, `NAME_FIELDS`/`DESCRIPTION_FIELDS`), and `tools/ocl_replica_seed.py`
+does the same; neither the built bundle nor a replica seed carries the field.
+
+`external_id` **can be re-introduced** when a Source genuinely needs provenance for names or
+descriptions: those have no fixed id — they change with every version/update — so an upstream
+identifier is the only stable handle on them. A concept already has a stable id (its code), so it
+rarely needs one. If that need ever appears, add `external_id` back to
+`NAME_FIELDS`/`DESCRIPTION_FIELDS` (and to the replica seed) and record the decision in the audit.
+
 The committed pair is the single-member bundle ZIP and the audit; the parts archive, inner upload ZIPs, and raw parts are rebuilt on demand and never committed.
 
 ### Draft versus upload-ready
@@ -333,6 +350,26 @@ An input outside the repository is recorded by file name only; its SHA-256 ident
   in the OCL environment you are loading, and keep `default_locale: en`. Neither `source.json` nor
   `tools/ocl_source_config.py` manages this field, and a bulk import into locales the Source does
   not list is the exact case to avoid.
+
+  The OCL API way is a single `PATCH` on the Source, by hand, in the environment you intend to
+  change (local rehearsal first; production only with explicit approval):
+
+  ```bash
+  # read the current value first
+  curl -s -H "Authorization: Token $OCL_API_TOKEN" \
+    "$OCL_API_URL/orgs/WHO/sources/ICD-10-WHO/" | \
+    python3 -c 'import sys,json; d=json.load(sys.stdin); print(d["default_locale"], d["supported_locales"])'
+
+  # then set the full list (keep default_locale: en)
+  curl -s -X PATCH -H "Authorization: Token $OCL_API_TOKEN" \
+    -H "Content-Type: application/json" \
+    -d '{"supported_locales": ["en", "pt_BR", "fr"]}' \
+    "$OCL_API_URL/orgs/WHO/sources/ICD-10-WHO/"
+  ```
+
+  Read the Source back afterwards and confirm the three locales are present; `supported_locales`
+  is a Source-level list, so the `PATCH` replaces it whole — send every locale you want to keep,
+  never only the new ones.
 
 ## Canonical verification
 
