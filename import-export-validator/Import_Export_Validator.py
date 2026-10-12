@@ -2,9 +2,16 @@ import json
 import ndjson
 import logging
 import urllib.parse
-LOCAL_FILE = 'C:/Users/jamlung/Documents/SNOMED-GPS/SnomedINTL_GPSRelease_PRODUCTION_20230731T120000Z/SnomedINTL_GPSRelease_PRODUCTION_20230731T120000Z/OCL Processing - SNOMED-GPS 2023/SNOMED-GPS-2023-bulk-import.json'
-OCL_FILE = 'C:/Users/jamlung/Documents/SNOMED-GPS/SnomedINTL_GPSRelease_PRODUCTION_20230731T120000Z/SnomedINTL_GPSRelease_PRODUCTION_20230731T120000Z/OCL Processing - SNOMED-GPS 2023/Prod Load/SNOMED~1/export.json'
-DIFF_FILE = 'C:/Users/jamlung/Documents/SNOMED-GPS/SnomedINTL_GPSRelease_PRODUCTION_20230731T120000Z/SnomedINTL_GPSRelease_PRODUCTION_20230731T120000Z/OCL Processing - SNOMED-GPS 2023/Prod Load/diff.json'
+import argparse
+
+parser = argparse.ArgumentParser(
+    description="Compare a local bulk-import NDJSON file with an OCL Source version export and write a diff."
+)
+parser.add_argument("--local-file", required=True, help="local bulk-import file (NDJSON)")
+parser.add_argument("--ocl-file", required=True, help="export.json downloaded from the OCL Source version")
+parser.add_argument("--diff-file", required=True, help="where to write the diff JSON")
+args = parser.parse_args()
+LOCAL_FILE, OCL_FILE, DIFF_FILE = args.local_file, args.ocl_file, args.diff_file
 logger = logging.getLogger('diff')
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.DEBUG)
 with open(LOCAL_FILE, 'r', encoding="utf-8-sig") as f:

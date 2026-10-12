@@ -1,0 +1,16 @@
+[project]
+name = "ocl-content-tools"
+version = "0.1.0"
+description = "Shared tooling and declarative configuration for OCL content."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[dependency-groups]
+# Test-only requirements. Declared so `uv run` works with no interpreter guessing and no
+# reliance on a pytest that happens to be on PATH (see CONTRIBUTING.md, "Tests").
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

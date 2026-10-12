@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "target": {
+    "owner": "WHO",
+    "source": "ICD-10-WHO",
+    "owner_type": "Organization"
+  },
+  "mode": "source-export",
+  "upload_ready": true,
+  "warning": null,
+  "inputs": [
+    {
+      "role": "canonical-baseline",
+      "path": "ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv",
+      "sha256": "3eb0575197724cbea98e6cbb65f230eed4bef4a52911e24d073f24c99f38b828",
+      "bytes": 1799101
+    },
+    {
+      "role": "translation-pt_BR",
+      "path": "terminologies/icd/icd-10/assets/datasus/2008/CID10CSV.zip",
+      "sha256": "84f23809275575f751255048064bbb244b0de33fd5987ab98df0f98e5f5d2c95",
+      "bytes": 306066,
+      "authority": "DATASUS",
+      "edition": "CID-10 (DATASUS V2008 download page; the XML declares V2007)"
+    },
+    {
+      "role": "translation-fr",
+      "path": "ICD-10 for OCL/cim10fr2024syst_claml_20231215/cim10fr2024syst_claml_20231215.xml",
+      "sha256": "7bff2fd4cc9bf6f2af1e4f895e63cb1d5b36684b492bb74e850b01b9ba278be2",
+      "bytes": 7171514,
+      "authority": "ATIH",
+      "edition": "CIM-10-FR 2024 (2024-01-01)"
+    }
+  ],
+  "adapters": [
+    {
+      "authority": "DATASUS",
+      "locale": "pt_BR",
+      "edition": "CID-10 (DATASUS V2008 download page; the XML declares V2007)",
+      "candidates": 14530,
+      "skipped": {},
+      "stats": {
+        "files": {
+          "CID-10-CAPITULOS.CSV": {
+            "rows": 22,
+            "emitted": 22
+          },
+          "CID-10-GRUPOS.CSV": {
+            "rows": 275,
+            "emitted": 275
+          },
+          "CID-10-CATEGORIAS.CSV": {
+            "rows": 2045,
+            "emitted": 2045
+          },
+          "CID-10-SUBCATEGORIAS.CSV": {
+            "rows": 12451,
+            "emitted": 12451
+          }
+        },
+        "out_of_scope_files": [
+          "CID-O-CATEGORIAS.CSV",
+          "CID-O-GRUPOS.CSV"
+        ],
+        "duplicate_identical_rows": 263
+      }
+    },
+    {
+      "authority": "ATIH",
+      "locale": "fr",
+      "edition": "CIM-10-FR 2024 (2024-01-01)",
+      "candidates": 11959,
+      "skipped": {
+        "modifier-class": 283
+      },
+      "stats": {
+        "title": {
+          "name": "CIM-10-FR",
+          "version": "2024",
+          "date": "2024-01-01"
+        },
+        "declared_lang": "fr",
+        "classes": 11959,
+        "modifier_classes": 283,
+        "kinds": {
+          "chapter": 22,
+          "block": 275,
+          "category": 11662
+        }
+      }
+    }
+  ],
+  "alignment": {
+    "counts": {
+      "accepted": 23664,
+      "not-in-canonical": 2718,
+      "unchanged": 107
+    },
+    "accepted_concepts": 12498,
+    "report": "alignment_report.csv",
+    "exclusions_file": null
+  },
+  "build": {
+    "status_counts": {
+      "PROPOSED_UPDATE": 12498
+    },
+    "locale_counts": {
+      "fr": 11396,
+      "pt_BR": 12268
+    },
+    "changed_concepts": 12498,
+    "max_part_zip_bytes": 2097152
+  },
+  "export": {
+    "path": "exports/prod/WHO_ICD-10-WHO_HEAD.zip",
+    "sha256": "d93264c8e3b48b2c24b90e39a50420673f13a78bc0306426a0b9577246bf95b5",
+    "bytes": 1954756,
+    "requested": 12498,
+    "found": 12498,
+    "missing": []
+  },
+  "output": {
+    "directory": "terminologies/icd/icd-10/output",
+    "parts": [
+      {
+        "name": "bulkimport_part_001.ndjson",
+        "lines": 12498,
+        "sha256": "e39bbf91155f1a29d18b6a50fc4e2ff7eeeb9e7d121bc16f4ded9dfdfad0edb7",
+        "bytes": 8396600,
+        "zip": "bulkimport_part_001.zip",
+        "zip_bytes": 450727,
+        "zip_sha256": "24d2a34150ca0bf9f563a98a84e5fb9e7fb2d5b7053123b5ee452e3fe6ddeec7"
+      }
+    ],
+    "bundle": {
+      "name": "bulkimport_bundle.ndjson",
+      "lines": 12498,
+      "sha256": "e39bbf91155f1a29d18b6a50fc4e2ff7eeeb9e7d121bc16f4ded9dfdfad0edb7",
+      "bytes": 8396600,
+      "zip": "",
+      "zip_bytes": 0,
+      "zip_sha256": ""
+    },
+    "bundle_archive": {
+      "name": "bulkimport_icd10-who.bundle.zip",
+      "bytes": 450723,
+      "method": "deflate",
+      "payload_bytes": 8396600,
+      "members": [
+        {
+          "name": "bulkimport_bundle.ndjson",
+          "lines": 12498,
+          "bytes": 8396600,
+          "compressed_bytes": 450577,
+          "sha256": "e39bbf91155f1a29d18b6a50fc4e2ff7eeeb9e7d121bc16f4ded9dfdfad0edb7"
+        }
+      ],
+      "ratio": 0.0537,
+      "sha256": "1f167470f54b297df5d3ad0b2c8bb12f38f7e5e9ccea45e40dfa7277aacd29d6"
+    },
+    "parts_archive": {
+      "name": "bulkimport_icd10-who.parts.zip",
+      "bytes": 451662,
+      "method": "deflate",
+      "payload_bytes": 452085,
+      "members": [
+        {
+          "name": "bulkimport_part_001.zip",
+          "lines": 1582,
+          "bytes": 450727,
+          "compressed_bytes": 450791,
+          "sha256": "24d2a34150ca0bf9f563a98a84e5fb9e7fb2d5b7053123b5ee452e3fe6ddeec7"
+        },
+        {
+          "name": "bulkimport_manifest.json",
+          "lines": 0,
+          "bytes": 1358,
+          "compressed_bytes": 603,
+          "sha256": "0e0ff5b0bd12c365d2ca9d6836b7c5b7967db2dc40a86826ce1347b61946dfa4"
+        }
+      ],
+      "ratio": 0.9991,
+      "sha256": "7f4937269f1c85046831fbe3a24bb1bb148c30608740ddb0e19f9263303ffb81"
+    },
+    "versioned": [
+      "bulkimport_audit.json",
+      "bulkimport_icd10-who.bundle.zip"
+    ],
+    "not_versioned": [
+      "bulkimport_part_001.ndjson",
+      "bulkimport_part_001.zip",
+      "bulkimport_bundle.ndjson",
+      "alignment_report.csv",
+      "bulkimport_icd10-who.parts.zip"
+    ]
+  },
+  "dev_audit": null,
+  "projection": {
+    "included": [
+      "type",
+      "id",
+      "concept_class",
+      "names",
+      "descriptions",
+      "extras",
+      "owner",
+      "owner_type",
+      "source"
+    ],
+    "omitted": [
+      "datatype",
+      "external_id",
+      "retired",
+      "parent_concept_urls",
+      "mappings"
+    ],
+    "name_fields_omitted": [
+      "external_id"
+    ],
+    "rationale": "OCL preserves omitted scalar values and hierarchy, and an empty mappings payload is a no-op, while a Concept bulk update replaces an omitted names/descriptions collection with an empty one. Full names/descriptions/extras are therefore always sent. Name and description external_id are not sent: it is a multi-source provenance field with no use here, and an OCL export serializes a null value as the literal string \"None\"."
+  },
+  "upload": {
+    "mechanism": "manual",
+    "api_upload": false,
+    "note": "The .bundle.zip contains exactly one complete NDJSON file and can be uploaded as one import. The .parts.zip is a distribution container, not an OCL upload: extract it, then upload each inner bulkimport_part_NNN.zip in numeric order through the OCL form, reusing one Queue ID. Each inner part ZIP contains exactly one NDJSON file."
+  }
+}

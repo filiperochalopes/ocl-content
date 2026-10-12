@@ -1,0 +1,15 @@
+# Terminology translation assets (fetch on demand; licensed or large — keep out of Git)
+*/*/assets/**/*.zip
+*/*/assets/**/*.xml
+*/*/assets/**/*.csv
+!*/*/assets/README.md
+
+# Generated working artifacts. Only the single-member bundle ZIP and bulkimport_audit.json are versioned:
+# the parts ZIP is a reproducible distribution wrapper for individual upload ZIPs; raw parts, nested
+# upload ZIPs, bundle NDJSON, and alignment report are deterministically regenerable.
+*/*/output/*.ndjson
+*/*/output/*_part_*.zip
+*/*/output/*.parts.zip
+*/*/output/*.jsonl
+*/*/output/alignment_report.csv
+*/*/output/*.dev.audit.json

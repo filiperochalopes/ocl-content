@@ -1,0 +1,80 @@
+{
+  "owner": "WHO",
+  "source": "ICD-10-WHO",
+  "name": "ICD-10 WHO Version",
+  "description": "WHO International Classification of Diseases, Tenth Revision, modeled as a navigable classification hierarchy in OCL.",
+  "content": {
+    "requires_mappings": false,
+    "has_hierarchy": true
+  },
+  "properties": [
+    {
+      "code": "concept_class",
+      "type": "code",
+      "display": "Concept class",
+      "description": "OCL concept class used to distinguish the synthetic root, ICD-10 chapters, groups, and code concepts."
+    },
+    {
+      "code": "hierarchy_level",
+      "type": "integer",
+      "display": "Hierarchy level",
+      "description": "Position in the ICD-10 classification hierarchy emitted by the legacy import: root 0, chapter 1, group 2, code 3, and deeper source-specific levels where present."
+    },
+    {
+      "code": "Classification_Place",
+      "type": "code",
+      "display": "Classification place",
+      "description": "Legacy flag preserved from the 10 November 2021 import. N (non-terminal): the concept has child concepts in the hierarchy (chapters, groups and subdivided categories). T (terminal): the concept has no children (leaf). Verified on all 12,586 concepts of the HEAD export (N: 1,913, all with children; T: 10,673, none with children). The expansion of the letters is inferred; it was not documented upstream."
+    },
+    {
+      "code": "chapter_number",
+      "type": "integer",
+      "display": "Chapter",
+      "description": "ICD-10 chapter number associated with the concept. The synthetic root has no chapter number."
+    },
+    {
+      "code": "Terminal_Node",
+      "type": "code",
+      "display": "Terminal node",
+      "description": "Legacy flag preserved from the 10 November 2021 import. Despite its name it does not identify leaf concepts: X nodes can have children. S (1,058 concepts): leaf codes of the fourth character (4 have a fifth) whose WHO name is composed as 'parent title: qualifier', for example E10.0 'Type 1 diabetes mellitus: With coma'; every child of such a parent is S. X (11,243 concepts): all others, including chapters, groups and categories with children. Observed pattern on the HEAD export; the meaning of the letters was not documented upstream."
+    }
+  ],
+  "filters": [
+    {
+      "code": "concept_class",
+      "operator": ["="],
+      "value": "Code",
+      "description": "Focuses the concept list on billable/classification code concepts rather than the synthetic root and grouping nodes."
+    },
+    {
+      "code": "chapter_number",
+      "operator": ["="],
+      "value": "1",
+      "description": "Example chapter filter for Chapter I. Change the value in a reviewed Source configuration only when the intended default filter changes."
+    },
+    {
+      "code": "Terminal_Node",
+      "operator": ["="],
+      "value": "X",
+      "description": "Example filter for one observed legacy terminal-node value. Its operational meaning remains intentionally undocumented pending source evidence."
+    }
+  ],
+  "meta": {
+    "display": {
+      "concept_summary_properties": [
+        "concept_class",
+        "chapter_number",
+        "hierarchy_level"
+      ],
+      "concept_filter_order": [
+        "concept_class",
+        "chapter_number",
+        "Terminal_Node"
+      ]
+    }
+  },
+  "hierarchy": {
+    "root_concept_id": "ICD-10",
+    "meaning": "grouped-by"
+  }
+}

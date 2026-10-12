@@ -1,0 +1,90 @@
+{
+  "owner": "WHO",
+  "source": "ICD-11-WHO",
+  "name": "ICD-11 WHO Version",
+  "description": "WHO International Classification of Diseases, 11th Revision (MMS), modeled as a navigable classification hierarchy in OCL. Content is reproduced from the WHO ICD-11 MMS Simple Tabulation (release 2026-01); codes, titles, and Foundation/Linearization URIs are preserved verbatim. © WHO 2020, licensed CC BY-ND 3.0 IGO. This Source adds no mappings and no translations. The synthetic root concept ICD-11-Root, the concept_class property, and the release-pinned BrowserLink are added by this pipeline and are not WHO content; every other property is a WHO Simple Tabulation field. Citation: International Classification of Diseases, Eleventh Revision (ICD-11), World Health Organization (WHO) 2019, https://icd.who.int/browse11. Licensed under the Creative Commons Attribution-NoDerivatives 3.0 IGO licence (CC BY-ND 3.0 IGO).",
+  "content": {
+    "requires_mappings": false,
+    "has_hierarchy": true
+  },
+  "properties": [
+    {
+      "code": "concept_class",
+      "type": "code",
+      "display": "Concept class",
+      "description": "OCL concept class that distinguishes the synthetic root, chapters, blocks, and diagnosis categories. Not a WHO field: derived by this pipeline from the Simple Tabulation's ClassKind column."
+    },
+    {
+      "code": "ChapterNo",
+      "type": "string",
+      "display": "Chapter",
+      "description": "ICD-11 chapter the entity belongs to, verbatim from the Simple Tabulation (WHO field; for example 01 or X). A string, because the extension chapter is not numeric."
+    },
+    {
+      "code": "DepthInKind",
+      "type": "integer",
+      "display": "Depth in kind",
+      "description": "Depth of the entity within its class kind, as defined by the Simple Tabulation readme (WHO field): a category with depth 2 has a category parent whose own parent is not a category."
+    },
+    {
+      "code": "IsResidual",
+      "type": "code",
+      "display": "Residual",
+      "description": "True when the entity is a residual category (other specified or unspecified), verbatim from the Simple Tabulation (WHO field)."
+    },
+    {
+      "code": "isLeaf",
+      "type": "code",
+      "display": "Leaf",
+      "description": "True when the entity has no children in the tabulation, verbatim from the Simple Tabulation (WHO field)."
+    },
+    {
+      "code": "BlockId",
+      "type": "string",
+      "display": "Block ID",
+      "description": "WHO Simple Tabulation block identifier associated with the entity, when supplied (WHO field)."
+    },
+    {
+      "code": "BrowserLink",
+      "type": "string",
+      "display": "BrowserLink (latest)",
+      "description": "WHO ICD-11 browser URL for the entity, reproduced verbatim from the Simple Tabulation's BrowserLink cell (WHO field, not modified). WHO writes it as a latestrelease link, so it points at the current release and is not pinned to the imported one; for entity 1095611231 the WHO value is https://icd.who.int/browse/latestrelease/mms/en#1095611231 (a pinned link for release 2026-01 would instead read .../browse/2026-01/mms/en#1095611231)."
+    },
+    {
+      "code": "Foundation URI",
+      "type": "string",
+      "display": "Foundation URI",
+      "description": "WHO ICD-11 Foundation entity URI, supplied by the Simple Tabulation (WHO field)."
+    },
+    {
+      "code": "Linearization URI",
+      "type": "string",
+      "display": "Linearization URI",
+      "description": "WHO ICD-11 MMS linearization URI, supplied by the Simple Tabulation (WHO field)."
+    }
+  ],
+  "filters": [
+    {
+      "code": "concept_class",
+      "operator": ["="],
+      "value": "Diagnosis",
+      "description": "Focuses the concept list on diagnosis categories rather than the synthetic root, chapters, and blocks."
+    },
+    {
+      "code": "isLeaf",
+      "operator": ["="],
+      "value": "True",
+      "description": "Focuses the concept list on leaf entities."
+    }
+  ],
+  "meta": {
+    "display": {
+      "concept_summary_properties": ["concept_class", "ChapterNo", "DepthInKind"],
+      "concept_filter_order": ["concept_class", "ChapterNo", "isLeaf"]
+    }
+  },
+  "hierarchy": {
+    "root_concept_id": "ICD-11-Root",
+    "meaning": "grouped-by"
+  }
+}
