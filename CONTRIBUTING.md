@@ -17,7 +17,7 @@ This repository manages terminology content, operational configuration, and repe
 
 ## OCL environments and the local rehearsal
 
-- The whole project uses two variables, `OCL_API_URL` and `OCL_API_TOKEN`, read by `tools/ocl_env.py` from the shell, `--env-file`/`$OCL_ENV_FILE`, or `.env`. Keep one env file per instance (`.env.local`, `.env.production`); every `.env*` file except `.env.example` is ignored. Never put a second spelling of these variables in a new tool, and never print the token.
+- The whole project uses two variables, `OCL_API_URL` and `OCL_API_TOKEN`, read by `tools/ocl_env.py` from the shell, `--env-file`/`$OCL_ENV_FILE`, or `.env`. Keep one env file per instance (`.env.local`, `.env.staging`, `.env.production`); every `.env*` file except `.env.example` is ignored. `.env.staging` points at `https://api.staging.openconceptlab.org` (or equivalent) and is selected the same way as the others, e.g. `--env-file .env.staging`; it is read-only reconnaissance exactly like production unless a write is explicitly authorized. Never put a second spelling of these variables in a new tool, and never print the token.
 - Every tool prints its target (`OCL target: <url> | token: set`) before the first request, and sends the token only through `tools/ocl_http.py`: the production origin by default, `*.localhost` over HTTP only with `--allow-insecure-localhost`, no redirect carrying the token.
 - **Local first.** An update to an existing Source, and the creation of a new one, run against a local OCL instance before production: seed a replica from a read-only production export, build with `--export`, upload by hand, download the result, and verify it with `tools/ocl_verify_update.py` (`--mode update` or `--mode create`). The commit or PR carries the report. Flow, commands, and evidence are in [`tests/README.md`](tests/README.md).
 - The rehearsal tests inside the suite simulate the importer; they are not evidence about a server. Only the verified local run is.
@@ -32,7 +32,7 @@ Each terminology workspace also keeps one `README.md` following the template in 
 Validate locally before any remote check:
 
 ```bash
-python3 tools/ocl_source_config.py --config terminologies/icd/icd-10/source.json
+python3 tools/ocl_source_config.py --config terminologies/who/icd-10/source.json
 ```
 
 Use `--check` for a read-only comparison. The tool prints the proposed PATCH body and has no write mode; applying it is a separate, manually authorized step.
@@ -50,7 +50,7 @@ Use `--check` for a read-only comparison. The tool prints the proposed PATCH bod
 Every pipeline folder is called `pipeline`, so a top-level `import pipeline` resolves through `sys.modules["pipeline"]` and the second terminology in a process silently gets the first one's package; `import pipeline as x` does not help, because an alias only renames the variable (`tests/test_pipeline_isolation.py` proves both). Therefore:
 
 - Inside a pipeline, import siblings **relatively** (`from .align import align`).
-- Outside it (a `cli.py`, a test), import **by path** with `ocl_pipeline_loader.load("icd/icd-10", "align")`, which resolves to `terminologies.icd.icd-10.pipeline.align`. Never write `import pipeline` or `from pipeline import ...`; the isolation test fails if one appears.
+- Outside it (a `cli.py`, a test), import **by path** with `ocl_pipeline_loader.load("who/icd-10", "align")`, which resolves to `terminologies.icd.icd-10.pipeline.align`. Never write `import pipeline` or `from pipeline import ...`; the isolation test fails if one appears.
 - A `cli.py` must keep working as a script (`python3 terminologies/<authority>/<terminology>/pipeline/cli.py`) and as an imported module.
 
 ## Uploading is manual

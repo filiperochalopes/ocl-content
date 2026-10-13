@@ -1,0 +1,67 @@
+{
+  "owner": "WHO",
+  "source": "WHOATC",
+  "name": "WHOATC",
+  "full_name": "WHO Anatomical Therapeutic Chemical Classification",
+  "description": "ATC drug classification from the World Health Organization. Content is reproduced from the BioPortal UMLS2RDF export of the ATC ontology (NCBO BioPortal, https://bioportal.bioontology.org/ontologies/ATC); codes, English preferred names, and UMLS CUIs are preserved verbatim. The synthetic root concept Root and the concept_class property (Chapter/Group/Subgroup/Code derived from the ATC level) are added by this pipeline and are not BioPortal content. Retirements are generated only as separate audited updates when an active OCL concept is absent by exact code from a current ontology snapshot; this Source does not create REPLACED BY mappings.",
+  "content": {
+    "requires_mappings": false,
+    "has_hierarchy": true
+  },
+  "properties": [
+    {
+      "code": "concept_class",
+      "type": "code",
+      "display": "Concept class",
+      "description": "OCL concept class derived from the ATC level: Root for the synthetic root, Chapter (level 1), Group (level 2), Subgroup (levels 3-4), Code (level 5). Not a BioPortal field."
+    },
+    {
+      "code": "ATC Level",
+      "type": "numeric",
+      "display": "ATC level",
+      "description": "1-5, verbatim from the ontology's ATC_LEVEL predicate."
+    },
+    {
+      "code": "Is_Drug_Class",
+      "type": "code",
+      "display": "Is drug class",
+      "description": "Y for levels 1-4 (classification groups), N for level 5 (an actual chemical substance). Read from the ontology's IS_DRUG_CLASS predicate when present, derived from the level otherwise (that predicate is absent on level-5 entries in the source file)."
+    },
+    {
+      "code": "CUI",
+      "type": "string",
+      "display": "UMLS CUI",
+      "description": "UMLS Concept Unique Identifier, verbatim from the ontology's umls:cui predicate, when present."
+    },
+    {
+      "code": "Semantic Types",
+      "type": "string",
+      "display": "UMLS semantic types",
+      "description": "UMLS Semantic Type codes (e.g. T121) the ontology links the class to via umls:hasSTY, when present."
+    }
+  ],
+  "filters": [
+    {
+      "code": "concept_class",
+      "operator": ["="],
+      "value": "Code",
+      "description": "Focuses the concept list on level-5 chemical substances rather than the synthetic root and classification groups."
+    },
+    {
+      "code": "ATC Level",
+      "operator": ["="],
+      "value": "1",
+      "description": "Focuses the concept list on the 14 top-level anatomical/pharmacological groups."
+    }
+  ],
+  "meta": {
+    "display": {
+      "concept_summary_properties": ["concept_class", "ATC Level", "Is_Drug_Class"],
+      "concept_filter_order": ["concept_class", "ATC Level"]
+    }
+  },
+  "hierarchy": {
+    "root_concept_id": "Root",
+    "meaning": "grouped-by"
+  }
+}

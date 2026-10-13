@@ -16,12 +16,12 @@ It manages:
 The tool is read-only. The default invocation is local-only; `--check` GETs the target Source and prints the proposed PATCH body, which never includes the Source `name` or `description`. There is no `--apply`: applying the body is a manual, separately authorized step. Property `display` keys require an oclapi2 version that accepts them (already live on CIEL).
 
 ```bash
-python3 tools/ocl_source_config.py --config terminologies/icd/icd-10/source.json
+python3 tools/ocl_source_config.py --config terminologies/who/icd-10/source.json
 ```
 
 ## `ocl_env.py`
 
-The project-wide settings: `OCL_API_URL` and `OCL_API_TOKEN`. Order: variable already in the shell, then `--env-file` (or `$OCL_ENV_FILE`), then `.env` in the repository root. Only those two keys are read; the token is never printed; a file readable by other users produces a `chmod 600` warning. Tools call `ocl_env.bootstrap()` first and `ocl_env.describe_target()` to say which instance they will talk to. See [`.env.example`](../.env.example).
+The project-wide settings: `OCL_API_URL` and `OCL_API_TOKEN`. Order: variable already in the shell, then `--env-file` (or `$OCL_ENV_FILE`), then `.env` in the repository root. Only those two keys are read; the token is never printed; a file readable by other users produces a `chmod 600` warning. Tools call `ocl_env.bootstrap()` first and `ocl_env.describe_target()` to say which instance they will talk to. See [`.env.example`](../.env.example). One file per instance is expected: `.env.local` (local Docker `oclapi2`), `.env.staging` (staging API), `.env.production` (production API) — select with `--env-file .env.staging`, for example. A staging or production read is still subject to the same read-only-by-default rule as production: any write needs explicit authorization.
 
 ## `ocl_export_download.py`
 
@@ -38,6 +38,8 @@ It never overwrites a file, writes `<name>.part` then renames, refuses anything 
 
 `ocl_export.py` reads an export (`export.json`, NDJSON, or a ZIP holding either) and refuses one that belongs to another owner or Source or repeats an id; the ICD-10 `--export` and the verifier share it.
 
+`ocl_concept_snapshot_download.py` is the explicit read-only fallback when a requested Source HEAD export returns HTTP 204: it pages `GET /concepts/` into an atomic NDJSON **listing snapshot** and records a provenance sidecar. The listing has code/lifecycle state but not full collections, so it is only for exact ID-set comparison. `ocl_concept_hydrate.py` takes selected IDs from a CSV, GETs each current full concept resource, validates its owner/source, and writes another provenance-backed NDJSON snapshot. Together they support an audited retirement proposal without silently substituting a released Source version; neither tool asks OCL to create an export, and neither one writes to OCL.
+
 `ocl_verify_update.py` is the offline verifier that turns a local run into evidence. `--mode update` compares the export taken BEFORE and AFTER an update with the artifact; `--mode create` compares the export after loading a new Source with the artifact. It reads files only, exits `0` only when every check passes, and writes a deterministic JSON report (file names and SHA-256, no absolute paths, no timestamp). With an empty artifact, update mode checks that a local replica equals the production export. The checks are listed in [`../tests/README.md`](../tests/README.md#what-ocl_verify_updatepy---mode-update-checks).
 
 ## `ocl_replica_seed.py`
@@ -46,7 +48,7 @@ Offline converter from an export to a **replica seed** for a local instance: `so
 
 ## `ocl_artifacts.py`, `ocl_assets.py`, `ocl_pipeline_loader.py`
 
-Shared by every terminology pipeline. `ocl_artifacts.py` writes ordered NDJSON parts, one-member ZIPs for each part, the complete bundle, a single-member `*.bundle.zip` for direct upload, and a `*.parts.zip` distribution wrapper with the nested part ZIPs and manifest. The outer `.parts.zip` is never uploaded; extract it and submit each inner part ZIP in numeric order. Only the bundle ZIP and audit are versioned; all generated parts and the parts wrapper are reproducible and ignored by Git. `ocl_assets.py` downloads a pinned public input and verifies its SHA-256 before keeping it. `ocl_pipeline_loader.py` imports a terminology's `pipeline` package by path (`load("icd/icd-10", "align")`), so two pipelines named `pipeline` can coexist in one process. None of them talks to OCL.
+Shared by every terminology pipeline. `ocl_artifacts.py` writes ordered NDJSON parts, one-member ZIPs for each part, the complete bundle, a single-member `*.bundle.zip` for direct upload, and a `*.parts.zip` distribution wrapper with the nested part ZIPs and manifest. The outer `.parts.zip` is never uploaded; extract it and submit each inner part ZIP in numeric order. Only the bundle ZIP and audit are versioned; all generated parts and the parts wrapper are reproducible and ignored by Git. `ocl_assets.py` downloads a pinned public input and verifies its SHA-256 before keeping it. `ocl_pipeline_loader.py` imports a terminology's `pipeline` package by path (`load("who/icd-10", "align")`), so two pipelines named `pipeline` can coexist in one process. None of them talks to OCL.
 
 ## `ocl_http.py`
 

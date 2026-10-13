@@ -8,8 +8,8 @@ the load is compared directly with the artifact.
     python3 tools/ocl_verify_update.py \\
         --before exports/api.ocl.localhost/before/WHO_ICD-10-WHO_HEAD.zip \\
         --after  exports/api.ocl.localhost/WHO_ICD-10-WHO_HEAD.zip \\
-        --artifact terminologies/icd/icd-10/output/bulkimport_icd10-who.bundle.zip \\
-        --audit terminologies/icd/icd-10/output/bulkimport_audit.json \\
+        --artifact terminologies/who/icd-10/output/bulkimport_icd10-who.bundle.zip \\
+        --audit terminologies/who/icd-10/output/bulkimport_audit.json \\
         --report reports/icd10-local-update.json
 
 ``before`` and ``after`` are exports of the same Source taken from the instance that received the

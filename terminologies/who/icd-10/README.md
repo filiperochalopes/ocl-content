@@ -52,14 +52,14 @@ Local validation does not contact OCL:
 
 ```bash
 python3 tools/ocl_source_config.py \
-  --config terminologies/icd/icd-10/source.json
+  --config terminologies/who/icd-10/source.json
 ```
 
 Read the current Source and print the proposed patch without changing OCL:
 
 ```bash
 python3 tools/ocl_source_config.py \
-  --config terminologies/icd/icd-10/source.json \
+  --config terminologies/who/icd-10/source.json \
   --check \
   --api-url "$OCL_API_URL"
 ```
@@ -106,7 +106,7 @@ The Source already has a populated hierarchy; do **not** use the following comma
 
 ```bash
 python3 tools/ocl_source_config.py \
-  --config terminologies/icd/icd-10/source.json \
+  --config terminologies/who/icd-10/source.json \
   --check --include-hierarchy \
   --api-url "$OCL_API_URL"
 ```
@@ -193,7 +193,7 @@ These are real rows in the current inputs, kept verbatim and surfaced by the ali
 ## Pipeline
 
 ```text
-terminologies/icd/icd-10/
+terminologies/who/icd-10/
 ├── README.md
 ├── source.json
 ├── assets/README.md          # pinned sources, hashes, licence status
@@ -219,18 +219,18 @@ terminologies/icd/icd-10/
 
 ```bash
 # 1. fetch and verify the pinned inputs (once per machine)
-python3 terminologies/icd/icd-10/pipeline/cli.py fetch-assets --asset all
+python3 terminologies/who/icd-10/pipeline/cli.py fetch-assets --asset all
 
 # 2. extract the canonical structure from the WHO ClaML and check the baseline against it
-python3 terminologies/icd/icd-10/pipeline/cli.py canonical \
-  --who-claml terminologies/icd/icd-10/assets/who/icd102019en/icd102019en.xml.zip \
+python3 terminologies/who/icd-10/pipeline/cli.py canonical \
+  --who-claml terminologies/who/icd-10/assets/who/icd102019en/icd102019en.xml.zip \
   --compare "ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv"
 
 # 3. build the parts, bundle, and the two ZIP hand-offs from the committed baseline (draft)
-python3 terminologies/icd/icd-10/pipeline/cli.py build
+python3 terminologies/who/icd-10/pipeline/cli.py build
 
 # 4. regenerate from a fresh export of WHO/ICD-10-WHO so the artifacts are safe to upload (offline)
-python3 terminologies/icd/icd-10/pipeline/cli.py build --export <export.json or export.zip>
+python3 terminologies/who/icd-10/pipeline/cli.py build --export <export.json or export.zip>
 
 # other flags
 #   --skip fr|pt_BR          build one locale only
@@ -377,8 +377,8 @@ An input outside the repository is recorded by file name only; its SHA-256 ident
 baseline, so the baseline is checked against its source rather than trusted:
 
 ```bash
-python3 terminologies/icd/icd-10/pipeline/cli.py canonical \
-  --who-claml terminologies/icd/icd-10/assets/who/icd102019en/icd102019en.xml.zip \
+python3 terminologies/who/icd-10/pipeline/cli.py canonical \
+  --who-claml terminologies/who/icd-10/assets/who/icd102019en/icd102019en.xml.zip \
   --out output/canonical_who_icd10.jsonl \
   --compare "ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv"
 ```
@@ -414,7 +414,7 @@ writes a pretty-printed pair, in the same run and with the same content as the p
 the same seeded build you will upload, so the `before` side is the target instance's real state:
 
 ```bash
-uv run python terminologies/icd/icd-10/pipeline/cli.py build \
+uv run python terminologies/who/icd-10/pipeline/cli.py build \
   --export exports/local/WHO_ICD-10-WHO_HEAD.zip \
   --dev-audit
 

@@ -18,7 +18,7 @@ import pytest
 from ocl_pipeline_loader import load
 import ocl_verify_update
 
-main = load("icd/icd-10", "cli").main
+main = load("who/icd-10", "cli").main
 
 
 def args(tmp_path, baseline_csv, datasus_dir, atih_xml, *extra):

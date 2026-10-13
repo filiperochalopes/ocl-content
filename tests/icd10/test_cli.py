@@ -11,9 +11,9 @@ from pathlib import Path
 import pytest
 
 from ocl_pipeline_loader import load
-asset_registry = load("icd/icd-10", "assets")
-source_export = load("icd/icd-10", "export")
-main = load("icd/icd-10", "cli").main
+asset_registry = load("who/icd-10", "assets")
+source_export = load("who/icd-10", "export")
+main = load("who/icd-10", "cli").main
 
 
 def build_args(tmp_path: Path, baseline_csv, datasus_dir, atih_xml, *extra: str) -> list[str]:

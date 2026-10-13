@@ -2,6 +2,8 @@
 */*/assets/**/*.zip
 */*/assets/**/*.xml
 */*/assets/**/*.csv
+*/*/assets/**/*.ttl
+*/*/assets/**/*.html
 !*/*/assets/README.md
 
 # Generated working artifacts. Only the single-member bundle ZIP and bulkimport_audit.json are versioned:
@@ -13,3 +15,7 @@
 */*/output/*.jsonl
 */*/output/alignment_report.csv
 */*/output/*.dev.audit.json
+
+# Audited update proposals are regenerated from a fresh immutable snapshot immediately before review;
+# unlike a full-source bundle, their nested output is never committed as a stale candidate.
+*/*/output/retirements/

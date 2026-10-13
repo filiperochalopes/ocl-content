@@ -29,8 +29,8 @@ single terminology exists.
 [`source.json`](source.json) declares the Source properties, filters, display metadata, and hierarchy root. Each declared property must correspond to an `extras` key emitted by the concept builder, in addition to `concept_class`. Validate it locally, then read-only against the API (the tool prints the proposed PATCH and has no write mode):
 
 ```bash
-uv run python tools/ocl_source_config.py --config terminologies/icd/icd-11/source.json
-uv run python tools/ocl_source_config.py --config terminologies/icd/icd-11/source.json --check --include-hierarchy
+uv run python tools/ocl_source_config.py --config terminologies/who/icd-11/source.json
+uv run python tools/ocl_source_config.py --config terminologies/who/icd-11/source.json --check --include-hierarchy
 ```
 
 ### Source properties and concept extras
@@ -74,7 +74,7 @@ manual step; local rehearsal Source changes may be applied directly to the local
 | Format | Tab-separated text inside a ZIP (the same table is also shipped as XLSX); UTF-8 with BOM |
 | Retrieval URL | <https://icdcdn.who.int/static/releasefiles/2026-01/SimpleTabulation-ICD-11-MMS-en.zip> |
 | SHA-256 | `f1356588f40953a83e3af2b662deab47c5e269f944d1ea4ed0cfeb2007c7cd39` (4,214,980 bytes) |
-| Local path | `terminologies/icd/icd-11/assets/who/2026-01/SimpleTabulation-ICD-11-MMS-en.zip` (not committed) |
+| Local path | `terminologies/who/icd-11/assets/who/2026-01/SimpleTabulation-ICD-11-MMS-en.zip` (not committed) |
 | License / redistribution | Not verified here; the file is fetched on demand and kept out of Git |
 | Alignment rule | Not applicable: this is the canonical content, not a translation |
 
@@ -83,7 +83,7 @@ The URL was checked: it returns exactly the file the sibling `ciel-scripts` repo
 release** (`Version:2025 Jan 24`) with a different hash, so it does not reproduce this input.
 
 ```bash
-uv run python terminologies/icd/icd-11/pipeline/cli.py fetch-assets   # downloads and verifies the hash
+uv run python terminologies/who/icd-11/pipeline/cli.py fetch-assets   # downloads and verifies the hash
 ```
 
 ## License and compliance
@@ -156,7 +156,7 @@ pipeline/
 ```
 
 ```bash
-uv run python terminologies/icd/icd-11/pipeline/cli.py build
+uv run python terminologies/who/icd-11/pipeline/cli.py build
 ```
 
 ```text

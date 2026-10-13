@@ -1,7 +1,7 @@
 """The canonical ICD-10 baseline: concept IDs, English names, and attributes to update.
 
 The baseline is the reviewed OCL load artifact recorded in
-``terminologies/icd/icd-10/README.md``. It fixes the concept IDs and hierarchy the name
+``terminologies/who/icd-10/README.md``. It fixes the concept IDs and hierarchy the name
 pipeline must not change; the pipeline never derives structure from a national edition.
 Its SHA-256 is recorded in every audit so a name proposal always names the snapshot it was
 aligned against.

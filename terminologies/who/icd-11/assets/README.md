@@ -4,7 +4,7 @@ Fetched inputs live here and are excluded from Git by `terminologies/.gitignore`
 (`*/*/assets/**/*.zip`). Re-obtain them with:
 
 ```bash
-uv run python terminologies/icd/icd-11/pipeline/cli.py fetch-assets
+uv run python terminologies/who/icd-11/pipeline/cli.py fetch-assets
 ```
 
 The download is verified against the pinned SHA-256 before it is kept, and a mismatch removes the

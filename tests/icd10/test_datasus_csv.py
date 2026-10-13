@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 
 from ocl_pipeline_loader import load
-datasus_csv = load("icd/icd-10", "adapters.datasus_csv")
-NameCandidate = load("icd/icd-10", "model").NameCandidate
+datasus_csv = load("who/icd-10", "adapters.datasus_csv")
+NameCandidate = load("who/icd-10", "model").NameCandidate
 
 
 def _by_code(result) -> dict[str, NameCandidate]:

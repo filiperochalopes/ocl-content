@@ -54,11 +54,11 @@ ocl --show-request whoami
 ocl repo get WHO ICD-10-WHO --type source
 
 # CLI-independent local validation
-python3 tools/ocl_source_config.py --config terminologies/icd/icd-10/source.json
+python3 tools/ocl_source_config.py --config terminologies/who/icd-10/source.json
 
 # CLI-independent read-only API comparison
 python3 tools/ocl_source_config.py \
-  --config terminologies/icd/icd-10/source.json \
+  --config terminologies/who/icd-10/source.json \
   --check --api-url "$OCL_API_URL"
 ```
 

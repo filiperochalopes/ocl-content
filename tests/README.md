@@ -168,7 +168,7 @@ uv run python tools/ocl_verify_update.py \
     --artifact exports/empty.ndjson            # replica fidelity: nothing is targeted, so everything must match
 
 # A2. build from the LOCAL before-export, so the audit names exactly what the verifier will compare
-uv run python terminologies/icd/icd-10/pipeline/cli.py build --dev-audit \
+uv run python terminologies/who/icd-10/pipeline/cli.py build --dev-audit \
     --export exports/local/before/WHO_ICD-10-WHO_HEAD.zip
 
 # A3. by hand: choose ONE route:
@@ -182,27 +182,27 @@ uv run python tools/ocl_export_download.py --env-file .env.local --allow-insecur
 
 uv run python tools/ocl_verify_update.py \
     --before exports/local/before/WHO_ICD-10-WHO_HEAD.zip --after exports/local/after/WHO_ICD-10-WHO_HEAD.zip \
-    --artifact terminologies/icd/icd-10/output/bulkimport_icd10-who.bundle.zip \
-    --audit terminologies/icd/icd-10/output/bulkimport_audit.json \
-    --report terminologies/icd/icd-10/evidence/local-update.report.json
+    --artifact terminologies/who/icd-10/output/bulkimport_icd10-who.bundle.zip \
+    --audit terminologies/who/icd-10/output/bulkimport_audit.json \
+    --report terminologies/who/icd-10/evidence/local-update.report.json
 
 # A5. production, only with explicit approval — by hand
 #   -> PATCH supported_locales on WHO/ICD-10-WHO to ["en", "pt_BR", "fr"] and read it back;
-#      the exact call is in terminologies/icd/icd-10/README.md ->
+#      the exact call is in terminologies/who/icd-10/README.md ->
 #      "Locales, name type, and Source setup before upload".
 #   -> apply the Source config body (properties/filters/meta) and rebuild the concept index.
 uv run python tools/ocl_export_download.py --env-file .env.production \
     --owner WHO --source ICD-10-WHO --out exports/prod/WHO_ICD-10-WHO_HEAD.zip
-uv run python terminologies/icd/icd-10/pipeline/cli.py build \
+uv run python terminologies/who/icd-10/pipeline/cli.py build \
     --export exports/prod/WHO_ICD-10-WHO_HEAD.zip
 #   -> upload by hand, parts in order, one Queue ID, wait for the task
 uv run python tools/ocl_export_download.py --env-file .env.production \
     --owner WHO --source ICD-10-WHO --out exports/prod/after/WHO_ICD-10-WHO_HEAD.zip
 uv run python tools/ocl_verify_update.py \
     --before exports/prod/WHO_ICD-10-WHO_HEAD.zip --after exports/prod/after/WHO_ICD-10-WHO_HEAD.zip \
-    --artifact terminologies/icd/icd-10/output/bulkimport_icd10-who.bundle.zip \
-    --audit terminologies/icd/icd-10/output/bulkimport_audit.json \
-    --report terminologies/icd/icd-10/evidence/production-update.report.json
+    --artifact terminologies/who/icd-10/output/bulkimport_icd10-who.bundle.zip \
+    --audit terminologies/who/icd-10/output/bulkimport_audit.json \
+    --report terminologies/who/icd-10/evidence/production-update.report.json
 ```
 
 If the local server returns `204` for an export, generate the export in the local OCL and run the
@@ -293,9 +293,9 @@ flowchart TD
 ```
 
 ```bash
-uv run python terminologies/icd/icd-11/pipeline/cli.py fetch-assets
-uv run python terminologies/icd/icd-11/pipeline/cli.py build
-uv run python tools/ocl_source_config.py --config terminologies/icd/icd-11/source.json   # the body to apply by hand
+uv run python terminologies/who/icd-11/pipeline/cli.py fetch-assets
+uv run python terminologies/who/icd-11/pipeline/cli.py build
+uv run python tools/ocl_source_config.py --config terminologies/who/icd-11/source.json   # the body to apply by hand
 
 # ... create the empty Source, upload the parts, wait ...
 
@@ -303,8 +303,8 @@ uv run python tools/ocl_export_download.py --env-file .env.local --allow-insecur
     --owner WHO --source ICD-11-WHO --out exports/local/after/WHO_ICD-11-WHO_HEAD.zip
 uv run python tools/ocl_verify_update.py --mode create --owner WHO --source ICD-11-WHO \
     --after exports/local/after/WHO_ICD-11-WHO_HEAD.zip \
-    --artifact terminologies/icd/icd-11/output/bulkimport_icd11-who.bundle.zip \
-    --report terminologies/icd/icd-11/evidence/local-create.report.json
+    --artifact terminologies/who/icd-11/output/bulkimport_icd11-who.bundle.zip \
+    --report terminologies/who/icd-11/evidence/local-create.report.json
 ```
 
 `--mode create` has no BEFORE: it requires every artifact concept to exist with exactly the names,
@@ -336,7 +336,7 @@ A short PR block:
 - Replica fidelity: PASS
 - Artifact: `bulkimport_icd10-who.bundle.zip` sha256 `…`, audit export.sha256 == BEFORE
 - Upload: queue `…`; one `*.bundle.zip` OR the inner part ZIPs in numeric order; task SUCCESS
-- Verification: `terminologies/icd/icd-10/evidence/local-update.report.json` → PASS (N concepts, +X pt_BR, +Y fr)
+- Verification: `terminologies/who/icd-10/evidence/local-update.report.json` → PASS (N concepts, +X pt_BR, +Y fr)
 - Not covered: …
 ```
 

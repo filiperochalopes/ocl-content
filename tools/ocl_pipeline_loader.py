@@ -5,8 +5,8 @@ Every terminology keeps its code in ``terminologies/<authority>/<terminology>/pi
 imported in one process silently gets the first one's package (and ``import pipeline as x`` does not
 help: the alias only renames the variable). Here the *path* is the identity instead:
 
-    load("icd/icd-10", "align")   # -> terminologies.icd.icd-10.pipeline.align
-    load("icd/icd-11", "cli")     # -> terminologies.icd.icd-11.pipeline.cli
+    load("who/icd-10", "align")   # -> terminologies.icd.icd-10.pipeline.align
+    load("who/icd-11", "cli")     # -> terminologies.icd.icd-11.pipeline.cli
 
 ``terminologies`` and its authority folders are namespace packages (no ``__init__.py``), and the
 hyphen in a terminology folder is legal for ``importlib.import_module`` even though it cannot be
@@ -28,7 +28,7 @@ def package_name(terminology: str, module: str = "") -> str:
     """Dotted import name of ``terminologies/<terminology>/pipeline[/<module>]``."""
     parts = [segment for segment in terminology.strip("/").split("/") if segment]
     if not parts:
-        raise ValueError("terminology must look like 'icd/icd-10'")
+        raise ValueError("terminology must look like 'who/icd-10'")
     name = ".".join(["terminologies", *parts, "pipeline"])
     return f"{name}.{module}" if module else name
 

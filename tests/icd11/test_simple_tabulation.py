@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from ocl_pipeline_loader import load
-st = load("icd/icd-11", "simple_tabulation")
+st = load("who/icd-11", "simple_tabulation")
 
 
 def by_id(tabulation):

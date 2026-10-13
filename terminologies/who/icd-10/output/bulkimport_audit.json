@@ -17,7 +17,7 @@
     },
     {
       "role": "translation-pt_BR",
-      "path": "terminologies/icd/icd-10/assets/datasus/2008/CID10CSV.zip",
+      "path": "terminologies/who/icd-10/assets/datasus/2008/CID10CSV.zip",
       "sha256": "84f23809275575f751255048064bbb244b0de33fd5987ab98df0f98e5f5d2c95",
       "bytes": 306066,
       "authority": "DATASUS",
@@ -120,7 +120,7 @@
     "missing": []
   },
   "output": {
-    "directory": "terminologies/icd/icd-10/output",
+    "directory": "terminologies/who/icd-10/output",
     "parts": [
       {
         "name": "bulkimport_part_001.ndjson",

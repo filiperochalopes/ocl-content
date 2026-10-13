@@ -1,10 +1,10 @@
 """ICD-11 base Source: Simple Tabulation to versioned bulk-import artifacts.
 
     # fetch the pinned WHO release (verified by SHA-256; never committed)
-    python3 terminologies/icd/icd-11/pipeline/cli.py fetch-assets
+    python3 terminologies/who/icd-11/pipeline/cli.py fetch-assets
 
     # build ordered parts, the full bundle, and the two hand-off ZIPs
-    python3 terminologies/icd/icd-11/pipeline/cli.py build
+    python3 terminologies/who/icd-11/pipeline/cli.py build
 
 Uploading is manual and stays manual. This CLI makes no network call apart from ``fetch-assets``
 (a public, hash-verified download) and never calls an OCL write, import, or upload endpoint. The
@@ -27,7 +27,7 @@ if _TOOLS not in sys.path:
 
 from ocl_pipeline_loader import load  # noqa: E402
 
-TERMINOLOGY = "icd/icd-11"
+TERMINOLOGY = "who/icd-11"
 
 
 def _pipeline(module: str):

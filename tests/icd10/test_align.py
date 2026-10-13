@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 from ocl_pipeline_loader import load
-ACCEPTED = load("icd/icd-10", "align").ACCEPTED
-DUPLICATE_CONFLICT = load("icd/icd-10", "align").DUPLICATE_CONFLICT
-EXCLUDED_BY_CURATOR = load("icd/icd-10", "align").EXCLUDED_BY_CURATOR
-NOT_IN_CANONICAL = load("icd/icd-10", "align").NOT_IN_CANONICAL
-UNCHANGED = load("icd/icd-10", "align").UNCHANGED
-align = load("icd/icd-10", "align").align
-load_baseline = load("icd/icd-10", "canonical").load_baseline
-AdapterResult = load("icd/icd-10", "model").AdapterResult
-NameCandidate = load("icd/icd-10", "model").NameCandidate
+ACCEPTED = load("who/icd-10", "align").ACCEPTED
+DUPLICATE_CONFLICT = load("who/icd-10", "align").DUPLICATE_CONFLICT
+EXCLUDED_BY_CURATOR = load("who/icd-10", "align").EXCLUDED_BY_CURATOR
+NOT_IN_CANONICAL = load("who/icd-10", "align").NOT_IN_CANONICAL
+UNCHANGED = load("who/icd-10", "align").UNCHANGED
+align = load("who/icd-10", "align").align
+load_baseline = load("who/icd-10", "canonical").load_baseline
+AdapterResult = load("who/icd-10", "model").AdapterResult
+NameCandidate = load("who/icd-10", "model").NameCandidate
 
 
 def make(code: str, label: str, locale: str = "pt_BR", **kwargs) -> NameCandidate:

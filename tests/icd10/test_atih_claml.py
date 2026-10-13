@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 
 from ocl_pipeline_loader import load
-atih_claml = load("icd/icd-10", "adapters.atih_claml")
-NameCandidate = load("icd/icd-10", "model").NameCandidate
+atih_claml = load("who/icd-10", "adapters.atih_claml")
+NameCandidate = load("who/icd-10", "model").NameCandidate
 
 
 def _by_code(atih_xml) -> dict[str, NameCandidate]:

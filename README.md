@@ -8,8 +8,9 @@ Repository for terminology content, repeatable OCL pipeline tooling, and Source-
 ocl-content/
 ├── terminologies/          # New, incremental home for terminology work
 │   ├── README.md           # Terminology README template (sources, provenance, output)
-│   ├── icd/icd-10/         # Pilot: Source configuration + name pipeline + output
-│   └── icd/icd-11/         # Second terminology: base Source from the WHO Simple Tabulation
+│   ├── who/atc/            # WHO ATC active build + audited retirement-only update
+│   ├── who/icd-10/         # WHO ICD-10 Source configuration + name pipeline + output
+│   ├── who/icd-11/         # WHO ICD-11 base Source from the Simple Tabulation
 ├── tools/                  # Shared Python helpers
 ├── skills/                 # Repository-local operational skills
 ├── tests/                  # Tests for shared helpers and terminology pipelines
@@ -25,13 +26,13 @@ The legacy top-level folders remain valid while workflows are migrated increment
 ## ICD-10 pilot
 
 The ICD-10 pilot keeps declarative OCL Source metadata in
-[`terminologies/icd/icd-10/source.json`](terminologies/icd/icd-10/source.json).
+[`terminologies/who/icd-10/source.json`](terminologies/who/icd-10/source.json).
 The configuration documents Source properties, filters, display order, and the expected synthetic hierarchy root without storing credentials.
 
 Validate it locally:
 
 ```bash
-python3 tools/ocl_source_config.py --config terminologies/icd/icd-10/source.json
+python3 tools/ocl_source_config.py --config terminologies/who/icd-10/source.json
 ```
 
 The same workspace owns the translation pipeline that proposes `pt_BR` names from the Brazilian
@@ -41,9 +42,9 @@ size-capped bulk-import parts, the whole bundle, a single-member `*.bundle.zip`,
 distribution wrapper that contains the individual upload ZIPs:
 
 ```bash
-python3 terminologies/icd/icd-10/pipeline/cli.py fetch-assets --asset all
-python3 terminologies/icd/icd-10/pipeline/cli.py canonical --compare "ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv"
-python3 terminologies/icd/icd-10/pipeline/cli.py build
+python3 terminologies/who/icd-10/pipeline/cli.py fetch-assets --asset all
+python3 terminologies/who/icd-10/pipeline/cli.py canonical --compare "ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv"
+python3 terminologies/who/icd-10/pipeline/cli.py build
 ```
 
 Only the single-member bundle ZIP and the audit are committed. Upload one bundle ZIP for a full import, or extract `.parts.zip` and upload each inner part ZIP manually in numeric order through the OCL bulk-import form. Never upload the outer `.parts.zip` container. See the terminology README for the provenance table, alignment rules, canonical verification results, draft versus upload-ready distinction, and guarded Source commands.

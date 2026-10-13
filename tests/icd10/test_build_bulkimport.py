@@ -7,16 +7,16 @@ import json
 import pytest
 
 from ocl_pipeline_loader import load
-align = load("icd/icd-10", "align").align
-ConceptState = load("icd/icd-10", "build_bulkimport").ConceptState
-build = load("icd/icd-10", "build_bulkimport").build
-write_alignment_csv = load("icd/icd-10", "build_bulkimport").write_alignment_csv
-write_audit_pair = load("icd/icd-10", "build_bulkimport").write_audit_pair
-write_bundle = load("icd/icd-10", "build_bulkimport").write_bundle
-write_parts = load("icd/icd-10", "build_bulkimport").write_parts
-load_baseline = load("icd/icd-10", "canonical").load_baseline
-AdapterResult = load("icd/icd-10", "model").AdapterResult
-NameCandidate = load("icd/icd-10", "model").NameCandidate
+align = load("who/icd-10", "align").align
+ConceptState = load("who/icd-10", "build_bulkimport").ConceptState
+build = load("who/icd-10", "build_bulkimport").build
+write_alignment_csv = load("who/icd-10", "build_bulkimport").write_alignment_csv
+write_audit_pair = load("who/icd-10", "build_bulkimport").write_audit_pair
+write_bundle = load("who/icd-10", "build_bulkimport").write_bundle
+write_parts = load("who/icd-10", "build_bulkimport").write_parts
+load_baseline = load("who/icd-10", "canonical").load_baseline
+AdapterResult = load("who/icd-10", "model").AdapterResult
+NameCandidate = load("who/icd-10", "model").NameCandidate
 
 PROJECTION_KEYS = {"type", "id", "concept_class", "names", "descriptions", "extras", "owner", "owner_type", "source"}
 

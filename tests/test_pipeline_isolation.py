@@ -17,14 +17,14 @@ import pytest
 from ocl_pipeline_loader import load, package_name
 
 ROOT = Path(__file__).resolve().parents[1]
-ICD10, ICD11 = "icd/icd-10", "icd/icd-11"
+ICD10, ICD11 = "who/icd-10", "who/icd-11"
 
 
 def test_each_terminology_gets_its_own_package():
     first, second = load(ICD10), load(ICD11)
     assert first is not second
-    assert first.__name__ == "terminologies.icd.icd-10.pipeline"
-    assert second.__name__ == "terminologies.icd.icd-11.pipeline"
+    assert first.__name__ == "terminologies.who.icd-10.pipeline"
+    assert second.__name__ == "terminologies.who.icd-11.pipeline"
     assert Path(first.__file__).parents[1].name == "icd-10"
     assert Path(second.__file__).parents[1].name == "icd-11"
 
@@ -48,14 +48,14 @@ def test_an_alias_import_would_not_have_worked():
 
     for name in ("pipeline", "terminologies_probe"):
         sys.modules.pop(name, None)
-    sys.path.insert(0, str(ROOT / "terminologies/icd/icd-10"))
+    sys.path.insert(0, str(ROOT / "terminologies/who/icd-10"))
     try:
         first = importlib.import_module("pipeline")
-        sys.path.insert(0, str(ROOT / "terminologies/icd/icd-11"))
+        sys.path.insert(0, str(ROOT / "terminologies/who/icd-11"))
         second = importlib.import_module("pipeline")
         assert first is second and "icd-10" in first.__file__
     finally:
-        for entry in (str(ROOT / "terminologies/icd/icd-10"), str(ROOT / "terminologies/icd/icd-11")):
+        for entry in (str(ROOT / "terminologies/who/icd-10"), str(ROOT / "terminologies/who/icd-11")):
             if entry in sys.path:
                 sys.path.remove(entry)
         for name in [m for m in sys.modules if m == "pipeline" or m.startswith("pipeline.")]:

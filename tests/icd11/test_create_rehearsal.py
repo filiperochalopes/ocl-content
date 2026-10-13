@@ -12,7 +12,7 @@ import zipfile
 from ocl_pipeline_loader import load
 import ocl_verify_update
 
-main = load("icd/icd-11", "cli").main
+main = load("who/icd-11", "cli").main
 
 
 def export_as_the_server_would_return(lines: list[dict]) -> dict[str, dict]:

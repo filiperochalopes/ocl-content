@@ -10,10 +10,10 @@ from pathlib import Path
 import pytest
 
 from ocl_pipeline_loader import load
-st = load("icd/icd-11", "simple_tabulation")
-build = load("icd/icd-11", "build_bulkimport").build
-ROOT_ID = load("icd/icd-11", "simple_tabulation").ROOT_ID
-main = load("icd/icd-11", "cli").main
+st = load("who/icd-11", "simple_tabulation")
+build = load("who/icd-11", "build_bulkimport").build
+ROOT_ID = load("who/icd-11", "simple_tabulation").ROOT_ID
+main = load("who/icd-11", "cli").main
 
 PROJECTION = {
     "type", "id", "owner", "owner_type", "source", "concept_class", "datatype", "retired",
@@ -47,7 +47,7 @@ def test_extras_drop_empty_values_and_keep_the_documented_keys(ordered_txt):
 
 
 def test_concept_urls_escape_reserved_characters():
-    concept_url = load("icd/icd-11", "build_bulkimport").concept_url
+    concept_url = load("who/icd-11", "build_bulkimport").concept_url
 
     assert concept_url("A/B&C") == "/orgs/WHO/sources/ICD-11-WHO/concepts/A%2FB%26C/"
 
@@ -120,7 +120,7 @@ def test_missing_input_fails_with_a_fetch_hint(tmp_path):
 
 
 def test_the_pinned_asset_is_the_official_2026_01_url():
-    assets = load("icd/icd-11", "assets")
+    assets = load("who/icd-11", "assets")
 
     asset = assets.resolve("simple-tabulation")
     assert asset.url == "https://icdcdn.who.int/static/releasefiles/2026-01/SimpleTabulation-ICD-11-MMS-en.zip"
@@ -130,6 +130,6 @@ def test_the_pinned_asset_is_the_official_2026_01_url():
 
 
 def test_the_build_has_no_network_surface():
-    source = (Path(__file__).resolve().parents[2] / "terminologies/icd/icd-11/pipeline/build_bulkimport.py").read_text()
+    source = (Path(__file__).resolve().parents[2] / "terminologies/who/icd-11/pipeline/build_bulkimport.py").read_text()
     for marker in ("urllib.request", "urlopen", "requests", "http.client", "OCL_API_TOKEN"):
         assert marker not in source

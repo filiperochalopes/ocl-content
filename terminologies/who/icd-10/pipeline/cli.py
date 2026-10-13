@@ -2,18 +2,18 @@
 """ICD-10 canonical extraction, national-edition name alignment, and versioned bulk-import build.
 
     # fetch the pinned inputs (verified by SHA-256; never committed)
-    python3 terminologies/icd/icd-10/pipeline/cli.py fetch-assets --asset all
+    python3 terminologies/who/icd-10/pipeline/cli.py fetch-assets --asset all
 
     # extract the canonical structure from the WHO ClaML and check it against the baseline
-    python3 terminologies/icd/icd-10/pipeline/cli.py canonical --who-claml <zip> \
-      --out terminologies/icd/icd-10/output/canonical_who_icd10.jsonl \
+    python3 terminologies/who/icd-10/pipeline/cli.py canonical --who-claml <zip> \
+      --out terminologies/who/icd-10/output/canonical_who_icd10.jsonl \
       --compare "ICD-10 for OCL/Production_Load_ICD-10_10Nov2021.csv"
 
     # build ordered parts, a complete bundle, and two upload hand-offs
-    python3 terminologies/icd/icd-10/pipeline/cli.py build
+    python3 terminologies/who/icd-10/pipeline/cli.py build
 
     # start from a fresh export of the Source so the artifacts are safe to upload (offline)
-    python3 terminologies/icd/icd-10/pipeline/cli.py build --export <WHO_ICD-10-WHO export.json or .zip>
+    python3 terminologies/who/icd-10/pipeline/cli.py build --export <WHO_ICD-10-WHO export.json or .zip>
 
 Uploading is manual and stays manual. This CLI makes no network call at all: it writes local
 artifacts — ordered parts and their one-member upload ZIPs, the complete NDJSON bundle, a single-member
@@ -42,7 +42,7 @@ if _TOOLS not in sys.path:
 
 from ocl_pipeline_loader import load  # noqa: E402
 
-TERMINOLOGY = "icd/icd-10"
+TERMINOLOGY = "who/icd-10"
 
 
 def _pipeline(module: str):

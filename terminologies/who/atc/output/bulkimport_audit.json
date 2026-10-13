@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "target": {
+    "owner": "WHO",
+    "source": "WHOATC",
+    "owner_type": "Organization"
+  },
+  "mode": "full-source-load",
+  "upload_ready": false,
+  "warning": "The bulk-import lines create complete concepts (names, descriptions, extras) and were not verified against a live OCL export (use 'diff-export' first). Loading them into a Source that already has concepts would overwrite names/extras on any id that already exists; retired concepts emitted here were not reconciled against the Source's current retired state.",
+  "inputs": [
+    {
+      "role": "atc-ontology",
+      "path": "terminologies/who/atc/assets/bioportal/submission-25/ATC.ttl",
+      "sha256": "af99bc159c72f0ef70c18065d68f61022bf6074efe65585eb5e826527dbcec4a",
+      "bytes": 3817393,
+      "authority": "NCBO BioPortal (UMLS2RDF export of the ATC ontology)",
+      "edition": "owl:versionInfo 2025_02_10 (UMLS 2025AB)",
+      "classes_read": 6897,
+      "semantic_type_classes_skipped": 128
+    }
+  ],
+  "build": {
+    "lines": 6898,
+    "class_counts": {
+      "Chapter": 14,
+      "Code": 5582,
+      "Group": 94,
+      "Root": 1,
+      "Subgroup": 1207
+    },
+    "max_part_zip_bytes": 2097152
+  },
+  "output": {
+    "directory": "terminologies/who/atc/output",
+    "parts": [
+      {
+        "name": "bulkimport_part_001.ndjson",
+        "lines": 6898,
+        "sha256": "c51012d80ed3d1b51790710dd81185ac7e673ad11338016beeb96d83fee4b67e",
+        "bytes": 3664468,
+        "zip": "bulkimport_part_001.zip",
+        "zip_bytes": 152804,
+        "zip_sha256": "d980872ecd7c2cc81544cc083fd0c3b04fe80a2bc8fb577996cb9c3f290ed343"
+      }
+    ],
+    "bundle": {
+      "name": "bulkimport_bundle.ndjson",
+      "lines": 6898,
+      "sha256": "c51012d80ed3d1b51790710dd81185ac7e673ad11338016beeb96d83fee4b67e",
+      "bytes": 3664468,
+      "zip": "",
+      "zip_bytes": 0,
+      "zip_sha256": ""
+    },
+    "bundle_archive": {
+      "name": "bulkimport_whoatc.bundle.zip",
+      "bytes": 152800,
+      "method": "deflate",
+      "payload_bytes": 3664468,
+      "members": [
+        {
+          "name": "bulkimport_bundle.ndjson",
+          "lines": 6898,
+          "bytes": 3664468,
+          "compressed_bytes": 152654,
+          "sha256": "c51012d80ed3d1b51790710dd81185ac7e673ad11338016beeb96d83fee4b67e"
+        }
+      ],
+      "ratio": 0.0417,
+      "sha256": "e93569de5fe955d073f199bc0412a6c565f3abe546e7b889ee7d92ff9623e3fa"
+    },
+    "parts_archive": {
+      "name": "bulkimport_whoatc.parts.zip",
+      "bytes": 151378,
+      "method": "deflate",
+      "payload_bytes": 154154,
+      "members": [
+        {
+          "name": "bulkimport_part_001.zip",
+          "lines": 1026,
+          "bytes": 152804,
+          "compressed_bytes": 150508,
+          "sha256": "d980872ecd7c2cc81544cc083fd0c3b04fe80a2bc8fb577996cb9c3f290ed343"
+        },
+        {
+          "name": "bulkimport_manifest.json",
+          "lines": 0,
+          "bytes": 1350,
+          "compressed_bytes": 602,
+          "sha256": "a290ff93d3bff5b9c483b5a7f3b68646b5327cdb79e5a2613e41d17633b93139"
+        }
+      ],
+      "ratio": 0.982,
+      "sha256": "e92410d73bf20b782011fdaeec05a209dedfc4c1cf0891c467e9db4fc6ed347b"
+    },
+    "versioned": [
+      "bulkimport_audit.json",
+      "bulkimport_whoatc.bundle.zip"
+    ],
+    "not_versioned": [
+      "bulkimport_part_001.ndjson",
+      "bulkimport_part_001.zip",
+      "bulkimport_bundle.ndjson",
+      "bulkimport_whoatc.parts.zip"
+    ]
+  },
+  "projection": {
+    "included": [
+      "type",
+      "id",
+      "owner",
+      "owner_type",
+      "source",
+      "concept_class",
+      "datatype",
+      "retired",
+      "names",
+      "descriptions",
+      "extras",
+      "parent_concept_urls"
+    ],
+    "omitted": [
+      "Source record",
+      "mappings",
+      "DDD and ATC/DDD Guidelines content"
+    ]
+  },
+  "upload": {
+    "mechanism": "manual",
+    "api_upload": false,
+    "note": "The .bundle.zip contains exactly one complete NDJSON file and can be uploaded as one import. The .parts.zip is a distribution container, not an OCL upload: extract it, then upload each inner bulkimport_part_NNN.zip in numeric order through the OCL form, reusing one Queue ID."
+  }
+}

@@ -5,8 +5,8 @@ demand and are **not** committed; only this README is tracked. Verify every file
 pinned SHA-256 before use.
 
 ```bash
-python3 terminologies/icd/icd-10/pipeline/cli.py fetch-assets --asset all
-python3 terminologies/icd/icd-10/pipeline/cli.py fetch-assets --asset datasus-csv --force
+python3 terminologies/who/icd-10/pipeline/cli.py fetch-assets --asset all
+python3 terminologies/who/icd-10/pipeline/cli.py fetch-assets --asset datasus-csv --force
 ```
 
 ## Where these inputs come from (edition discovery)
