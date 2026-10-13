@@ -1,0 +1,24 @@
+{
+  "owner": "SNOMED-International",
+  "source": "SNOMED-GPS",
+  "name": "SNOMED Global Patient Set (GPS)",
+  "description": "The SNOMED International Global Patient Set (GPS), a flat identifier-and-term artifact. The January 2026 release includes all active SNOMED CT International Edition concepts and all concepts inactive since 2012. Each concept preserves the source ConceptID, active status, Fully Specified Name, and US Preferred Term. GPS does not contain SNOMED CT hierarchies, relationships, definitions, mappings, translations, or semantic reasoning content. © 2026 International Health Terminology Standards Development Organisation. Licensed under CC BY-ND 4.0.",
+  "content": {"requires_mappings": false, "has_hierarchy": false},
+  "properties": [
+    {
+      "code": "concept_class",
+      "type": "code",
+      "display": "Concept class",
+      "description": "OCL concept class. The GPS pipeline sets Misc for every concept because the official flat release contains no hierarchy or semantic type classification."
+    }
+  ],
+  "filters": [
+    {
+      "code": "concept_class",
+      "operator": ["="],
+      "value": "Misc",
+      "description": "GPS is a flat terminology; all concepts are represented with the OCL Misc class."
+    }
+  ],
+  "meta": {"display": {"concept_summary_properties": ["concept_class"], "concept_filter_order": ["concept_class"]}}
+}
