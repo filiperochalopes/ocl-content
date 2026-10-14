@@ -14,8 +14,8 @@ artifact. Retirements are a separate, audited update; no `REPLACED BY` mapping i
 - **No mappings**: the active artifact and retirement artifact contain no `Mapping` resource. The
   live Source currently has historical `REPLACED BY` mappings from the legacy load, but this pipeline
   neither creates nor updates them.
-- **Out of scope**: DDD values, ATC/DDD Guidelines text, and a full leaf-level scrape of
-  atcddd.fhi.no.
+- **Out of scope**: DDD values and ATC/DDD Guidelines text. The WHOCC index crawl is read-only
+  comparison evidence; it does not yet replace the active bulk-import builder's input contract.
 - **Reference implementation**: `ciel-scripts/ocl_uploader_whoatc.py` is retained as read-only
   historical evidence. Its BioPortal Turtle parsing, level→class logic, and hierarchy were useful
   references; its alterations-based retirement/mapping logic is intentionally **not** replicated.
@@ -50,14 +50,65 @@ uv run python tools/ocl_source_config.py --config terminologies/who/atc/source.j
 
 | Authority | Edition / release | Format | Role |
 |---|---|---|---|
-| NCBO BioPortal, UMLS2RDF ATC ontology | BioPortal submission 25; `owl:versionInfo "2025_02_10"`, `dcterms:source "UMLS 2025AB"` | Turtle | Exact ATC codes, preferred English names, `rdfs:subClassOf` hierarchy, UMLS CUIs and semantic types |
+| NCBO BioPortal, UMLS2RDF ATC ontology | BioPortal submission 25; `owl:versionInfo "2025_02_10"`, `dcterms:source "UMLS 2025AB"` | Turtle | Pinned comparison baseline and legacy active-build input; not the proposed authority for current classification content |
+| WHO Collaborating Centre (`atcddd.fhi.no`) | ATC/DDD Index 2026; public index last updated `2026-01-20` | HTML | Proposed authority for canonical codes, preferred names, hierarchy, and lifecycle; reproducibly crawled across levels 1–5 for the local comparison evidence |
 | OCL production `WHO/WHOATC` | HEAD concept-list snapshot, then candidate resources hydrated by individual GET | NDJSON | Exact current OCL IDs and lifecycle state for retirement audit only |
-| WHO Collaborating Centre (`atcddd.fhi.no`) | cumulative/living page | HTML | Optional bounded structural cross-check only; **not** retirement or mapping evidence |
 
 The BioPortal submission is immutable and hash-pinned in [`pipeline/assets.py`](pipeline/assets.py):
 `af99bc159c72f0ef70c18065d68f61022bf6074efe65585eb5e826527dbcec4a`. Fetching needs a personal
 `BIOPORTAL_API_KEY`, which is read only from the environment and never logged or committed. See
 [`assets/README.md`](assets/README.md).
+
+## Upstream authority, licensing, and enrichment policy
+
+**Status: proposed; the authority decision is pending (see `TBD.md`).** Nothing below authorizes an OCL update.
+
+### Authority and target version
+
+The WHO Collaborating Centre for Drug Statistics Methodology (WHOCC, Norwegian Institute of Public Health)
+is the proposed authority for ATC codes, English names, hierarchy, lifecycle, and DDDs. The planned OCL
+Source Version for the ATC/DDD Index 2026 edition is **`ATC-DDD-2026`** (valid from January 1, 2026; the
+public index reports *Last updated: 2026-01-20*). The existing production versions use the UMLS-style
+`2023AA`; that scheme names a UMLS release, which is not what the WHOCC publishes.
+
+### What the WHOCC publishes and how this repository obtains it
+
+- The complete ATC Index with DDDs and the Guidelines are **sold** by the WHOCC (maintainers report
+  about 200 EUR at <https://orders.atcddd.fhi.no/home>; that site is an Angular single-page app whose
+  text was not machine-readable here, so the price and sales terms must be confirmed there).
+- The WHOCC also exposes a **public, searchable** index at <https://atcddd.fhi.no/atc_ddd_index/> and the
+  public update workbook *ATC/DDD new and alterations 2026*
+  (<https://orders.atcddd.fhi.no/api/files/download/?fileId=45>, SHA-256
+  `6a58c3f5e96d13e2096377c4847714dee17e80694f31bf1228f1097c4335ee58`).
+- **This repository never uses the purchased publication.** The only extraction channel is the public
+  material above, read-only, with a descriptive `User-Agent` and a pause between requests. No copy of the
+  crawled pages or of the workbook is redistributed from this repository.
+- The WHOCC *User conditions* (March 2024) state, among other things: the Index and Guidelines are updated
+  annually with versions valid from January 1; there must always be a reference to the version used;
+  translations should be done by a national competent authority; and the Centre takes no responsibility for
+  translations or for use in electronic health systems. They do not describe a redistribution licence, so
+  the legal position of republishing the content in OCL is **not established here** and needs the owners'
+  decision before any release. Any published Source must cite its origin in its description, for example:
+  *WHO Collaborating Centre for Drug Statistics Methodology, ATC classification index with DDDs, 2026.
+  Oslo, Norway 2026; obtained from the public ATC/DDD Index (https://atcddd.fhi.no/atc_ddd_index/).*
+
+### Verified: the 2026 update workbook is already in the public index
+
+Every row of the workbook was compared with the public index pages on 2026-10-14
+([`evidence/atc2026_xlsx_vs_site.csv`](evidence/atc2026_xlsx_vs_site.csv), 160 checks, 157 pages): 96 new
+5th-level codes, 3 new 3rd/4th-level names, 9 level-alteration checks (including the deleted temporary
+`J07BX07` and the replacement `L01EX17` → `L01EP01`), 2 name alterations, 49 new DDDs and 1 altered DDD.
+All 160 matched; the sheet `Ark1` is the Centre's internal Norwegian working sheet and was not compared.
+This is a comparison of an update list with the site, not a validation of the whole classification.
+
+### CUI and Semantic Types are not part of the classification
+
+UMLS CUIs and Semantic Types are **not** official ATC content and are not WHOCC-published. They describe a
+relationship between an ATC code and a UMLS concept, so they belong in **mappings** (to a UMLS source), not
+as attributes on the concept. Policy for the WHOCC-based build: it neither emits nor depends on them, and
+BioPortal (UMLS 2025AB) stays a legacy, supplementary input. What the existing live concepts hold today
+(`CUI`, `Semantic Types`, and the 127 `T001`–`T204` semantic-type concepts) is a separate, explicitly
+audited decision; it is not made by this build.
 
 ## Pipeline
 
@@ -73,8 +124,9 @@ terminologies/who/atc/
 │   ├── retirements.py             # before/after retirement projection; never emits a Mapping
 │   ├── atcddd_alterations.py      # optional cross-check reader; not lifecycle evidence
 │   ├── atcddd_crosscheck.py       # bounded level-1/2 live structural cross-check
+│   ├── atcddd_index.py            # all-level WHOCC Index crawler + comparison report writers
 │   ├── build_bulkimport.py        # active concepts only
-│   └── cli.py                     # fetch-assets | build | diff-export | build-retirements | crosscheck-chapters
+│   └── cli.py                     # fetch-assets | build | diff-export | build-retirements | crosscheck-chapters | crawl-index
 └── output/
 ```
 
@@ -177,15 +229,37 @@ No code in this repository uploads a bulk import. If the retirement update is ex
 
 No production write has been made by this pipeline.
 
-## Optional atcddd.fhi.no structural cross-check
+## WHOCC ATC/DDD Index crawl and BioPortal comparison
+
+```bash
+# Read-only: crawl all 1–5 ATC levels from the live public WHOCC Index.
+# The default is six concurrent requests with a 0.10-second scheduling pause.
+uv run python terminologies/who/atc/pipeline/cli.py crawl-index
+```
+
+The command fetches the index root and every level-1 through level-4 page. It obtains levels 1–4
+from the hierarchy links restricted to `showdescription=no`, and level 5 from the ATC table rows on
+the level-4 pages; it does **not** request every individual level-5 page. A failed request aborts the
+run, so a partial result cannot be presented as a full comparison. It writes these local evidence
+artifacts:
+
+```text
+output/
+├── whoatc_index_snapshot.json             # all WHOCC codes/names/parents, levels 1–5
+├── whoatc_bioportal_vs_who_audit.json     # exact-code and label-difference rows
+└── whoatc_bioportal_vs_who_audit.html     # standalone, searchable meeting view
+```
+
+The report records the WHOCC page's `Last updated` value, request count/errors, the pinned BioPortal
+file SHA-256/version, and per-level totals. It compares exact identifiers and preferred labels after
+case/whitespace normalisation only; punctuation remains meaningful. A difference is a review
+candidate, never an automatic retirement, equivalence, or mapping decision.
+
+`crosscheck-chapters` remains available as a quick 15-request level-1/2 structural spot-check:
 
 ```bash
 uv run python terminologies/who/atc/pipeline/cli.py crosscheck-chapters
 ```
-
-This makes 15 GETs (one per level-1 chapter plus the index) and compares level-2 groups. It is a
-bounded **structural** spot-check only: it does not determine retirements and it does not create a
-mapping.
 
 ## Tests
 
@@ -206,4 +280,6 @@ repository suite additionally verifies isolation among all terminology `pipeline
   carries an explicit GET-listing + per-candidate-hydration fallback provenance, and must be refreshed
   before any import.
 - No DDD/Guidelines content is represented.
-- The level-1/2 atcddd.fhi.no check is not a full crawl.
+- The full WHOCC crawl is comparison evidence, not yet the active bulk-import builder's upstream input.
+  Moving that builder from the pinned BioPortal snapshot to the WHOCC snapshot requires a separately
+  reviewed build-contract and release decision.

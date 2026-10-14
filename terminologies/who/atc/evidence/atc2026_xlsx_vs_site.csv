@@ -1,0 +1,161 @@
+sheet,code,check,xlsx,site,result
+new5,A02BC12,name,zastaprazan,zastaprazan,OK
+new5,A05AX08,name,linerixibat,linerixibat,OK
+new5,A05BA11,name,resmetirom,resmetirom,OK
+new5,A05AA06,name,norucholic acid,norucholic acid,OK
+new5,A10AE57,name,insulin icodec and semaglutide,insulin icodec and semaglutide,OK
+new5,A10BD31,name,"metformin, sitagliptin and dapagliflozin","metformin, sitagliptin and dapagliflozin",OK
+new5,A10BD32,name,glimepiride and dapagliflozin,glimepiride and dapagliflozin,OK
+new5,A10BD33,name,pioglitazone and dapagliflozin,pioglitazone and dapagliflozin,OK
+new5,A10BD34,name,metformin and enavogliflozin,metformin and enavogliflozin,OK
+new5,A12CB04,name,zinc orotate,zinc orotate,OK
+new5,A16AB28,name,verenafusp alfa,verenafusp alfa,OK
+new5,A16AB29,name,rebisufligene etisparvovec,rebisufligene etisparvovec,OK
+new5,A16AX26,name,glepaglutide,glepaglutide,OK
+new5,A16AX27,name,apraglutide,apraglutide,OK
+new5,A16AX28,name,sepiapterin,sepiapterin,OK
+new5,A16AX29,name,doxecitine and doxribtimine,doxecitine and doxribtimine,OK
+new5,B02BD18,name,arvenacogene sanparvovec,arvenacogene sanparvovec,OK
+new5,B02BX12,name,fitusiran,fitusiran,OK
+new5,B06AC09,name,donidalorsen,donidalorsen,OK
+new5,B06AX06,name,lovotibeglogene autotemcel,lovotibeglogene autotemcel,OK
+new5,B06AX07,name,mozafancogene autotemcel,mozafancogene autotemcel,OK
+new5,C02KN02,name,baxdrostat,baxdrostat,OK
+new5,C03DA54,name,eplerenone and dapagliflozin,eplerenone and dapagliflozin,OK
+new5,C03EB03,name,torasemide and potassium-sparing agents,torasemide and potassium-sparing agents,OK
+new5,C09BB14,name,zofenopril and amlodipine,zofenopril and amlodipine,OK
+new5,C09DX09,name,"candesartan, amlodipine and indapamide","candesartan, amlodipine and indapamide",OK
+new5,C10AX19,name,lerodalcibep,lerodalcibep,OK
+new5,C10BA14,name,pitavastatin and fenofibrate,pitavastatin and fenofibrate,OK
+new5,C10BA15,name,"rosuvastatin, ezetimibe and fenofibrate","rosuvastatin, ezetimibe and fenofibrate",OK
+new5,C10BA16,name,atorvastatin and fenofibrate,atorvastatin and fenofibrate,OK
+new5,C10BX23,name,"rosuvastatin, amlodipine and ramipril","rosuvastatin, amlodipine and ramipril",OK
+new5,C10BX24,name,"rosuvastatin, amlodipine and telmisartan","rosuvastatin, amlodipine and telmisartan",OK
+new5,D03AX17,name,diperoxochloric acid,diperoxochloric acid,OK
+new5,D06BB13,name,berdazimer sodium,berdazimer sodium,OK
+new5,D11AA02,name,sofpironium bromide,sofpironium bromide,OK
+new5,G02CX07,name,elinzanetant,elinzanetant,OK
+new5,G03CA10,name,estetrol,estetrol,OK
+new5,H01CB06,name,paltusotine,paltusotine,OK
+new5,J01CG30,name,sulbactam and durlobactam,sulbactam and durlobactam,OK
+new5,J01DI55,name,sulopenem and probenecid,sulopenem and probenecid,OK
+new5,J01FA17,name,nafithromycin,nafithromycin,OK
+new5,J06BD10,name,clesrovimab,clesrovimab,OK
+new5,J06BD11,name,libevitug,libevitug,OK
+new5,J07BB55,name,"influenza and covid-19, RNA-based vaccine","influenza and covid-19, RNA-based vaccine",OK
+new5,J07BP01,name,"chikungunya, live attenuated","chikungunya, live attenuated",OK
+new5,J07BP02,name,"chikungunya, virus-like particles","chikungunya, virus-like particles",OK
+new5,L01EB12,name,firmonertinib,firmonertinib,OK
+new5,L01EC04,name,tovorafenib,tovorafenib,OK
+new5,L01EE06,name,tunlametinib,tunlametinib,OK
+new5,L01EH04,name,zongertinib,zongertinib,OK
+new5,L01EH05,name,mifanertinib,mifanertinib,OK
+new5,L01EH06,name,sevabertinib,sevabertinib,OK
+new5,L01EK05,name,rivoceranib,rivoceranib,OK
+new5,L01EM06,name,inavolisib,inavolisib,OK
+new5,L01EP03,name,savolitinib,savolitinib,OK
+new5,L01EX29,name,vimseltinib,vimseltinib,OK
+new5,L01FF14,name,camrelizumab,camrelizumab,OK
+new5,L01FF15,name,envafolimab,envafolimab,OK
+new5,L01FF16,name,sasanlimab,sasanlimab,OK
+new5,L01FX37,name,linvoseltamab,linvoseltamab,OK
+new5,L01FX38,name,ifinatamab deruxtecan,ifinatamab deruxtecan,OK
+new5,L01FX39,name,bemarituzumab,bemarituzumab,OK
+new5,L01XK07,name,senaparib,senaparib,OK
+new5,L01XX87,name,revumenib,revumenib,OK
+new5,L02BA05,name,camizestrant,camizestrant,OK
+new5,L03AC03,name,nogapendekin alfa and inbakicept,nogapendekin alfa and inbakicept,OK
+new5,L03AX25,name,thymalfasin,thymalfasin,OK
+new5,L04AA61,name,nerandomilast,nerandomilast,OK
+new5,L04AA62,name,tolebrutinib,tolebrutinib,OK
+new5,L04AC27,name,cendakimab,cendakimab,OK
+new5,L04AF09,name,deuruxolitinib,deuruxolitinib,OK
+new5,L04AG18,name,sibeprenlimab,sibeprenlimab,OK
+new5,L04AG19,name,axatilimab,axatilimab,OK
+new5,L04AL03,name,nipocalimab,nipocalimab,OK
+new5,L04AX11,name,monomethyl fumarate,monomethyl fumarate,OK
+new5,M04AB06,name,dotinurad,dotinurad,OK
+new5,M09AX16,name,apitegromab,apitegromab,OK
+new5,N05AX50,name,xanomeline and trospium,xanomeline and trospium,OK
+new5,N05CD16,name,dimdazenil,dimdazenil,OK
+new5,N06BX53,name,piracetam and cinnarizine,piracetam and cinnarizine,OK
+new5,N06DA06,name,benzgalantamine,benzgalantamine,OK
+new5,N06DX06,name,blarcamesine,blarcamesine,OK
+new5,N06DX07,name,hydromethylthionine,hydromethylthionine,OK
+new5,N07XX26,name,pridopidine,pridopidine,OK
+new5,N07XX27,name,levacetylleucine,levacetylleucine,OK
+new5,P02CA53,name,albendazole and ivermectin,albendazole and ivermectin,OK
+new5,R03BX02,name,ensifentrine,ensifentrine,OK
+new5,R03DX12,name,depemokimab,depemokimab,OK
+new5,S01AX26,name,cethexonium,cethexonium,OK
+new5,S01BA17,name,clobetasol,clobetasol,OK
+new5,V04CF02,name,"mycobacterium tuberculosis, recombinant antigens","mycobacterium tuberculosis, recombinant antigens",OK
+new5,V04CH05,name,relmapirazin,relmapirazin,OK
+new5,V04CX13,name,pegulicianine,pegulicianine,OK
+new5,V08CA13,name,gadoquatrane,gadoquatrane,OK
+new5,V09GX06,name,flurpiridaz (18F),flurpiridaz (18F),OK
+new5,V09IX19,name,vidoflufolastat (18F),vidoflufolastat (18F),OK
+new34,J07BP,level name,Chikungunya vaccines,Chikungunya vaccines,OK
+new34,L01EP,level name,Cellular-mesenchymal-epithelial transition factor (c-MET) kinase inhibitors​,Cellular-mesenchymal-epithelial transition factor (c-MET) kinase inhibitors,OK
+new34,L04AL,level name,Neonatal fragment crystallizable receptor (FcRn) inhibitors,Neonatal fragment crystallizable receptor (FcRn) inhibitors,OK
+alter,J07BX07,deleted code absent,deleted,absent,OK
+alter,L01EP01,replaces L01EX17,capmatinib,capmatinib,OK
+alter,L01EX17,old code absent,absent,absent,OK
+alter,L01EP02,replaces L01EX21,tepotinib,tepotinib,OK
+alter,L01EX21,old code absent,absent,absent,OK
+alter,L04AL01,replaces L04AA58,efgartigimod alfa,efgartigimod alfa,OK
+alter,L04AA58,old code absent,absent,absent,OK
+alter,L04AL02,replaces L04AG16,rozanolixizumab,rozanolixizumab,OK
+alter,L04AG16,old code absent,absent,absent,OK
+rename,J07BX01,new name,smallpox and mpox vaccines,smallpox and mpox vaccines,OK
+rename,V09IX15,new name,copper (64Cu) oxodotreotide,copper (64Cu) oxodotreotide,OK
+newddd,A16AX19,ddd,63 mg P,63 mg P,OK
+newddd,B01AD13,ddd,200 U P,200 U P,OK
+newddd,B03XA10,ddd,20 mcg P,20 mcg P,OK
+newddd,C01EB22,ddd,0.75 g O,0.75 g O,OK
+newddd,C09XX01,ddd,0.4 g O,0.4 g O,OK
+newddd,D11AH10,ddd,8.9 mg P,8.9 mg P,OK
+newddd,J01DF51,ddd,6 g P,6 g P,OK
+newddd,L01AX04,ddd,43.3 mg P,43.3 mg P,OK
+newddd,L01BB04,ddd,6.3 mg P,6.3 mg P,OK
+newddd,L01EB12,ddd,80 mg O,80 mg O,OK
+newddd,L01EJ04,ddd,0.2 g O,0.2 g O,OK
+newddd,L01EK04,ddd,3.75 mg O,3.75 mg O,OK
+newddd,L01EL05,ddd,0.2 g O,0.2 g O,OK
+newddd,L01EM06,ddd,9 mg O,9 mg O,OK
+newddd,L01EX27,ddd,0.46 g O,0.46 g O,OK
+newddd,L01FA03,ddd,35.7 mg P,35.7 mg P,OK
+newddd,L01FC01,ddd,64.3 mg P,64.3 mg P,OK
+newddd,L01FD01,ddd,28.6 mg P,28.6 mg P,OK
+newddd,L01FD02,ddd,20 mg P,20 mg P,OK
+newddd,L01FD03,ddd,12 mg P,12 mg P,OK
+newddd,L01FD04,ddd,18 mg P,18 mg P,OK
+newddd,L01FF01,ddd,17.1 mg P,17.1 mg P,OK
+newddd,L01FF02,ddd,9.5 mg P,9.5 mg P,OK
+newddd,L01FF03,ddd,53.6 mg P,53.6 mg P,OK
+newddd,L01FF04,ddd,57.1 mg P,57.1 mg P,OK
+newddd,L01FF05,ddd,57.1 mg P,57.1 mg P,OK
+newddd,L01FF06,ddd,16.7 mg P,16.7 mg P,OK
+newddd,L01FG02,ddd,40 mg P,40 mg P,OK
+newddd,L01FX04,ddd,10 mg P,10 mg P,OK
+newddd,L01FX05,ddd,6 mg P,6 mg P,OK
+newddd,L01FX07,ddd,18.7 mcg P,18.7 mcg P,OK
+newddd,L01FX08,ddd,50 mg P,50 mg P,OK
+newddd,L01XB01,ddd,0.1 g O,0.1 g O,OK
+newddd,L01XG03,ddd,0.43 mg O,0.43 mg O,OK
+newddd,L01XJ01,ddd,0.15 g O,0.15 g O,OK
+newddd,L01XJ02,ddd,0.2 g O,0.2 g O,OK
+newddd,L01XK01,ddd,0.6 g O,0.6 g O,OK
+newddd,L01XK02,ddd,0.3 g O,0.3 g O,OK
+newddd,L01XK03,ddd,1.2 g O,1.2 g O,OK
+newddd,L01XX05,ddd,1.4 g O,1.4 g O,OK
+newddd,L01XX27,ddd,7.5 mg P,7.5 mg P,OK
+newddd,L01XX44,ddd,20 mg P,20 mg P,OK
+newddd,L01XX52,ddd,0.4 g O,0.4 g O,OK
+newddd,L02BX04,ddd,0.12 g O,0.12 g O,OK
+newddd,L03AC03,ddd,12.5 mcg intravesical,12.5 mcg intravesical,OK
+newddd,L04AE03,ddd,2 mg O,2 mg O,OK
+newddd,L04AE05,ddd,2 mg O,2 mg O,OK
+newddd,L04AJ07,ddd,24.3 mg P,24.3 mg P,OK
+newddd,N06BA14,ddd,0.1 g O,0.1 g O,OK
+altddd,N03AX26,ddd,14 mg O,14 mg O,OK

@@ -59,6 +59,8 @@ Bulk-import artifacts live in the workspace's `output/` directory:
 ├── bulkimport_bundle.ndjson        # every line, in order                       → NOT versioned
 ├── bulkimport_<name>.bundle.zip    # one member: full NDJSON bundle             → versioned; direct upload
 ├── bulkimport_<name>.parts.zip     # individual part ZIPs + manifest           → NOT versioned; extract first
+├── bulkimport_<name>.staging.*     # staging-target build                       → NOT versioned; local only
+├── bulkimport_<name>.local.*       # local-rehearsal build                      → NOT versioned; local only
 ├── alignment_report.csv            # review surface                             → NOT versioned
 └── bulkimport_audit.json           # provenance, counts, hashes                 → versioned
 ```
@@ -67,6 +69,13 @@ Bulk-import artifacts live in the workspace's `output/` directory:
   and verify that concatenating the NDJSON parts reproduces the bundle. Never split a single resource.
 - Always create two hand-offs: `*.bundle.zip` has exactly one member (the full NDJSON) for a single import; `*.parts.zip`
   is a distribution wrapper containing the individual one-member upload ZIPs plus a manifest. The wrapper is not uploaded.
+- Build **one bundle per environment** and name it for that environment: `bulkimport_<name>.bundle.zip` for production
+  (versioned — it is the version production is meant to reach), `bulkimport_<name>.staging.*` for a staging target and
+  `bulkimport_<name>.local.*` for a local rehearsal (both local only, never versioned). A bundle aimed at an environment
+  that already holds the Source is an **update**: it carries the new and changed concepts plus one `__action: "DELETE"`
+  line per concept that is active there but absent or retired in the release. A bundle aimed at an environment with no
+  Source yet is a **create**: it carries the `Organization` and `Source` coordinates first, then the concepts. Compute the
+  diff against the target environment's own read-only export, and record target, mode and snapshot hash in the audit.
 - Also emit the pretty-printed before/after **dev audit pair** in the same run (same IDs, same
   order, same fields) so a curator can review the proposal as a diff in a JSON-aware viewer
   (diffchecker.com); keep it opt-in, label it a review aid, and never version it.

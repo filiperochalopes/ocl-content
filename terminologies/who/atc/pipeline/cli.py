@@ -14,9 +14,13 @@
     # optional, network, bounded to 15 requests: spot-check level 1/2 against atcddd.fhi.no itself
     python3 terminologies/who/atc/pipeline/cli.py crosscheck-chapters
 
-``build`` and `diff-export` make no network call and never touch OCL. `fetch-assets` and
-`crosscheck-chapters` are the only commands that reach the network, and neither one uploads or
-writes to OCL. Uploading a built artifact stays manual (see `CONTRIBUTING.md`, "Uploading is
+    # optional, network, read-only: crawl the public WHOCC Index across levels 1-5 and
+    # regenerate the local JSON/HTML comparison against the pinned BioPortal submission
+    python3 terminologies/who/atc/pipeline/cli.py crawl-index
+
+``build`` and `diff-export` make no network call and never touch OCL. `fetch-assets`,
+`crosscheck-chapters`, and `crawl-index` are the only commands that reach the network, and none
+uploads or writes to OCL. Uploading a built artifact stays manual (see `CONTRIBUTING.md`, "Uploading is
 manual"); the `.bundle.zip` holds exactly one full-bundle NDJSON file, and the `.parts.zip` is a
 distribution wrapper whose inner one-member part ZIPs are uploaded individually, in numeric order,
 through the OCL bulk-import form.
@@ -46,12 +50,14 @@ def _pipeline(module: str):
 asset_registry = _pipeline("assets")
 ttl_reader = _pipeline("ttl_reader")
 atcddd_crosscheck = _pipeline("atcddd_crosscheck")
+atcddd_index = _pipeline("atcddd_index")
 align_module = _pipeline("align")
 retirements = _pipeline("retirements")
 _bulk = _pipeline("build_bulkimport")
 TARGET_OWNER, TARGET_SOURCE, build = _bulk.TARGET_OWNER, _bulk.TARGET_SOURCE, _bulk.build
 
 from ocl_artifacts import (  # noqa: E402
+    upload_ready_map,
     DEFAULT_METHOD,
     DEFAULT_PART_BYTES,
     METHODS,
@@ -127,6 +133,15 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     retire_parser.add_argument("--zip-method", choices=sorted(METHODS), default=DEFAULT_METHOD)
 
     subparsers.add_parser("crosscheck-chapters", help="network, 15 requests: spot-check level 1/2 against atcddd.fhi.no")
+    crawl_parser = subparsers.add_parser(
+        "crawl-index",
+        help="network, read-only: crawl WHOCC ATC/DDD Index levels 1-5 and write local comparison evidence",
+    )
+    crawl_parser.add_argument("--ttl", type=Path, default=DEFAULT_TTL_INPUT, help="BioPortal ATC Turtle export")
+    crawl_parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    crawl_parser.add_argument("--delay-seconds", type=float, default=0.10, help="pause before scheduling each WHOCC request (default: 0.10)")
+    crawl_parser.add_argument("--timeout", type=float, default=30, help="WHOCC request timeout in seconds (default: 30)")
+    crawl_parser.add_argument("--workers", type=int, default=6, help="maximum concurrent WHOCC requests (default: 6)")
     return parser.parse_args(argv)
 
 
@@ -163,7 +178,7 @@ def command_build(args: argparse.Namespace) -> int:
     parts_archive_info = None
     if not args.no_archive:
         manifest = build_manifest(
-            target=target, mode=mode, upload_ready=False,
+            target=target, mode=mode, upload_ready=upload_ready_map(False, "pending tasks: not reconciled against a live export (diff-export); retirement and authority decisions open"),
             parts=[part.__dict__ for part in parts], bundle=bundle.__dict__,
             method=args.zip_method, bundle_archive=args.archive_name, parts_archive=args.parts_archive_name,
         )
@@ -184,7 +199,7 @@ def command_build(args: argparse.Namespace) -> int:
         "schema_version": 1,
         "target": target,
         "mode": mode,
-        "upload_ready": False,
+        "upload_ready": upload_ready_map(False, "pending tasks: not reconciled against a live export (diff-export); retirement and authority decisions open"),
         "warning": warning,
         "inputs": [
             {
@@ -231,7 +246,7 @@ def command_build(args: argparse.Namespace) -> int:
     }
     write_json(output_dir / "bulkimport_audit.json", audit)
 
-    print(f"mode: {mode}   upload_ready: False")
+    print(f"mode: {mode}   upload_ready.local: False")
     print(f"lines: {len(result.lines):,}   classes: {result.class_counts}")
     for part in parts:
         print(f"  {part.zip}  {part.lines:,} lines  {part.bytes:,} bytes -> {part.zip_bytes:,} bytes zipped")
@@ -288,7 +303,7 @@ def command_build_retirements(args: argparse.Namespace) -> int:
     manifest = build_manifest(
         target={"owner": TARGET_OWNER, "source": TARGET_SOURCE, "owner_type": "Organization"},
         mode="retirement-update",
-        upload_ready=False,
+        upload_ready=upload_ready_map(False, "pending tasks: not reconciled against a live export (diff-export); retirement and authority decisions open"),
         parts=[part.__dict__ for part in parts],
         bundle=bundle.__dict__,
         method=args.zip_method,
@@ -314,7 +329,7 @@ def command_build_retirements(args: argparse.Namespace) -> int:
         "schema_version": 1,
         "target": {"owner": TARGET_OWNER, "source": TARGET_SOURCE, "owner_type": "Organization"},
         "mode": "retirement-update",
-        "upload_ready": False,
+        "upload_ready": upload_ready_map(False, "pending tasks: not reconciled against a live export (diff-export); retirement and authority decisions open"),
         "warning": (
             "The official OCL HEAD export endpoint returned HTTP 204, so candidate discovery used a "
             "paginated GET /concepts/ listing snapshot and full candidate resources were hydrated with "
@@ -385,6 +400,58 @@ def command_crosscheck_chapters(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_crawl_index(args: argparse.Namespace) -> int:
+    ttl_path = Path(args.ttl)
+    if not ttl_path.is_file():
+        print(f"error: ATC Turtle file not found: {ttl_path}\\n       run: cli.py fetch-assets", file=sys.stderr)
+        return 1
+    ontology = ttl_reader.read(ttl_path)
+    crawl_result = atcddd_index.crawl(
+        delay_seconds=args.delay_seconds,
+        timeout=args.timeout,
+        workers=args.workers,
+    )
+    comparison = atcddd_index.compare(ontology, crawl_result)
+    output_dir = Path(args.output_dir)
+    payload = atcddd_index.report_payload(
+        crawl_result=crawl_result,
+        comparison=comparison,
+        bioportal_path=Path(display_path(ttl_path)),
+        bioportal_sha256=sha256_file(ttl_path),
+        bioportal_version=ontology.version_info,
+    )
+    snapshot = {
+        "metadata": {
+            "who_source": atcddd_index.INDEX_URL,
+            "crawl_scope": "all ATC levels 1-5; hierarchy links for levels 1-4 and authoritative table rows for level 5",
+            "pages_requested": crawl_result.pages_requested,
+            "request_errors": crawl_result.errors,
+            "who_last_updated": crawl_result.last_updated,
+            "label_source": "WHOCC public ATC/DDD Index",
+        },
+        "counts": {"total": len(crawl_result.records), "by_level": crawl_result.counts_by_level},
+        "records": [
+            {"code": record.code, "title": record.title, "level": record.level, "parent": record.parent}
+            for record in crawl_result.records
+        ],
+    }
+    snapshot_path = output_dir / "whoatc_index_snapshot.json"
+    audit_json_path = output_dir / "whoatc_bioportal_vs_who_audit.json"
+    audit_html_path = output_dir / "whoatc_bioportal_vs_who_audit.html"
+    atcddd_index.write_json(snapshot_path, snapshot)
+    atcddd_index.write_json(audit_json_path, payload)
+    atcddd_index.write_html(audit_html_path, payload)
+    print(f"WHOCC Index records: {len(crawl_result.records):,}  by level: {crawl_result.counts_by_level}")
+    print(f"WHOCC pages requested: {crawl_result.pages_requested:,}  last updated: {crawl_result.last_updated}")
+    print(f"BioPortal ATC records: {len(ontology.classes):,}  by level: {comparison.bioportal_by_level}")
+    for status, count in comparison.counts.items():
+        print(f"{status}: {count:,}")
+    print(f"snapshot: {display_path(snapshot_path)}")
+    print(f"audit JSON: {display_path(audit_json_path)}")
+    print(f"audit HTML: {display_path(audit_html_path)}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     try:
@@ -398,6 +465,8 @@ def main(argv: list[str] | None = None) -> int:
             return command_build_retirements(args)
         if args.command == "crosscheck-chapters":
             return command_crosscheck_chapters(args)
+        if args.command == "crawl-index":
+            return command_crawl_index(args)
         raise ValueError(f"unknown command {args.command!r}")
     except (OSError, ValueError, KeyError, RuntimeError, json.JSONDecodeError) as error:
         print(f"error: {error}", file=sys.stderr)

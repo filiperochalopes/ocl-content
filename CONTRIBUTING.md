@@ -53,6 +53,58 @@ Every pipeline folder is called `pipeline`, so a top-level `import pipeline` res
 - Outside it (a `cli.py`, a test), import **by path** with `ocl_pipeline_loader.load("who/icd-10", "align")`, which resolves to `terminologies.icd.icd-10.pipeline.align`. Never write `import pipeline` or `from pipeline import ...`; the isolation test fails if one appears.
 - A `cli.py` must keep working as a script (`python3 terminologies/<authority>/<terminology>/pipeline/cli.py`) and as an imported module.
 
+## One bundle per target environment
+
+A bundle is built **for the environment that will receive it**: the environment decides what the
+import has to say, not just where the file is uploaded. The artifact's `bulkimport_audit.json`
+records the target and the mode, and a bundle is never uploaded to an environment it was not built
+for.
+
+| Mode | Target already has the Source? | What the NDJSON must carry |
+| --- | --- | --- |
+| **create** | no | the `Organization` and `Source` lines first, then the concepts — the import has to build the whole thing from scratch |
+| **update** | yes | only the change: concepts the release adds, concepts whose content moved, and one `__action: "DELETE"` line for every concept that is **active there** but absent or retired in the new release |
+
+The importer resolves the parent Source as the **HEAD** version of
+`{owner_type}/{owner}/sources/{source}` and processes Organizations, then Sources, then Collections,
+then everything else; a concept line whose Source does not exist fails with `{'source': 'Not Found'}`.
+Coordinates are therefore mandatory in a create bundle and pointless in an update bundle.
+
+`__action: "DELETE"` on a **Concept** line **retires** the concept: it is the only way to discontinue
+a concept through the importer, and it is not a hard delete — only `Organization`, `Source` and
+`Collection` lines are hard-deleted. Spell it exactly `DELETE`: the safeguard that disables parallel
+chunking compares the uppercase literal while the dispatcher lower-cases, so a lower-case `"delete"`
+retires the concept but loses the ordering safeguard. A retirement line still needs `concept_class`,
+because it passes through the same validity gate.
+
+That diff is computed **against the environment being written to**, from its own read-only export —
+not against whatever instance happens to be at hand. An update bundle computed against another
+instance retires concepts that are perfectly current on the target, and a create bundle uploaded over
+a populated Source re-creates what is already there.
+
+An update line **replaces what it carries, and only what it carries** — verified in `oclapi2`,
+`Concept.create_new_version_for` (`core/concepts/models.py`):
+
+| Field on the line | Effect on the concept already on the target |
+| --- | --- |
+| `names` | **rebuilt from the line** — a line with no `names` key leaves the concept with no names |
+| `extras` | present → **replaced wholesale**; absent → the existing object is kept |
+| `parent_concept_urls` | present → used; absent → the previous parents stay |
+| `concept_class`, `datatype`, `retired` | `data.get(key, instance.key)` — replaced when present |
+
+Two consequences decide the shape of an update bundle: it must carry the names it wants to keep, and
+an `extras` object narrower than the target's silently drops the keys it does not mention. A build
+that emits only the properties it computes will delete everything else the target holds.
+
+Naming keeps the two apart, and only the production artifact is versioned — it is the record of the
+version production is meant to reach:
+
+| Artifact | Name | Versioned |
+| --- | --- | --- |
+| Production bundle (create or update) | `bulkimport_<name>.bundle.zip`, `.parts.zip` | yes — the bundle ZIP and `bulkimport_audit.json` |
+| Staging bundle | `bulkimport_<name>.staging.bundle.zip`, `.staging.parts.zip` | no — local only |
+| Local rehearsal bundle | `bulkimport_<name>.local.bundle.zip`, `.local.parts.zip` | no — local only |
+
 ## Uploading is manual
 
 - Never add a script, helper, or skill that uploads a bulk import to OCL through the API, and never document one as an option. Generation produces local artifacts only.

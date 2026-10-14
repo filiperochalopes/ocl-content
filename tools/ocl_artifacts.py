@@ -24,6 +24,20 @@ from dataclasses import dataclass
 from pathlib import Path
 
 MANIFEST_NAME = "bulkimport_manifest.json"
+ENVIRONMENTS = ("local", "staging", "production")
+
+
+def upload_ready_map(local: bool, local_comment: str) -> dict:
+    """Per-environment upload state recorded in every audit and manifest.
+
+    ``upload_ready`` is a dict, not a bool, because each environment has its own validation state. Staging and
+    production stay ``false`` until the local rehearsal has passed and that environment's own bundle is built.
+    """
+    return {
+        "local": {"status": bool(local), "comment": local_comment},
+        "staging": {"status": False, "comment": "pending: local rehearsal not passed; staging bundle not built"},
+        "production": {"status": False, "comment": "pending: staging not validated; production bundle not built"},
+    }
 METHODS: dict[str, int] = {
     "deflate": zipfile.ZIP_DEFLATED,
     "bzip2": zipfile.ZIP_BZIP2,
@@ -134,7 +148,7 @@ def build_manifest(
     *,
     target: dict,
     mode: str,
-    upload_ready: bool,
+    upload_ready: dict,
     parts: list[dict],
     bundle: dict,
     method: str,

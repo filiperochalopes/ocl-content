@@ -82,7 +82,7 @@ def test_cli_writes_ordered_capped_parts_a_bundle_an_archive_and_an_audit(tmp_pa
     assert b"".join(part.read_bytes() for part in parts) == (output / "bulkimport_bundle.ndjson").read_bytes()
     audit = json.loads((output / "bulkimport_audit.json").read_text(encoding="utf-8"))
     assert audit["target"] == {"owner": "WHO", "source": "ICD-11-WHO", "owner_type": "Organization"}
-    assert audit["upload_ready"] is False and audit["warning"]
+    assert audit["upload_ready"]["local"]["status"] is False and audit["warning"]
     assert audit["upload"] == {**audit["upload"], "mechanism": "manual", "api_upload": False}
     assert audit["inputs"][0]["release"] == "2026-01"
     with zipfile.ZipFile(output / "bulkimport_icd11-who.bundle.zip") as archive:

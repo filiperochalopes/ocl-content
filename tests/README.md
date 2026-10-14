@@ -66,6 +66,16 @@ The token is never printed. Two instance facts the tools rely on:
 - **Uploads are manual**, locally too: upload the single-member `*.bundle.zip`, or extract `*.parts.zip` and upload each inner part ZIP in numeric order through the OCL bulk-import form with one Queue ID. Never upload the outer `.parts.zip`; no script here uploads, and the sibling `ciel-scripts` option `bulk_import_refactor.py --upload` is deliberately **not** used.
 - **Never ask the server to generate an export** from a tool: `ocl_export_download.py` stops on `204`
   (no export ready) and tells you to generate it in OCL.
+- **Try the export before paging concepts.** A ready export is one `GET` carrying concepts and
+  mappings; the paginated listing costs one request per 1,000 concepts and carries no names,
+  descriptions or extras. Reach for the fallback only on `204`, and only for an exact ID set.
+- **Build the bundle for the environment that will receive it.** A target with no Source yet takes a
+  **create** bundle (`Organization` and `Source` coordinates first, then everything); a target that
+  already holds the Source takes an **update** bundle diffed against that environment's own export,
+  with an `__action: "DELETE"` line per concept active there but absent or retired in the release.
+  Name them apart — `bulkimport_<name>.bundle.zip` for production (versioned),
+  `bulkimport_<name>.staging.*` and `bulkimport_<name>.local.*` for the rest (local only). See
+  [`../CONTRIBUTING.md`](../CONTRIBUTING.md#one-bundle-per-target-environment).
 - An export is a snapshot. Build from a fresh one, and keep its SHA-256: the audit records it, and the
   verifier refuses an artifact that was built from a different one.
 
@@ -309,6 +319,33 @@ uv run python tools/ocl_verify_update.py --mode create --owner WHO --source ICD-
 
 `--mode create` has no BEFORE: it requires every artifact concept to exist with exactly the names,
 extras, and class the artifact carried, and the Source to hold **no concept the artifact did not**.
+
+## Replacing a local Source without waiting for the delete
+
+Deleting a large Source on the local instance is slow. Rename it out of the way, create the Source under
+the official name straight away, and delete the renamed one whenever convenient. Verified on
+`api.ocl.localhost` (oclapi2 2.3.208-dev) with a disposable `WHO/ZZ-RENAME-TEST`, **local only**:
+
+```bash
+# 1. rename: PATCH the Source `id` (not `short_code`, which answers 404 on the renamed Source)
+curl -X PATCH -H "Authorization: Token $OCL_API_TOKEN" -H "Content-Type: application/json" \
+  -d '{"id": "<NAME>-deprecated-20261014"}' http://api.ocl.localhost/orgs/<OWNER>/sources/<NAME>/
+# 2. create the new Source under <NAME> at once (replica seed or Flow B), no waiting
+# 3. delete <NAME>-deprecated-20261014 later; the new Source is unaffected
+```
+
+Observed: the PATCH answered `200`; the old URL answered `404` immediately and the same Source answered
+`200` under the new id; `<NAME>` could be created again at once and both Sources held their own
+`C1` concept; deleting the deprecated Source left the new Source's summary (`active_concepts: 1`) and
+search intact. Caveats:
+
+- The concepts of the renamed Source keep their stored `url`/`source` (still `.../sources/<NAME>/...`), so
+  they are reachable under the new path but self-describe with the official name. Treat the renamed Source
+  as a throw-away copy: never export from it, seed from it, or compare against it.
+- Only a Source with a few concepts was timed (about 0.6 s per `DELETE`); the cost of deleting a large one
+  was not measured, which is why the rename comes first.
+- The real Source's hierarchy, mappings and `supported_locales` were not exercised by this test.
+- Local instances only. Renaming a Source on staging or production is a different, separately authorized act.
 
 ## Evidence to attach to a PR
 

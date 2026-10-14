@@ -88,7 +88,7 @@ def test_the_whole_flow_agrees_with_itself(rehearsal, capsys):
 def test_the_audit_ties_the_artifact_to_the_export_it_was_built_from(rehearsal):
     tmp_path, before, export, _ = rehearsal
     audit = json.loads((tmp_path / "output" / "bulkimport_audit.json").read_text(encoding="utf-8"))
-    assert audit["mode"] == "source-export" and audit["upload_ready"] is True
+    assert audit["mode"] == "source-export" and audit["upload_ready"]["local"]["status"] is True
     assert audit["export"]["sha256"] == __import__("ocl_export").sha256_path(export)
 
 

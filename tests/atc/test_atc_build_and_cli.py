@@ -103,7 +103,7 @@ def test_cli_writes_bundle_archive_and_audit(tmp_path, ttl_path):
     output = tmp_path / "output"
     audit = json.loads((output / "bulkimport_audit.json").read_text(encoding="utf-8"))
     assert audit["target"] == {"owner": "WHO", "source": "WHOATC", "owner_type": "Organization"}
-    assert audit["upload_ready"] is False
+    assert audit["upload_ready"]["local"]["status"] is False
     assert audit["upload"]["mechanism"] == "manual" and audit["upload"]["api_upload"] is False
     assert audit["projection"]["omitted"] == ["Source record", "mappings", "DDD and ATC/DDD Guidelines content"]
     with zipfile.ZipFile(output / "bulkimport_whoatc.bundle.zip") as archive:

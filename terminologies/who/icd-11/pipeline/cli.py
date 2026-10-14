@@ -40,6 +40,7 @@ _bulk = _pipeline("build_bulkimport")
 TARGET_OWNER, TARGET_SOURCE, build = _bulk.TARGET_OWNER, _bulk.TARGET_SOURCE, _bulk.build
 
 from ocl_artifacts import (  # noqa: E402
+    upload_ready_map,
     DEFAULT_METHOD,
     DEFAULT_PART_BYTES,
     METHODS,
@@ -131,7 +132,7 @@ def command_build(args: argparse.Namespace) -> int:
         manifest = build_manifest(
             target=target,
             mode=mode,
-            upload_ready=False,
+            upload_ready=upload_ready_map(False, "pending tasks: test terminology; local Source already holds 37,053 concepts, full-source-load needs an empty Source"),
             parts=[part.__dict__ for part in parts],
             bundle=bundle.__dict__,
             method=args.zip_method,
@@ -173,7 +174,7 @@ def command_build(args: argparse.Namespace) -> int:
         "schema_version": 1,
         "target": target,
         "mode": mode,
-        "upload_ready": False,
+        "upload_ready": upload_ready_map(False, "pending tasks: test terminology; local Source already holds 37,053 concepts, full-source-load needs an empty Source"),
         "warning": warning,
         "inputs": [
             {
@@ -228,7 +229,7 @@ def command_build(args: argparse.Namespace) -> int:
     }
     write_json(output_dir / "bulkimport_audit.json", audit)
 
-    print(f"mode: {mode}   upload_ready: False")
+    print(f"mode: {mode}   upload_ready.local: False")
     print(f"lines: {len(result.lines):,}   classes: {result.class_counts}")
     for part in parts:
         print(f"  {part.zip}  {part.lines:,} lines  {part.bytes:,} bytes → {part.zip_bytes:,} bytes zipped  sha256={part.zip_sha256[:12]}…")

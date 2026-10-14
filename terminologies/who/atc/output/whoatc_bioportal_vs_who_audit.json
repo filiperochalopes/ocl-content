@@ -1,0 +1,5392 @@
+{
+  "counts": {
+    "bioportal_by_level": {
+      "1": 14,
+      "2": 94,
+      "3": 271,
+      "4": 936,
+      "5": 5582
+    },
+    "bioportal_only": 4,
+    "bioportal_total": 6897,
+    "label_differences": 658,
+    "who_by_level": {
+      "1": 14,
+      "2": 94,
+      "3": 271,
+      "4": 939,
+      "5": 5678
+    },
+    "who_only": 103,
+    "who_total": 6996
+  },
+  "metadata": {
+    "bioportal_file": "terminologies/who/atc/assets/bioportal/submission-25/ATC.ttl",
+    "bioportal_sha256": "af99bc159c72f0ef70c18065d68f61022bf6074efe65585eb5e826527dbcec4a",
+    "bioportal_version": "2025_02_10",
+    "comparison_note": "Differences are review candidates; no semantic equivalence, retirement, or mapping is inferred.",
+    "crawl_scope": "all ATC levels 1-5; hierarchy links for levels 1-4 and authoritative table rows for level 5",
+    "label_comparison": "case- and whitespace-normalised; punctuation remains meaningful",
+    "pages_requested": 1319,
+    "request_errors": [],
+    "who_last_updated": "2026-01-20",
+    "who_source": "https://atcddd.fhi.no/atc_ddd_index/"
+  },
+  "records": [
+    {
+      "bioportal_name": "ALIMENTARY TRACT AND METABOLISM DRUGS",
+      "code": "A",
+      "level": 1,
+      "status": "label_difference",
+      "who_name": "ALIMENTARY TRACT AND METABOLISM"
+    },
+    {
+      "bioportal_name": "Caries prophylactic agent combinations",
+      "code": "A01AA30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "various antiinfectives and antiseptics for local oral treatment",
+      "code": "A01AB11",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "various"
+    },
+    {
+      "bioportal_name": "Other agents for local oral treatment in ATC",
+      "code": "A01AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other agents for local oral treatment"
+    },
+    {
+      "bioportal_name": "various other agents for local oral treatment in ATC",
+      "code": "A01AD11",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "various"
+    },
+    {
+      "bioportal_name": "antacids containing magnesium compounds",
+      "code": "A02AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Magnesium compounds"
+    },
+    {
+      "bioportal_name": "Magnesium antacid compound combinations",
+      "code": "A02AA10",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "antacids containing aluminium compounds",
+      "code": "A02AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Aluminium compounds"
+    },
+    {
+      "bioportal_name": "Aluminium antacid compound combinations",
+      "code": "A02AB10",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "antacids containing calcium compounds",
+      "code": "A02AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Calcium compounds"
+    },
+    {
+      "bioportal_name": "Calcium antacid compound combinations",
+      "code": "A02AC10",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "antacids containing combinations and complexes of aluminium, calcium and magnesium compounds",
+      "code": "A02AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Combinations and complexes of aluminium, calcium and magnesium compounds"
+    },
+    {
+      "bioportal_name": "Antacids, other combinations in ATC",
+      "code": "A02AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antacids, other combinations"
+    },
+    {
+      "bioportal_name": "Prostaglandin drugs for peptic ulcer and gastro-oesophageal reflux disease (GORD)",
+      "code": "A02BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Prostaglandins"
+    },
+    {
+      "bioportal_name": "Proton pump inhibitors for peptic ulcer and GORD",
+      "code": "A02BC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Proton pump inhibitors"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A02BC12",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "zastaprazan"
+    },
+    {
+      "bioportal_name": "Other drugs for peptic ulcer and gastro-oesophageal reflux disease (GORD) in ATC",
+      "code": "A02BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other drugs for peptic ulcer and gastro-oesophageal reflux disease (GORD)"
+    },
+    {
+      "bioportal_name": "OTHER DRUGS FOR ACID RELATED DISORDERS in ATC",
+      "code": "A02X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER DRUGS FOR ACID RELATED DISORDERS"
+    },
+    {
+      "bioportal_name": "Synthetic anticholinergics, esters with tertiary amino group for functional gastrointestinal disorders",
+      "code": "A03AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Synthetic anticholinergics, esters with tertiary amino group"
+    },
+    {
+      "bioportal_name": "Synthetic anticholinergics, quaternary ammonium compounds for functional gastrointestinal disorders",
+      "code": "A03AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Synthetic anticholinergics, quaternary ammonium compounds"
+    },
+    {
+      "bioportal_name": "Synthetic antispasmodics, amides with tertiary amines for functional gastrointestinal disorders",
+      "code": "A03AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Synthetic antispasmodics, amides with tertiary amines"
+    },
+    {
+      "bioportal_name": "Papaverine and derivatives containing drugs for functional gastrointestinal disorders",
+      "code": "A03AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Papaverine and derivatives"
+    },
+    {
+      "bioportal_name": "Serotonin receptor antagonists for functional gastrointestinal disorders",
+      "code": "A03AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Serotonin receptor antagonists"
+    },
+    {
+      "bioportal_name": "Other drugs for functional gastrointestinal disorders in ATC",
+      "code": "A03AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other drugs for functional gastrointestinal disorders"
+    },
+    {
+      "bioportal_name": "BELLADONNA AND DERIVATIVES CONTAINING DRUGS, PLAIN FOR FUNCTIONAL GASTROINTESTINAL DISORDERS",
+      "code": "A03B",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "BELLADONNA AND DERIVATIVES, PLAIN"
+    },
+    {
+      "bioportal_name": "Belladonna alkaloids, tertiary amines for functional gastrointestinal disorders",
+      "code": "A03BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Belladonna alkaloids, tertiary amines"
+    },
+    {
+      "bioportal_name": "Belladonna alkaloids, semisynthetic, quaternary ammonium compounds for functional gastrointestinal disorders",
+      "code": "A03BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Belladonna alkaloids, semisynthetic, quaternary ammonium compounds"
+    },
+    {
+      "bioportal_name": "Other antispasmodics in combination with psycholeptics in ATC",
+      "code": "A03CC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antispasmodics in combination with psycholeptics"
+    },
+    {
+      "bioportal_name": "Other antispasmodics in combination with analgesics in ATC",
+      "code": "A03DC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antispasmodics in combination with analgesics"
+    },
+    {
+      "bioportal_name": "Other antiemetics in ATC",
+      "code": "A04AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antiemetics"
+    },
+    {
+      "bioportal_name": "BILE AND LIVER THERAPY DRUGS",
+      "code": "A05",
+      "level": 2,
+      "status": "label_difference",
+      "who_name": "BILE AND LIVER THERAPY"
+    },
+    {
+      "bioportal_name": "BILE THERAPY DRUGS",
+      "code": "A05A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "BILE THERAPY"
+    },
+    {
+      "bioportal_name": "Bile acids and derivatives for bile therapy",
+      "code": "A05AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Bile acids and derivatives"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A05AA06",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "norucholic acid"
+    },
+    {
+      "bioportal_name": "Other drugs for bile therapy in ATC",
+      "code": "A05AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other drugs for bile therapy"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A05AX08",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "linerixibat"
+    },
+    {
+      "bioportal_name": "Liver therapy drugs",
+      "code": "A05BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Liver therapy"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A05BA11",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "resmetirom"
+    },
+    {
+      "bioportal_name": "Enema for Constipation",
+      "code": "A06AG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Enemas"
+    },
+    {
+      "bioportal_name": "oil ingredients",
+      "code": "A06AG06",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "oil"
+    },
+    {
+      "bioportal_name": "Enema combinations",
+      "code": "A06AG20",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Other drugs for constipation in ATC",
+      "code": "A06AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other drugs for constipation"
+    },
+    {
+      "bioportal_name": "antibiotics, intestinal",
+      "code": "A07AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antibiotics"
+    },
+    {
+      "bioportal_name": "Sulfonamides, intestinal antiinfectives",
+      "code": "A07AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Sulfonamides"
+    },
+    {
+      "bioportal_name": "Imidazole derivatives, intestinal antiinfectives",
+      "code": "A07AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Imidazole derivatives"
+    },
+    {
+      "bioportal_name": "Other intestinal antiinfectives in ATC",
+      "code": "A07AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other intestinal antiinfectives"
+    },
+    {
+      "bioportal_name": "Charcoal preparations, intestinal absorbents",
+      "code": "A07BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Charcoal preparations"
+    },
+    {
+      "bioportal_name": "Bismuth preparations, intestinal adsorbents",
+      "code": "A07BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Bismuth preparations"
+    },
+    {
+      "bioportal_name": "Other intestinal adsorbents in ATC",
+      "code": "A07BC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other intestinal adsorbents"
+    },
+    {
+      "bioportal_name": "Other intestinal adsorbent combinations in ATC",
+      "code": "A07BC30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "ELECTROLYTES WITH CARBOHYDRATES, ANTIDIARRHEALS, INTESTINAL ANTIINFLAMMATORY/ANTIINFECTIVE AGENTS",
+      "code": "A07C",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "ELECTROLYTES WITH CARBOHYDRATES"
+    },
+    {
+      "bioportal_name": "Antiallergic intestinal antiinflammatory drugs, excl. corticosteroids",
+      "code": "A07EB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antiallergic agents, excl. corticosteroids"
+    },
+    {
+      "bioportal_name": "OTHER ANTIDIARRHEALS in ATC",
+      "code": "A07X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER ANTIDIARRHEALS"
+    },
+    {
+      "bioportal_name": "Other antidiarrheals in ATC",
+      "code": "A07XA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antidiarrheals"
+    },
+    {
+      "bioportal_name": "Other antiobesity drugs in ATC",
+      "code": "A08AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antiobesity drugs"
+    },
+    {
+      "bioportal_name": "Enzyme preparations, digestives",
+      "code": "A09AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Enzyme preparations"
+    },
+    {
+      "bioportal_name": "Acid preparations, digestives",
+      "code": "A09AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Acid preparations"
+    },
+    {
+      "bioportal_name": "Insulins and analogs for injection, fast-acting combinations",
+      "code": "A10AB30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Insulins and analogs for injection, intermediate-acting combinations",
+      "code": "A10AC30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Insulins and analogues for injection used in Diabetes, intermediate- or long-acting combined with fast-acting",
+      "code": "A10AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Insulins and analogues for injection, intermediate- or long-acting combined with fast-acting"
+    },
+    {
+      "bioportal_name": "Insulins and analogs for injection, intermediate-acting combined with fast-acting- combinations",
+      "code": "A10AD30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "insulins and analogs for injection combinations, long-acting",
+      "code": "A10AE30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A10AE57",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "insulin icodec and semaglutide"
+    },
+    {
+      "bioportal_name": "biguanide blood glucose lower drugs",
+      "code": "A10BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Biguanides"
+    },
+    {
+      "bioportal_name": "Sulfonylureas for blood glucose lowering",
+      "code": "A10BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Sulfonylureas"
+    },
+    {
+      "bioportal_name": "Sulfonamides (heterocyclic), blood glucose lowering drugs",
+      "code": "A10BC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Sulfonamides (heterocyclic)"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A10BD31",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "metformin, sitagliptin and dapagliflozin"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A10BD32",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "glimepiride and dapagliflozin"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A10BD33",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "pioglitazone and dapagliflozin"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A10BD34",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "metformin and enavogliflozin"
+    },
+    {
+      "bioportal_name": "Alpha glucosidase inhibitors, blood glucose lowering",
+      "code": "A10BF",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Alpha glucosidase inhibitors"
+    },
+    {
+      "bioportal_name": "Thiazolidinediones, blood glucose lowering drugs",
+      "code": "A10BG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Thiazolidinediones"
+    },
+    {
+      "bioportal_name": "Dipeptidyl peptidase 4 (DPP-4) inhibitors for blood glucose lowering",
+      "code": "A10BH",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Dipeptidyl peptidase 4 (DPP-4) inhibitors"
+    },
+    {
+      "bioportal_name": "Other blood glucose lowering drugs, excl. insulins in ATC",
+      "code": "A10BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other blood glucose lowering drugs, excl. insulins"
+    },
+    {
+      "bioportal_name": "OTHER DRUGS USED IN DIABETES in ATC",
+      "code": "A10X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER DRUGS USED IN DIABETES"
+    },
+    {
+      "bioportal_name": "Aldose reductase inhibitors used in diabetes",
+      "code": "A10XA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Aldose reductase inhibitors"
+    },
+    {
+      "bioportal_name": "Other drugs used in diabetes in ATC",
+      "code": "A10XX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other drugs used in diabetes"
+    },
+    {
+      "bioportal_name": "vitamin D and analog combinations",
+      "code": "A11CC20",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "vitamin C products, plain",
+      "code": "A11GA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Ascorbic acid (vitamin C), plain"
+    },
+    {
+      "bioportal_name": "ascorbic acid",
+      "code": "A11GA01",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "ascorbic acid (vit C)"
+    },
+    {
+      "bioportal_name": "vitamin C combinations",
+      "code": "A11GB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Ascorbic acid (vitamin C), combinations"
+    },
+    {
+      "bioportal_name": "ascorbic acid and calcium",
+      "code": "A11GB01",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "ascorbic acid (vit C) and calcium"
+    },
+    {
+      "bioportal_name": "OTHER PLAIN VITAMIN PREPARATIONS in ATC",
+      "code": "A11H",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER PLAIN VITAMIN PREPARATIONS"
+    },
+    {
+      "bioportal_name": "Other plain vitamin preparations in ATC",
+      "code": "A11HA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other plain vitamin preparations"
+    },
+    {
+      "bioportal_name": "tocopherol",
+      "code": "A11HA03",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "tocopherol (vit E)"
+    },
+    {
+      "bioportal_name": "OTHER VITAMIN PRODUCTS, COMBINATIONS in ATC",
+      "code": "A11J",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER VITAMIN PRODUCTS, COMBINATIONS"
+    },
+    {
+      "bioportal_name": "CALCIUM SUPPLEMENTS",
+      "code": "A12A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "CALCIUM"
+    },
+    {
+      "bioportal_name": "POTASSIUM SUPPLEMENTS",
+      "code": "A12B",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "POTASSIUM"
+    },
+    {
+      "bioportal_name": "OTHER MINERAL SUPPLEMENTS in ATC",
+      "code": "A12C",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER MINERAL SUPPLEMENTS"
+    },
+    {
+      "bioportal_name": "Sodium supplements",
+      "code": "A12CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Sodium"
+    },
+    {
+      "bioportal_name": "Zinc Supplements",
+      "code": "A12CB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Zinc"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A12CB04",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "zinc orotate"
+    },
+    {
+      "bioportal_name": "Magnesium supplements, alimentary tract and metabolism",
+      "code": "A12CC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Magnesium"
+    },
+    {
+      "bioportal_name": "Fluoride supplements",
+      "code": "A12CD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Fluoride"
+    },
+    {
+      "bioportal_name": "Selenium supplements",
+      "code": "A12CE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Selenium"
+    },
+    {
+      "bioportal_name": "Other mineral products in ATC",
+      "code": "A12CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other mineral products"
+    },
+    {
+      "bioportal_name": "Estren derivatives, systemic",
+      "code": "A14AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Estren derivatives"
+    },
+    {
+      "bioportal_name": "OTHER ANABOLIC AGENTS in ATC",
+      "code": "A14B",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER ANABOLIC AGENTS"
+    },
+    {
+      "bioportal_name": "OTHER ALIMENTARY TRACT AND METABOLISM PRODUCTS in ATC",
+      "code": "A16",
+      "level": 2,
+      "status": "label_difference",
+      "who_name": "OTHER ALIMENTARY TRACT AND METABOLISM PRODUCTS"
+    },
+    {
+      "bioportal_name": "OTHER ALIMENTARY TRACT AND METABOLISM PRODUCTS in ATC",
+      "code": "A16A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER ALIMENTARY TRACT AND METABOLISM PRODUCTS"
+    },
+    {
+      "bioportal_name": "Enzymes for ALIMENTARY TRACT AND METABOLISM",
+      "code": "A16AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Enzymes"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A16AB28",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "verenafusp alfa"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A16AB29",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "rebisufligene etisparvovec"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A16AX26",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "glepaglutide"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A16AX27",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "apraglutide"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A16AX28",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "sepiapterin"
+    },
+    {
+      "bioportal_name": null,
+      "code": "A16AX29",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "doxecitine and doxribtimine"
+    },
+    {
+      "bioportal_name": "BLOOD AND BLOOD FORMING ORGAN DRUGS",
+      "code": "B",
+      "level": 1,
+      "status": "label_difference",
+      "who_name": "BLOOD AND BLOOD FORMING ORGANS"
+    },
+    {
+      "bioportal_name": "Heparin group antithrombotic drugs",
+      "code": "B01AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Heparin group"
+    },
+    {
+      "bioportal_name": "Platelet aggregation inhibitor combinations excl. heparin",
+      "code": "B01AC30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Enzymes, antithrombotic",
+      "code": "B01AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Enzymes"
+    },
+    {
+      "bioportal_name": "Other antithrombotic agents in ATC",
+      "code": "B01AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antithrombotic agents"
+    },
+    {
+      "bioportal_name": "Antifibrinolytic amino acids",
+      "code": "B02AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Amino acids"
+    },
+    {
+      "bioportal_name": "Proteinase inhibitors, antifibrinolytic",
+      "code": "B02AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Proteinase inhibitors"
+    },
+    {
+      "bioportal_name": "Vitamin K containing hemostatics",
+      "code": "B02BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Vitamin K"
+    },
+    {
+      "bioportal_name": "Fibrinogen containing hemostatics",
+      "code": "B02BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Fibrinogen"
+    },
+    {
+      "bioportal_name": "Local hemostatic combinations",
+      "code": "B02BC30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": null,
+      "code": "B02BD18",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "arvenacogene sanparvovec"
+    },
+    {
+      "bioportal_name": "Other systemic hemostatics in ATC",
+      "code": "B02BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other systemic hemostatics"
+    },
+    {
+      "bioportal_name": null,
+      "code": "B02BX12",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "fitusiran"
+    },
+    {
+      "bioportal_name": "IRON ANTIANEMIC PREPARATIONS",
+      "code": "B03A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "IRON PREPARATIONS"
+    },
+    {
+      "bioportal_name": "Iron bivalent, oral antianemic preparations",
+      "code": "B03AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Iron bivalent, oral preparations"
+    },
+    {
+      "bioportal_name": "Iron trivalent, oral antianemic preparations",
+      "code": "B03AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Iron trivalent, oral preparations"
+    },
+    {
+      "bioportal_name": "Iron, parenteral antianemic preparations",
+      "code": "B03AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Iron, parenteral preparations"
+    },
+    {
+      "bioportal_name": "Iron in various other combinations",
+      "code": "B03AE10",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "various combinations"
+    },
+    {
+      "bioportal_name": "Folic acid and derivatives as antianemics",
+      "code": "B03BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Folic acid and derivatives"
+    },
+    {
+      "bioportal_name": "OTHER ANTIANEMIC PREPARATIONS in ATC",
+      "code": "B03X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER ANTIANEMIC PREPARATIONS"
+    },
+    {
+      "bioportal_name": "Other antianemic preparations in ATC",
+      "code": "B03XA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antianemic preparations"
+    },
+    {
+      "bioportal_name": "Other blood products in ATC",
+      "code": "B05AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other blood products"
+    },
+    {
+      "bioportal_name": "IV solutions used in parenteral administration of fluids, electrolytes and nutrients",
+      "code": "B05B",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "I.V. SOLUTIONS"
+    },
+    {
+      "bioportal_name": "Combination solutions for parenteral nutrition",
+      "code": "B05BA10",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "IRRIGATING SOLUTIONS, BLOOD SUBSTITUTES AND PERFUSION",
+      "code": "B05C",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "IRRIGATING SOLUTIONS"
+    },
+    {
+      "bioportal_name": "Antiinfective irrigating solutions",
+      "code": "B05CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antiinfectives"
+    },
+    {
+      "bioportal_name": "Antiinfective irrigating solution combinations",
+      "code": "B05CA10",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Salt irrigating solutions",
+      "code": "B05CB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Salt solutions"
+    },
+    {
+      "bioportal_name": "Salt solution combinations",
+      "code": "B05CB10",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Other irrigating solutions in ATC",
+      "code": "B05CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other irrigating solutions"
+    },
+    {
+      "bioportal_name": "Other irrigating solution combinations in ATC",
+      "code": "B05CX10",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Isotonic solutions, peritoneal dialysis",
+      "code": "B05DA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Isotonic solutions"
+    },
+    {
+      "bioportal_name": "Amino Acids, I.V. solution additive",
+      "code": "B05XB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Amino acids"
+    },
+    {
+      "bioportal_name": "Vitamin IV solution additives",
+      "code": "B05XC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Vitamins"
+    },
+    {
+      "bioportal_name": "Other i.v. solution additives in ATC",
+      "code": "B05XX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other i.v. solution additives"
+    },
+    {
+      "bioportal_name": "OTHER HEMATOLOGICAL AGENTS in ATC",
+      "code": "B06",
+      "level": 2,
+      "status": "label_difference",
+      "who_name": "OTHER HEMATOLOGICAL AGENTS"
+    },
+    {
+      "bioportal_name": "OTHER HEMATOLOGICAL AGENTS in ATC",
+      "code": "B06A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER HEMATOLOGICAL AGENTS"
+    },
+    {
+      "bioportal_name": "Enzymes, hematological",
+      "code": "B06AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Enzymes"
+    },
+    {
+      "bioportal_name": null,
+      "code": "B06AC09",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "donidalorsen"
+    },
+    {
+      "bioportal_name": "Other hematological agents in ATC",
+      "code": "B06AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other hematological agents"
+    },
+    {
+      "bioportal_name": null,
+      "code": "B06AX06",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "lovotibeglogene autotemcel"
+    },
+    {
+      "bioportal_name": null,
+      "code": "B06AX07",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "mozafancogene autotemcel"
+    },
+    {
+      "bioportal_name": "CARDIOVASCULAR SYSTEM DRUGS",
+      "code": "C",
+      "level": 1,
+      "status": "label_difference",
+      "who_name": "CARDIOVASCULAR SYSTEM"
+    },
+    {
+      "bioportal_name": "CARDIAC THERAPY DRUGS",
+      "code": "C01",
+      "level": 2,
+      "status": "label_difference",
+      "who_name": "CARDIAC THERAPY"
+    },
+    {
+      "bioportal_name": "Scilla glycosides used in cardiac therapy",
+      "code": "C01AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Scilla glycosides"
+    },
+    {
+      "bioportal_name": "Strophanthus glycosides used in cardiac therapy",
+      "code": "C01AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Strophanthus glycosides"
+    },
+    {
+      "bioportal_name": "Other cardiac glycosides in ATC",
+      "code": "C01AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other cardiac glycosides"
+    },
+    {
+      "bioportal_name": "Other antiarrhythmics, class I and III in ATC",
+      "code": "C01BG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antiarrhythmics, class I and III"
+    },
+    {
+      "bioportal_name": "Adrenergic and dopaminergic cardiac stimulants",
+      "code": "C01CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Adrenergic and dopaminergic agents"
+    },
+    {
+      "bioportal_name": "Adrenergic and dopaminergic agents combinations",
+      "code": "C01CA30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Phosphodiesterase inhibitors, cardiac stimulant",
+      "code": "C01CE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Phosphodiesterase inhibitors"
+    },
+    {
+      "bioportal_name": "Other cardiac stimulants in ATC",
+      "code": "C01CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other cardiac stimulants"
+    },
+    {
+      "bioportal_name": "Organic nitrates used in cardiac disease",
+      "code": "C01DA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Organic nitrates"
+    },
+    {
+      "bioportal_name": "Quinolone vasodilators used in cardiac diseases",
+      "code": "C01DB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Quinolone vasodilators"
+    },
+    {
+      "bioportal_name": "Other vasodilators used in cardiac diseases in ATC",
+      "code": "C01DX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other vasodilators used in cardiac diseases"
+    },
+    {
+      "bioportal_name": "OTHER CARDIAC PREPARATIONS in ATC",
+      "code": "C01E",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER CARDIAC PREPARATIONS"
+    },
+    {
+      "bioportal_name": "Prostaglandin cardiac therapy preparations",
+      "code": "C01EA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Prostaglandins"
+    },
+    {
+      "bioportal_name": "Other plain cardiac preparations in ATC",
+      "code": "C01EB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other cardiac preparations"
+    },
+    {
+      "bioportal_name": "Other cardiac therapy combination products in ATC",
+      "code": "C01EX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other cardiac combination products"
+    },
+    {
+      "bioportal_name": "Rauwolfia alkaloids, centrally acting antiadrenergic",
+      "code": "C02AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Rauwolfia alkaloids"
+    },
+    {
+      "bioportal_name": "Methyldopa, centrally acting adntiadrenergic agents",
+      "code": "C02AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Methyldopa"
+    },
+    {
+      "bioportal_name": "Sulfonium derivatives, ganglion-blocking adreneregic",
+      "code": "C02BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Sulfonium derivatives"
+    },
+    {
+      "bioportal_name": "Secondary and tertiary amines, ganglion-blocking antiadrenergic",
+      "code": "C02BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Secondary and tertiary amines"
+    },
+    {
+      "bioportal_name": "Bisquaternary ammonium compounds, ganglion-blocking antiandrenergic",
+      "code": "C02BC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Bisquaternary ammonium compounds"
+    },
+    {
+      "bioportal_name": "Alpha-adrenoreceptor antagonists, peripherally acting",
+      "code": "C02CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Alpha-adrenoreceptor antagonists"
+    },
+    {
+      "bioportal_name": "Guanine derivatives, peripherally acting antiadrenergic agents",
+      "code": "C02CC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Guanidine derivatives"
+    },
+    {
+      "bioportal_name": "Thiazide derivatives acting on arteriolar smooth muscle",
+      "code": "C02DA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Thiazide derivatives"
+    },
+    {
+      "bioportal_name": "Hydrazinophthalazine derivatives acting on arteriolar smooth muscle",
+      "code": "C02DB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Hydrazinophthalazine derivatives"
+    },
+    {
+      "bioportal_name": "Pyrimidine derivatives acting on arteriolar smooth muscle",
+      "code": "C02DC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Pyrimidine derivatives"
+    },
+    {
+      "bioportal_name": "Nitroferricyanide derivatives acting on arteriolar smooth muscle",
+      "code": "C02DD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Nitroferricyanide derivatives"
+    },
+    {
+      "bioportal_name": "Guanine derivatives acting on arteriolar smooth muscle",
+      "code": "C02DG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Guanidine derivatives"
+    },
+    {
+      "bioportal_name": "OTHER ANTIHYPERTENSIVES in ATC",
+      "code": "C02K",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER ANTIHYPERTENSIVES"
+    },
+    {
+      "bioportal_name": "Alkaloids, excl. rauwolfia, antihypertensives",
+      "code": "C02KA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Alkaloids, excl. rauwolfia"
+    },
+    {
+      "bioportal_name": "Tyrosine hydroxylase inhibitors, antihypertensives",
+      "code": "C02KB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tyrosine hydroxylase inhibitors"
+    },
+    {
+      "bioportal_name": "MAO inhibitors, antihypertensives",
+      "code": "C02KC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "MAO inhibitors"
+    },
+    {
+      "bioportal_name": "Serotonin antagonists, antihypertensives",
+      "code": "C02KD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Serotonin antagonists"
+    },
+    {
+      "bioportal_name": "Other antihypertensives in ATC",
+      "code": "C02KN",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antihypertensives"
+    },
+    {
+      "bioportal_name": null,
+      "code": "C02KN02",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "baxdrostat"
+    },
+    {
+      "bioportal_name": "Other antihypertensives and diuretics in ATC",
+      "code": "C02LX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antihypertensives and diuretics"
+    },
+    {
+      "bioportal_name": "sulfonamides, low-ceiling diuretics, plain",
+      "code": "C03BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Sulfonamides, plain"
+    },
+    {
+      "bioportal_name": "Sulfonamides and potassium in combination, low-ceiling diruetics, excluding thiazides",
+      "code": "C03BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Sulfonamides and potassium in combination"
+    },
+    {
+      "bioportal_name": "Xanthine derivatives, low-ceiling diuretics",
+      "code": "C03BD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Xanthine derivatives"
+    },
+    {
+      "bioportal_name": "Other low-ceiling diuretics in ATC",
+      "code": "C03BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other low-ceiling diuretics"
+    },
+    {
+      "bioportal_name": "sulfonamides, high-ceiling diuretics, plain",
+      "code": "C03CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Sulfonamides, plain"
+    },
+    {
+      "bioportal_name": "Sulfonamides and potassium in combination, high-ceiling diruetics, excluding thiazides",
+      "code": "C03CB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Sulfonamides and potassium in combination"
+    },
+    {
+      "bioportal_name": "Aryloxyacetic acid derivatives, high-ceiling diuretics",
+      "code": "C03CC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Aryloxyacetic acid derivatives"
+    },
+    {
+      "bioportal_name": "Pyrazolone derivatives, high-ceiling diuretics",
+      "code": "C03CD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Pyrazolone derivatives"
+    },
+    {
+      "bioportal_name": "Other high-ceiling diuretics in ATC",
+      "code": "C03CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other high-ceiling diuretics"
+    },
+    {
+      "bioportal_name": null,
+      "code": "C03DA54",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "eplerenone and dapagliflozin"
+    },
+    {
+      "bioportal_name": "Other potassium-sparing agents in ATC",
+      "code": "C03DB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other potassium-sparing agents"
+    },
+    {
+      "bioportal_name": null,
+      "code": "C03EB03",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "torasemide and potassium-sparing agents"
+    },
+    {
+      "bioportal_name": "OTHER DIURETICS in ATC",
+      "code": "C03X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER DIURETICS"
+    },
+    {
+      "bioportal_name": "Vasopressin antagonists, diuretics",
+      "code": "C03XA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Vasopressin antagonists"
+    },
+    {
+      "bioportal_name": "Imidazoline derivatives, peripheral vasodilators",
+      "code": "C04AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Imidazoline derivatives"
+    },
+    {
+      "bioportal_name": "Nicotinic acid and derivatives, peripheral vasodilators",
+      "code": "C04AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Nicotinic acid and derivatives"
+    },
+    {
+      "bioportal_name": "nicotinyl alcohol",
+      "code": "C04AC02",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "nicotinyl alcohol (pyridylcarbinol)"
+    },
+    {
+      "bioportal_name": "Purine derivatives, peripheral vasodilators",
+      "code": "C04AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Purine derivatives"
+    },
+    {
+      "bioportal_name": "Ergot alkaloid peripheral vasodilators",
+      "code": "C04AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Ergot alkaloids"
+    },
+    {
+      "bioportal_name": "Enzymes, peripheral vasodilators",
+      "code": "C04AF",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Enzymes"
+    },
+    {
+      "bioportal_name": "Other peripheral vasodilators in ATC",
+      "code": "C04AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other peripheral vasodilators"
+    },
+    {
+      "bioportal_name": "Corticosteroids, topical for treatment of hemorrhoids and anal fissures",
+      "code": "C05AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Corticosteroids"
+    },
+    {
+      "bioportal_name": "Antibiotics FOR TREATMENT OF HEMORRHOIDS AND ANAL FISSURES FOR TOPICAL USE",
+      "code": "C05AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antibiotics"
+    },
+    {
+      "bioportal_name": "Local anesthetics for treatment of hemorrhoids and anal fissures for topical use",
+      "code": "C05AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Local anesthetics"
+    },
+    {
+      "bioportal_name": "Muscle relaxants FOR TREATMENT OF HEMORRHOIDS AND ANAL FISSURES FOR TOPICAL USE",
+      "code": "C05AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Muscle relaxants"
+    },
+    {
+      "bioportal_name": "Other agents for treatment of hemorrhoids and anal fissures for topical use in ATC",
+      "code": "C05AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other agents for treatment of hemorrhoids and anal fissures for topical use"
+    },
+    {
+      "bioportal_name": "ANTIVARICOSE THERAPY DRUGS",
+      "code": "C05B",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "ANTIVARICOSE THERAPY"
+    },
+    {
+      "bioportal_name": "Other sclerosing agents in ATC",
+      "code": "C05BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other sclerosing agents"
+    },
+    {
+      "bioportal_name": "Bioflavonoid drugs for capillary stabilizing",
+      "code": "C05CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Bioflavonoids"
+    },
+    {
+      "bioportal_name": "Other capillary stabilizing agents in ATC",
+      "code": "C05CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other capillary stabilizing agents"
+    },
+    {
+      "bioportal_name": "OTHER VASOPROTECTIVES in ATC",
+      "code": "C05X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER VASOPROTECTIVES"
+    },
+    {
+      "bioportal_name": "Other vasoprotectives in ATC",
+      "code": "C05XX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other vasoprotectives"
+    },
+    {
+      "bioportal_name": "beta-Adrenergic Blocking Agents",
+      "code": "C07",
+      "level": 2,
+      "status": "label_difference",
+      "who_name": "BETA BLOCKING AGENTS"
+    },
+    {
+      "bioportal_name": "Dihydropyridine derivative selective calcium channel blockers with mainly vascular effects",
+      "code": "C08CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Dihydropyridine derivatives"
+    },
+    {
+      "bioportal_name": "Other selective calcium channel blockers with mainly vascular effects in ATC",
+      "code": "C08CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other selective calcium channel blockers with mainly vascular effects"
+    },
+    {
+      "bioportal_name": "Phenylalkylamine derivatives, selective calcium channel blockers with direct cardiac effects",
+      "code": "C08DA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Phenylalkylamine derivatives"
+    },
+    {
+      "bioportal_name": "Benzothiazepine derivative selective calcium channel blockers with direct cardiac effects",
+      "code": "C08DB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Benzothiazepine derivatives"
+    },
+    {
+      "bioportal_name": "Phenylalkylamine derivatives, non-selective calcium channel blockers",
+      "code": "C08EA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Phenylalkylamine derivatives"
+    },
+    {
+      "bioportal_name": "Other non-selective calcium channel blockers in ATC",
+      "code": "C08EX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other non-selective calcium channel blockers"
+    },
+    {
+      "bioportal_name": null,
+      "code": "C09BB14",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "zofenopril and amlodipine"
+    },
+    {
+      "bioportal_name": "ACE inhibitors, other combinations in ATC",
+      "code": "C09BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "ACE inhibitors, other combinations"
+    },
+    {
+      "bioportal_name": null,
+      "code": "C09DX09",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "candesartan, amlodipine and indapamide"
+    },
+    {
+      "bioportal_name": "OTHER AGENTS ACTING ON THE RENIN-ANGIOTENSIN SYSTEM in ATC",
+      "code": "C09X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER AGENTS ACTING ON THE RENIN-ANGIOTENSIN SYSTEM"
+    },
+    {
+      "bioportal_name": "Other agents acting on the renin-angiotensin system in ATC",
+      "code": "C09XX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other agents acting on the renin-angiotensin system"
+    },
+    {
+      "bioportal_name": "HMG CoA reductase inhibitors, plain lipid modifying drugs",
+      "code": "C10AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "HMG CoA reductase inhibitors"
+    },
+    {
+      "bioportal_name": "Fibrates, lipid modifying drugs, plain",
+      "code": "C10AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Fibrates"
+    },
+    {
+      "bioportal_name": "Nicotinic acid and derivatives, lipid modifying, plain",
+      "code": "C10AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Nicotinic acid and derivatives"
+    },
+    {
+      "bioportal_name": "nicotinyl alcohol",
+      "code": "C10AD05",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "nicotinyl alcohol (pyridylcarbinol)"
+    },
+    {
+      "bioportal_name": "Other lipid modifying agents in ATC",
+      "code": "C10AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other lipid modifying agents"
+    },
+    {
+      "bioportal_name": null,
+      "code": "C10AX19",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "lerodalcibep"
+    },
+    {
+      "bioportal_name": null,
+      "code": "C10BA14",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "pitavastatin and fenofibrate"
+    },
+    {
+      "bioportal_name": null,
+      "code": "C10BA15",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "rosuvastatin, ezetimibe and fenofibrate"
+    },
+    {
+      "bioportal_name": null,
+      "code": "C10BA16",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "atorvastatin and fenofibrate"
+    },
+    {
+      "bioportal_name": null,
+      "code": "C10BX23",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "rosuvastatin, amlodipine and ramipril"
+    },
+    {
+      "bioportal_name": null,
+      "code": "C10BX24",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "rosuvastatin, amlodipine and telmisartan"
+    },
+    {
+      "bioportal_name": "Antifungal Antibiotics, Topical",
+      "code": "D01AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antibiotics"
+    },
+    {
+      "bioportal_name": "Imidazole and triazole derivatives, topical antifungals",
+      "code": "D01AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Imidazole and triazole derivatives"
+    },
+    {
+      "bioportal_name": "Imidazole and triazole derivative topical antifungal combinations",
+      "code": "D01AC20",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "imidazoles/triazoles in combination with corticosteroids"
+    },
+    {
+      "bioportal_name": "Other antifungals for topical use in ATC",
+      "code": "D01AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antifungals for topical use"
+    },
+    {
+      "bioportal_name": "Other antifungal combinations for topical use in ATC",
+      "code": "D01AE20",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Silicone emollient and protective products",
+      "code": "D02AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Silicone products"
+    },
+    {
+      "bioportal_name": "Zinc products, emollients and protectives",
+      "code": "D02AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Zinc products"
+    },
+    {
+      "bioportal_name": "Carbamide products, emollients and protectives",
+      "code": "D02AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Carbamide products"
+    },
+    {
+      "bioportal_name": "Salicylic acid emollient and protective preparations",
+      "code": "D02AF",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Salicylic acid preparations"
+    },
+    {
+      "bioportal_name": "Other emollients and protectives in ATC",
+      "code": "D02AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other emollients and protectives"
+    },
+    {
+      "bioportal_name": "Other cicatrizants in ATC",
+      "code": "D03AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other cicatrizants"
+    },
+    {
+      "bioportal_name": null,
+      "code": "D03AX17",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "diperoxochloric acid"
+    },
+    {
+      "bioportal_name": "ENZYMES FOR TREATMENT OF WOUNDS AND ULCERS",
+      "code": "D03B",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "ENZYMES"
+    },
+    {
+      "bioportal_name": "Proteolytic enzymes for treatment of wounds and ulcers",
+      "code": "D03BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Proteolytic enzymes"
+    },
+    {
+      "bioportal_name": "Other antipruritics in ATC",
+      "code": "D04AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antipruritics"
+    },
+    {
+      "bioportal_name": "Tars, topical antipsoriatics",
+      "code": "D05AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tars"
+    },
+    {
+      "bioportal_name": "Antracen derivatives, topical antipsoriatics",
+      "code": "D05AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antracen derivatives"
+    },
+    {
+      "bioportal_name": "Other antipsoriatics for topical use in ATC",
+      "code": "D05AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antipsoriatics for topical use"
+    },
+    {
+      "bioportal_name": "Other antipsoriatics for systemic use in ATC",
+      "code": "D05BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antipsoriatics for systemic use"
+    },
+    {
+      "bioportal_name": "Tetracycline and derivatives, topical antibiotics",
+      "code": "D06AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tetracycline and derivatives"
+    },
+    {
+      "bioportal_name": "Other antibiotics for topical use in ATC",
+      "code": "D06AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antibiotics for topical use"
+    },
+    {
+      "bioportal_name": "Sulfonamides, topical",
+      "code": "D06BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Sulfonamides"
+    },
+    {
+      "bioportal_name": "Antivirals, topical",
+      "code": "D06BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antivirals"
+    },
+    {
+      "bioportal_name": null,
+      "code": "D06BB13",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "berdazimer sodium"
+    },
+    {
+      "bioportal_name": "Other chemotherapeutics in ATC",
+      "code": "D06BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other chemotherapeutics"
+    },
+    {
+      "bioportal_name": "CORTICOSTEROID DERMATOLOGICAL PREPARATIONS, PLAIN",
+      "code": "D07A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "CORTICOSTEROIDS, PLAIN"
+    },
+    {
+      "bioportal_name": "Acridine derivatives, antiseptics and disinfectants",
+      "code": "D08AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Acridine derivatives"
+    },
+    {
+      "bioportal_name": "Aluminium agents, antiseptics and disinfectants",
+      "code": "D08AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Aluminium agents"
+    },
+    {
+      "bioportal_name": "Biguanides and amidines as antiseptics and disinfectants",
+      "code": "D08AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Biguanides and amidines"
+    },
+    {
+      "bioportal_name": "Boric acid antiseptics and disinfectants",
+      "code": "D08AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Boric acid products"
+    },
+    {
+      "bioportal_name": "Phenol and derivatives, antiseptics and disinfectants",
+      "code": "D08AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Phenol and derivatives"
+    },
+    {
+      "bioportal_name": "Nitrofuran derivatives, antiseptics and disinfectants",
+      "code": "D08AF",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Nitrofuran derivatives"
+    },
+    {
+      "bioportal_name": "Iodine products, antiseptics and disinfectants",
+      "code": "D08AG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Iodine products"
+    },
+    {
+      "bioportal_name": "Quinoline derivatives, antiseptics and disinfectants",
+      "code": "D08AH",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Quinoline derivatives"
+    },
+    {
+      "bioportal_name": "Quaternary ammonium compounds, antiseptics and disinfectants",
+      "code": "D08AJ",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Quaternary ammonium compounds"
+    },
+    {
+      "bioportal_name": "Mercurial antiseptic and disinfectant products",
+      "code": "D08AK",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Mercurial products"
+    },
+    {
+      "bioportal_name": "Silver compounds, antiseptics and disinfectants",
+      "code": "D08AL",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Silver compounds"
+    },
+    {
+      "bioportal_name": "Other antiseptics and disinfectants in ATC",
+      "code": "D08AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antiseptics and disinfectants"
+    },
+    {
+      "bioportal_name": "Preparations containing sulfur, anti-acne preparations for topical use",
+      "code": "D10AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Preparations containing sulfur"
+    },
+    {
+      "bioportal_name": "Peroxide anti-acne preparations for topical use",
+      "code": "D10AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Peroxides"
+    },
+    {
+      "bioportal_name": "Other anti-acne preparations for topical use in ATC",
+      "code": "D10AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other anti-acne preparations for topical use"
+    },
+    {
+      "bioportal_name": "various other anti-acne preparation combinations for topical use in ATC",
+      "code": "D10AX30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "various combinations"
+    },
+    {
+      "bioportal_name": "Other anti-acne preparations for systemic use in ATC",
+      "code": "D10BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other anti-acne preparations for systemic use"
+    },
+    {
+      "bioportal_name": "OTHER DERMATOLOGICAL PREPARATIONS in ATC",
+      "code": "D11",
+      "level": 2,
+      "status": "label_difference",
+      "who_name": "OTHER DERMATOLOGICAL PREPARATIONS"
+    },
+    {
+      "bioportal_name": "OTHER DERMATOLOGICAL PREPARATIONS in ATC",
+      "code": "D11A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER DERMATOLOGICAL PREPARATIONS"
+    },
+    {
+      "bioportal_name": null,
+      "code": "D11AA02",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "sofpironium bromide"
+    },
+    {
+      "bioportal_name": "other medicated shampoos in ATC",
+      "code": "D11AC30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "others"
+    },
+    {
+      "bioportal_name": "OTHER DERMATOLOGICAL PREPARATIONS IN ATC",
+      "code": "D11AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other dermatologicals"
+    },
+    {
+      "bioportal_name": "Antibiotics, Gynecological",
+      "code": "G01AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antibiotics"
+    },
+    {
+      "bioportal_name": "Arsenic compounds, Gynecological",
+      "code": "G01AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Arsenic compounds"
+    },
+    {
+      "bioportal_name": "Quinoline gynecological antiinfectives",
+      "code": "G01AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Quinoline derivatives"
+    },
+    {
+      "bioportal_name": "Organic acids, Gynecological",
+      "code": "G01AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Organic acids"
+    },
+    {
+      "bioportal_name": "Sulfonamides, Gynecological",
+      "code": "G01AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Sulfonamides"
+    },
+    {
+      "bioportal_name": "Imidazole derivatives, gyncological antiinfectives",
+      "code": "G01AF",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Imidazole derivatives"
+    },
+    {
+      "bioportal_name": "Triazole derivatives, gynecological antiinfectives and antiseptics",
+      "code": "G01AG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Triazole derivatives"
+    },
+    {
+      "bioportal_name": "Other gynecological antiinfectives and antiseptics in ATC",
+      "code": "G01AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antiinfectives and antiseptics"
+    },
+    {
+      "bioportal_name": "Quinoline derivative antiinfectives/antiseptics and corticosteroids",
+      "code": "G01BC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Quinoline derivatives and corticosteroids"
+    },
+    {
+      "bioportal_name": "Sulfonamides antiinfectives/antiseptics and corticosteroids",
+      "code": "G01BE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Sulfonamides and corticosteroids"
+    },
+    {
+      "bioportal_name": "Imidazole derivatives antiinfectives/antiseptics and corticosteroids",
+      "code": "G01BF",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Imidazole derivatives and corticosteroids"
+    },
+    {
+      "bioportal_name": "OTHER GYNECOLOGICALS in ATC",
+      "code": "G02",
+      "level": 2,
+      "status": "label_difference",
+      "who_name": "OTHER GYNECOLOGICALS"
+    },
+    {
+      "bioportal_name": "Ergot alkaloid oxytocics",
+      "code": "G02AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Ergot alkaloids"
+    },
+    {
+      "bioportal_name": "Prostaglandins, oxytocics",
+      "code": "G02AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Prostaglandins"
+    },
+    {
+      "bioportal_name": "Other uterotonics in ATC",
+      "code": "G02AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other uterotonics"
+    },
+    {
+      "bioportal_name": "OTHER GYNECOLOGICALS in ATC",
+      "code": "G02C",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER GYNECOLOGICALS"
+    },
+    {
+      "bioportal_name": "Other gynecologicals in ATC",
+      "code": "G02CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other gynecologicals"
+    },
+    {
+      "bioportal_name": null,
+      "code": "G02CX07",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "elinzanetant"
+    },
+    {
+      "bioportal_name": "Progestogens and estrogen systemic contraceptives, fixed combinations",
+      "code": "G03AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Progestogens and estrogens, fixed combinations"
+    },
+    {
+      "bioportal_name": "Progestogens and estrogens systemic contraceptives, sequential preparations",
+      "code": "G03AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Progestogens and estrogens, sequential preparations"
+    },
+    {
+      "bioportal_name": "Progestogen systemic hormonal contraceptives",
+      "code": "G03AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Progestogens"
+    },
+    {
+      "bioportal_name": "Emergency contraceptive drugs",
+      "code": "G03AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Emergency contraceptives"
+    },
+    {
+      "bioportal_name": "ESTROGENS, SEX HORMONES AND MODULATORS OF THE GENITAL SYSTEM",
+      "code": "G03C",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "ESTROGENS"
+    },
+    {
+      "bioportal_name": null,
+      "code": "G03CA10",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "estetrol"
+    },
+    {
+      "bioportal_name": "Other estrogens in ATC",
+      "code": "G03CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other estrogens"
+    },
+    {
+      "bioportal_name": "PROGESTOGEN SEX HORMONES AND MODULATORS OF THE GENITAL SYSTEM",
+      "code": "G03D",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "PROGESTOGENS"
+    },
+    {
+      "bioportal_name": "Pregnen (4) derivatives, progestogens",
+      "code": "G03DA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Pregnen (4) derivatives"
+    },
+    {
+      "bioportal_name": "Pregnadien derivatives, progestogens",
+      "code": "G03DB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Pregnadien derivatives"
+    },
+    {
+      "bioportal_name": "Estren derivatives, sex hormones and modulators of the genital system",
+      "code": "G03DC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Estren derivatives"
+    },
+    {
+      "bioportal_name": "gonadotropin combinations",
+      "code": "G03GA30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "ANTIANDROGEN SEX HORMONES AND MODULATORS OF THE GENITAL SYSTEM",
+      "code": "G03H",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "ANTIANDROGENS"
+    },
+    {
+      "bioportal_name": "OTHER SEX HORMONES AND MODULATORS OF THE GENITAL SYSTEM in ATC",
+      "code": "G03X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER SEX HORMONES AND MODULATORS OF THE GENITAL SYSTEM"
+    },
+    {
+      "bioportal_name": "Progesterone receptor modulators, sex hormones and modulators of the genital system",
+      "code": "G03XB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Progesterone receptor modulators"
+    },
+    {
+      "bioportal_name": "Other sex hormones and modulators of the genital system in ATC",
+      "code": "G03XX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other sex hormones and modulators of the genital system"
+    },
+    {
+      "bioportal_name": "combination drugs used in erectile dysfunction",
+      "code": "G04BE30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Other urologicals in ATC",
+      "code": "G04BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other urologicals"
+    },
+    {
+      "bioportal_name": "Alpha-adrenoreceptor antagonists, benign prostatic hypertrophy",
+      "code": "G04CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Alpha-adrenoreceptor antagonists"
+    },
+    {
+      "bioportal_name": "Testosterone-5-alpha reductase inhibitors for benign prostatic hypertrophy",
+      "code": "G04CB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Testosterone-5-alpha reductase inhibitors"
+    },
+    {
+      "bioportal_name": "Other drugs used in benign prostatic hypertrophy in ATC",
+      "code": "G04CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other drugs used in benign prostatic hypertrophy"
+    },
+    {
+      "bioportal_name": "ACTH and synthetic analog preparations",
+      "code": "H01AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "ACTH"
+    },
+    {
+      "bioportal_name": "Thyrotropin Class in ATC",
+      "code": "H01AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Thyrotropin"
+    },
+    {
+      "bioportal_name": "Other anterior pituitary lobe hormones and analogues in ATC",
+      "code": "H01AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other anterior pituitary lobe hormones and analogues"
+    },
+    {
+      "bioportal_name": null,
+      "code": "H01CB06",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "paltusotine"
+    },
+    {
+      "bioportal_name": "Mineralocorticoids for systemic use, plain",
+      "code": "H02AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Mineralocorticoids"
+    },
+    {
+      "bioportal_name": "Glucocorticoids, Systemic",
+      "code": "H02AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Glucocorticoids"
+    },
+    {
+      "bioportal_name": "THYROID THERAPY DRUGS",
+      "code": "H03",
+      "level": 2,
+      "status": "label_difference",
+      "who_name": "THYROID THERAPY"
+    },
+    {
+      "bioportal_name": "Thiouracil antithyroid preparations",
+      "code": "H03BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Thiouracils"
+    },
+    {
+      "bioportal_name": "Sulfur-containing imidazole derivatives, antithyroid preparations",
+      "code": "H03BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Sulfur-containing imidazole derivatives"
+    },
+    {
+      "bioportal_name": "Perchlorate antithyroid preparations",
+      "code": "H03BC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Perchlorates"
+    },
+    {
+      "bioportal_name": "Other antithyroid preparations in ATC",
+      "code": "H03BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antithyroid preparations"
+    },
+    {
+      "bioportal_name": "IODINE THERAPY DRUGS",
+      "code": "H03C",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "IODINE THERAPY"
+    },
+    {
+      "bioportal_name": "Other anti-parathyroid agents in ATC",
+      "code": "H05BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other anti-parathyroid agents"
+    },
+    {
+      "bioportal_name": "Tetracycline antibiotics",
+      "code": "J01A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "TETRACYCLINES"
+    },
+    {
+      "bioportal_name": "Amphenicol antibacterials, systemic",
+      "code": "J01BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Amphenicols"
+    },
+    {
+      "bioportal_name": "Penicillins with extended spectrum combinations",
+      "code": "J01CA20",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Beta-lactamase sensitive penicillin combinations",
+      "code": "J01CE30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Beta-lactamase inhibitors, systemic penicillins",
+      "code": "J01CG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Beta-lactamase inhibitors"
+    },
+    {
+      "bioportal_name": null,
+      "code": "J01CG30",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "sulbactam and durlobactam"
+    },
+    {
+      "bioportal_name": "OTHER BETA-LACTAM ANTIBACTERIALS in ATC",
+      "code": "J01D",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER BETA-LACTAM ANTIBACTERIALS"
+    },
+    {
+      "bioportal_name": "Other cephalosporins and penems in ATC",
+      "code": "J01DI",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other cephalosporins and penems"
+    },
+    {
+      "bioportal_name": null,
+      "code": "J01DI55",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "sulopenem and probenecid"
+    },
+    {
+      "bioportal_name": "SULFONAMIDES AND TRIMETHOPRIM ANTIBACTERIALS FOR SYSTEMIC USE",
+      "code": "J01E",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "SULFONAMIDES AND TRIMETHOPRIM"
+    },
+    {
+      "bioportal_name": "Trimethoprim and derivatives, systemic antibacterials",
+      "code": "J01EA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Trimethoprim and derivatives"
+    },
+    {
+      "bioportal_name": "Short-acting sulfonamide combinations",
+      "code": "J01EB20",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Intermediate-acting sulfonamide combinations",
+      "code": "J01EC20",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Long-acting sulfonamide combinations",
+      "code": "J01ED20",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": null,
+      "code": "J01FA17",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "nafithromycin"
+    },
+    {
+      "bioportal_name": "Other aminoglycosides in ATC",
+      "code": "J01GB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other aminoglycosides"
+    },
+    {
+      "bioportal_name": "Fluoroquinolone antibacterials, systemic",
+      "code": "J01MA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Fluoroquinolones"
+    },
+    {
+      "bioportal_name": "Other quinolones in ATC",
+      "code": "J01MB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other quinolones"
+    },
+    {
+      "bioportal_name": "OTHER ANTIBACTERIALS in ATC",
+      "code": "J01X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER ANTIBACTERIALS"
+    },
+    {
+      "bioportal_name": "Imidazole derivatives, antibacterial for systemic use",
+      "code": "J01XD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Imidazole derivatives"
+    },
+    {
+      "bioportal_name": "Nitrofuran derivatives, antibacterials for systemic use",
+      "code": "J01XE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Nitrofuran derivatives"
+    },
+    {
+      "bioportal_name": "Other antibacterials in ATC",
+      "code": "J01XX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antibacterials"
+    },
+    {
+      "bioportal_name": "Antibiotics for systemic use",
+      "code": "J02AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antibiotics"
+    },
+    {
+      "bioportal_name": "Imidazole derivatives, antimycotic for systemic use",
+      "code": "J02AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Imidazole derivatives"
+    },
+    {
+      "bioportal_name": "Other antimycotics for systemic use in ATC",
+      "code": "J02AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antimycotics for systemic use"
+    },
+    {
+      "bioportal_name": "Antibiotics, Antitubercular",
+      "code": "J04AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antibiotics"
+    },
+    {
+      "bioportal_name": "Hydrazides for tuberculosis treatment",
+      "code": "J04AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Hydrazides"
+    },
+    {
+      "bioportal_name": "Thiocarbamide derivatives for treatment of tuberculosis",
+      "code": "J04AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Thiocarbamide derivatives"
+    },
+    {
+      "bioportal_name": "Other drugs for treatment of tuberculosis in ATC",
+      "code": "J04AK",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other drugs for treatment of tuberculosis"
+    },
+    {
+      "bioportal_name": "Thiosemicarbazones, direct acting antivirals",
+      "code": "J05AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Thiosemicarbazones"
+    },
+    {
+      "bioportal_name": "Cyclic amines, direct acting antivirals",
+      "code": "J05AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Cyclic amines"
+    },
+    {
+      "bioportal_name": "Phosphonic acid derivatives, direct acting antivirals",
+      "code": "J05AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Phosphonic acid derivatives"
+    },
+    {
+      "bioportal_name": "Protease inhibitors, direct acting antivirals",
+      "code": "J05AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Protease inhibitors"
+    },
+    {
+      "bioportal_name": "Neuraminidase inhibitors, direct acting antivirals",
+      "code": "J05AH",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Neuraminidase inhibitors"
+    },
+    {
+      "bioportal_name": "Integrase Inhibitors, antiinfectives for systematic use",
+      "code": "J05AJ",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Integrase inhibitors"
+    },
+    {
+      "bioportal_name": "Other antivirals in ATC",
+      "code": "J05AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antivirals"
+    },
+    {
+      "bioportal_name": "IMMUNE SERA SYSTEMIC ANTIINFECTIVES",
+      "code": "J06A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "IMMUNE SERA"
+    },
+    {
+      "bioportal_name": "Specific immunoglobulin combinations",
+      "code": "J06BB30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": null,
+      "code": "J06BD10",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "clesrovimab"
+    },
+    {
+      "bioportal_name": null,
+      "code": "J06BD11",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "libevitug"
+    },
+    {
+      "bioportal_name": "Other bacterial vaccines in ATC",
+      "code": "J07AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other bacterial vaccines"
+    },
+    {
+      "bioportal_name": null,
+      "code": "J07BB55",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "influenza and covid-19, RNA-based vaccine"
+    },
+    {
+      "bioportal_name": "Hepatitis vaccine combinations",
+      "code": "J07BC20",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": null,
+      "code": "J07BP",
+      "level": 4,
+      "status": "who_only",
+      "who_name": "Chikungunya vaccines"
+    },
+    {
+      "bioportal_name": null,
+      "code": "J07BP01",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "chikungunya, live attenuated"
+    },
+    {
+      "bioportal_name": null,
+      "code": "J07BP02",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "chikungunya, virus-like particles"
+    },
+    {
+      "bioportal_name": "Other viral vaccines in ATC",
+      "code": "J07BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other viral vaccines"
+    },
+    {
+      "bioportal_name": "smallpox and monkeypox vaccines",
+      "code": "J07BX01",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "smallpox and mpox vaccines"
+    },
+    {
+      "bioportal_name": "OTHER VACCINES in ATC",
+      "code": "J07X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER VACCINES"
+    },
+    {
+      "bioportal_name": "Alkyl sulfonate alkylating agents",
+      "code": "L01AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Alkyl sulfonates"
+    },
+    {
+      "bioportal_name": "Ethylene imines, antineoplastic alkylating drugs",
+      "code": "L01AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Ethylene imines"
+    },
+    {
+      "bioportal_name": "Nitrosoureas, antineoplastic alkylating agents",
+      "code": "L01AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Nitrosoureas"
+    },
+    {
+      "bioportal_name": "Epoxides, antineoplastic alkylating drugs",
+      "code": "L01AG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Epoxides"
+    },
+    {
+      "bioportal_name": "Other alkylating agents in ATC",
+      "code": "L01AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other alkylating agents"
+    },
+    {
+      "bioportal_name": "Folic acid analogs, antimetabolites",
+      "code": "L01BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Folic acid analogues"
+    },
+    {
+      "bioportal_name": "Purine analogs, antimetabolites antineoplastic",
+      "code": "L01BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Purine analogues"
+    },
+    {
+      "bioportal_name": "Pyrimidine analogues, antineoplastic antimetabolites",
+      "code": "L01BC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Pyrimidine analogues"
+    },
+    {
+      "bioportal_name": "PLANT ALKALOIDS AND OTHER NATURAL PRODUCTS, ANTINEOPLASTIC DRUGS",
+      "code": "L01C",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "PLANT ALKALOIDS AND OTHER NATURAL PRODUCTS"
+    },
+    {
+      "bioportal_name": "Vinca alkaloids and analogues, antineoplastic",
+      "code": "L01CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Vinca alkaloids and analogues"
+    },
+    {
+      "bioportal_name": "Podophyllotoxin derivatives, antineoplastic drugs",
+      "code": "L01CB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Podophyllotoxin derivatives"
+    },
+    {
+      "bioportal_name": "Colchicine derivatives, antineooplastic",
+      "code": "L01CC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Colchicine derivatives"
+    },
+    {
+      "bioportal_name": "Taxanes, antineoplastic",
+      "code": "L01CD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Taxanes"
+    },
+    {
+      "bioportal_name": "Other plant alkaloids and natural products in ATC",
+      "code": "L01CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other plant alkaloids and natural products"
+    },
+    {
+      "bioportal_name": "Other cytotoxic antibiotics in ATC",
+      "code": "L01DC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other cytotoxic antibiotics"
+    },
+    {
+      "bioportal_name": "PROTEIN KINASE INHIBITORS, ANTINEOPLASTIC AND IMMUNOMODULATING AGENTS",
+      "code": "L01E",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "PROTEIN KINASE INHIBITORS"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01EB12",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "firmonertinib"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01EC04",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "tovorafenib"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01EE06",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "tunlametinib"
+    },
+    {
+      "bioportal_name": "Mammalian target of rapamycin (mTOR) kinase inhibitors (L01EG)",
+      "code": "L01EG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Mammalian target of rapamycin (mTOR) kinase inhibitors"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01EH04",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "zongertinib"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01EH05",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "mifanertinib"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01EH06",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "sevabertinib"
+    },
+    {
+      "bioportal_name": "Janus-associated kinase (JAK) inhibitors (L01EJ)",
+      "code": "L01EJ",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Janus-associated kinase (JAK) inhibitors"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01EK05",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "rivoceranib"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01EM06",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "inavolisib"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01EP",
+      "level": 4,
+      "status": "who_only",
+      "who_name": "Cellular-mesenchymal-epithelial transition factor (c-MET) kinase inhibitors"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01EP01",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "capmatinib"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01EP02",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "tepotinib"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01EP03",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "savolitinib"
+    },
+    {
+      "bioportal_name": "Other protein kinase inhibitors in ATC",
+      "code": "L01EX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other protein kinase inhibitors"
+    },
+    {
+      "bioportal_name": "capmatinib",
+      "code": "L01EX17",
+      "level": 5,
+      "status": "bioportal_only",
+      "who_name": null
+    },
+    {
+      "bioportal_name": "tepotinib",
+      "code": "L01EX21",
+      "level": 5,
+      "status": "bioportal_only",
+      "who_name": null
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01EX29",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "vimseltinib"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01FF14",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "camrelizumab"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01FF15",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "envafolimab"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01FF16",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "sasanlimab"
+    },
+    {
+      "bioportal_name": "Other monoclonal antibodies and antibody drug conjugates in ATC",
+      "code": "L01FX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other monoclonal antibodies and antibody drug conjugates"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01FX37",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "linvoseltamab"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01FX38",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "ifinatamab deruxtecan"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01FX39",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "bemarituzumab"
+    },
+    {
+      "bioportal_name": "OTHER ANTINEOPLASTIC AGENTS in ATC",
+      "code": "L01X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER ANTINEOPLASTIC AGENTS"
+    },
+    {
+      "bioportal_name": "Platinum compounds, antineoplastic drugs",
+      "code": "L01XA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Platinum compounds"
+    },
+    {
+      "bioportal_name": "Methylhydrazines, antineoplastics",
+      "code": "L01XB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Methylhydrazines"
+    },
+    {
+      "bioportal_name": "Proteasome inhibitors, antineoplastic agent",
+      "code": "L01XG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Proteasome inhibitors"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01XK07",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "senaparib"
+    },
+    {
+      "bioportal_name": "Antineoplastic cell and gene therapy agents",
+      "code": "L01XL",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antineoplastic cell and gene therapy"
+    },
+    {
+      "bioportal_name": "Isocitrate dehydrogenase (IDH) inhibitors, antineoplastic",
+      "code": "L01XM",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Isocitrate dehydrogenase (IDH) inhibitors"
+    },
+    {
+      "bioportal_name": "Other antineoplastic agents (cont.) in ATC",
+      "code": "L01XU",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antineoplastic agents (cont.)"
+    },
+    {
+      "bioportal_name": "Other antineoplastic agents in ATC",
+      "code": "L01XX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antineoplastic agents"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L01XX87",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "revumenib"
+    },
+    {
+      "bioportal_name": "ENDOCRINE THERAPY ANTINEOPLASTIC AND IMMUNOMODULATING AGENTS",
+      "code": "L02",
+      "level": 2,
+      "status": "label_difference",
+      "who_name": "ENDOCRINE THERAPY"
+    },
+    {
+      "bioportal_name": "Estrogens, endocrine therapy drugs",
+      "code": "L02AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Estrogens"
+    },
+    {
+      "bioportal_name": "Progestogens, endocrine therapy drugs",
+      "code": "L02AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Progestogens"
+    },
+    {
+      "bioportal_name": "Gonadotropin releasing hormone analogues, endocrine therapy drugs",
+      "code": "L02AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Gonadotropin releasing hormone analogues"
+    },
+    {
+      "bioportal_name": "Other hormones for endocrine therapy in ATC",
+      "code": "L02AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other hormones"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L02BA05",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "camizestrant"
+    },
+    {
+      "bioportal_name": "Anti-androgen hormone antagonists and related agents",
+      "code": "L02BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Anti-androgens"
+    },
+    {
+      "bioportal_name": "Other hormone antagonists and related agents in ATC",
+      "code": "L02BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other hormone antagonists and related agents"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L03AC03",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "nogapendekin alfa and inbakicept"
+    },
+    {
+      "bioportal_name": "Other immunostimulants in ATC",
+      "code": "L03AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other immunostimulants"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L03AX25",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "thymalfasin"
+    },
+    {
+      "bioportal_name": "efgartigimod alfa",
+      "code": "L04AA58",
+      "level": 5,
+      "status": "bioportal_only",
+      "who_name": null
+    },
+    {
+      "bioportal_name": null,
+      "code": "L04AA61",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "nerandomilast"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L04AA62",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "tolebrutinib"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L04AC27",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "cendakimab"
+    },
+    {
+      "bioportal_name": "Janus-associated kinase (JAK) inhibitors (L04AF)",
+      "code": "L04AF",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Janus-associated kinase (JAK) inhibitors"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L04AF09",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "deuruxolitinib"
+    },
+    {
+      "bioportal_name": "rozanolixizumab",
+      "code": "L04AG16",
+      "level": 5,
+      "status": "bioportal_only",
+      "who_name": null
+    },
+    {
+      "bioportal_name": null,
+      "code": "L04AG18",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "sibeprenlimab"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L04AG19",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "axatilimab"
+    },
+    {
+      "bioportal_name": "Mammalian target of rapamycin (mTOR) kinase inhibitors (L04AH)",
+      "code": "L04AH",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Mammalian target of rapamycin (mTOR) kinase inhibitors"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L04AL",
+      "level": 4,
+      "status": "who_only",
+      "who_name": "Neonatal fragment crystallizable receptor (FcRn) inhibitors"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L04AL01",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "efgartigimod alfa"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L04AL02",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "rozanolixizumab"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L04AL03",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "nipocalimab"
+    },
+    {
+      "bioportal_name": "Other immunosuppressants in ATC",
+      "code": "L04AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other immunosuppressants"
+    },
+    {
+      "bioportal_name": null,
+      "code": "L04AX11",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "monomethyl fumarate"
+    },
+    {
+      "bioportal_name": "MUSCULO-SKELETAL SYSTEM DRUGS",
+      "code": "M",
+      "level": 1,
+      "status": "label_difference",
+      "who_name": "MUSCULO-SKELETAL SYSTEM"
+    },
+    {
+      "bioportal_name": "Butylpyrazolidines, antiinflammatory and antirheumatic drugs",
+      "code": "M01AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Butylpyrazolidines"
+    },
+    {
+      "bioportal_name": "Oxicams, antiinflammatory and antirheumatic drugs",
+      "code": "M01AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Oxicams"
+    },
+    {
+      "bioportal_name": "Propionic acid derivatives, antiinflammatory and antirheumatic products",
+      "code": "M01AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Propionic acid derivatives"
+    },
+    {
+      "bioportal_name": "Fenamates, antiinflammatory and antirheumatic drugs",
+      "code": "M01AG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Fenamates"
+    },
+    {
+      "bioportal_name": "Other antiinflammatory and antirheumatic agents, non-steroids in ATC",
+      "code": "M01AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antiinflammatory and antirheumatic agents, non-steroids"
+    },
+    {
+      "bioportal_name": "Other antiinflammatory/antirheumatic agents in combination with other drugs in ATC",
+      "code": "M01BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antiinflammatory/antirheumatic agents in combination with other drugs"
+    },
+    {
+      "bioportal_name": "Quinolines, antirheumatic drugs",
+      "code": "M01CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Quinolines"
+    },
+    {
+      "bioportal_name": "Penicillamine and similar antirheumatic agents",
+      "code": "M01CC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Penicillamine and similar agents"
+    },
+    {
+      "bioportal_name": "Other specific antirheumatic agents in ATC",
+      "code": "M01CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other specific antirheumatic agents"
+    },
+    {
+      "bioportal_name": "Preparations with salicylic acid derivatives, topical for joint and muscle pain",
+      "code": "M02AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Preparations with salicylic acid derivatives"
+    },
+    {
+      "bioportal_name": "Other topical products for joint and muscular pain in ATC",
+      "code": "M02AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other topical products for joint and muscular pain"
+    },
+    {
+      "bioportal_name": "various other intestinal adsorbents in ATC",
+      "code": "M02AX10",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "various"
+    },
+    {
+      "bioportal_name": "Curare alkaloid muscle relaxants, peripherally acting",
+      "code": "M03AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Curare alkaloids"
+    },
+    {
+      "bioportal_name": "Choline derivative muscle relaxants, peripherally acting",
+      "code": "M03AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Choline derivatives"
+    },
+    {
+      "bioportal_name": "Other quaternary ammonium compounds in ATC, muscle relaxants, peripherally acting",
+      "code": "M03AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other quaternary ammonium compounds"
+    },
+    {
+      "bioportal_name": "Other peripherally acting muscle relaxants in ATC",
+      "code": "M03AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other muscle relaxants, peripherally acting agents"
+    },
+    {
+      "bioportal_name": "Carbamic acid esters, centrally acting muscle relaxants",
+      "code": "M03BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Carbamic acid esters"
+    },
+    {
+      "bioportal_name": "Oxazol, thiazine, and triazine derivatives centrally acting muscle relaxants",
+      "code": "M03BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Oxazol, thiazine, and triazine derivatives"
+    },
+    {
+      "bioportal_name": "Ethers chemically close to antihistamines, centrally acting muscle relaxants",
+      "code": "M03BC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Ethers, chemically close to antihistamines"
+    },
+    {
+      "bioportal_name": "Other centrally acting agents in ATC",
+      "code": "M03BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other centrally acting agents"
+    },
+    {
+      "bioportal_name": "Dantrolene and derivatives, muscle relaxants, direct acting",
+      "code": "M03CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Dantrolene and derivatives"
+    },
+    {
+      "bioportal_name": null,
+      "code": "M04AB06",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "dotinurad"
+    },
+    {
+      "bioportal_name": "Other antigout preparations in ATC",
+      "code": "M04AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antigout preparations"
+    },
+    {
+      "bioportal_name": "Bisphosphonate drugs affecting bone structure and mineralization",
+      "code": "M05BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Bisphosphonates"
+    },
+    {
+      "bioportal_name": "Bisphosphonates, combinations affecting bone structure and mineralization",
+      "code": "M05BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Bisphosphonates, combinations"
+    },
+    {
+      "bioportal_name": "Other drugs affecting bone structure and mineralization in ATC",
+      "code": "M05BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other drugs affecting bone structure and mineralization"
+    },
+    {
+      "bioportal_name": "OTHER DRUGS FOR DISORDERS OF THE MUSCULO-SKELETAL SYSTEM in ATC",
+      "code": "M09",
+      "level": 2,
+      "status": "label_difference",
+      "who_name": "OTHER DRUGS FOR DISORDERS OF THE MUSCULO-SKELETAL SYSTEM"
+    },
+    {
+      "bioportal_name": "OTHER DRUGS FOR DISORDERS OF THE MUSCULO-SKELETAL SYSTEM in ATC",
+      "code": "M09A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER DRUGS FOR DISORDERS OF THE MUSCULO-SKELETAL SYSTEM"
+    },
+    {
+      "bioportal_name": "Quinine and derivatives for DISORDERS OF THE MUSCULO-SKELETAL SYSTEM",
+      "code": "M09AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Quinine and derivatives"
+    },
+    {
+      "bioportal_name": "Enzymes FOR DISORDERS OF THE MUSCULO-SKELETAL SYSTEM",
+      "code": "M09AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Enzymes"
+    },
+    {
+      "bioportal_name": "Other drugs for disorders of the musculo-skeletal system in ATC",
+      "code": "M09AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other drugs for disorders of the musculo-skeletal system"
+    },
+    {
+      "bioportal_name": null,
+      "code": "M09AX16",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "apitegromab"
+    },
+    {
+      "bioportal_name": "NERVOUS SYSTEM DRUGS",
+      "code": "N",
+      "level": 1,
+      "status": "label_difference",
+      "who_name": "NERVOUS SYSTEM"
+    },
+    {
+      "bioportal_name": "Ethers for general anesthesia",
+      "code": "N01AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Ethers"
+    },
+    {
+      "bioportal_name": "Halogenated hydrocarbons, general anesthetics",
+      "code": "N01AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Halogenated hydrocarbons"
+    },
+    {
+      "bioportal_name": "Barbiturates for general anesthesia, plain",
+      "code": "N01AF",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Barbiturates, plain"
+    },
+    {
+      "bioportal_name": "barbiturates for general anesthesia, in combination with other drugs",
+      "code": "N01AG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Barbiturates in combination with other drugs"
+    },
+    {
+      "bioportal_name": "Other general anesthetics in ATC",
+      "code": "N01AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other general anesthetics"
+    },
+    {
+      "bioportal_name": "LOCAL ANESTHETICS",
+      "code": "N01B",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "ANESTHETICS, LOCAL"
+    },
+    {
+      "bioportal_name": "Esters of aminobenzoic acid for local anesthesia",
+      "code": "N01BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Esters of aminobenzoic acid"
+    },
+    {
+      "bioportal_name": "Amide local anesthetics",
+      "code": "N01BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Amides"
+    },
+    {
+      "bioportal_name": "Amide local anesthetic combinations",
+      "code": "N01BB20",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Esters of benzoic acid for local anesthesia",
+      "code": "N01BC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Esters of benzoic acid"
+    },
+    {
+      "bioportal_name": "Other local anesthetics in ATC",
+      "code": "N01BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other local anesthetics"
+    },
+    {
+      "bioportal_name": "OPIOID ANALGESICS",
+      "code": "N02A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OPIOIDS"
+    },
+    {
+      "bioportal_name": "Natural opium alkaloid analgesics",
+      "code": "N02AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Natural opium alkaloids"
+    },
+    {
+      "bioportal_name": "Phenylpiperidine derivatives, opioid analgesics",
+      "code": "N02AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Phenylpiperidine derivatives"
+    },
+    {
+      "bioportal_name": "Diphenylpropylamine derivative analgesics",
+      "code": "N02AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Diphenylpropylamine derivatives"
+    },
+    {
+      "bioportal_name": "Benzomorphan derivative analgesics",
+      "code": "N02AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Benzomorphan derivatives"
+    },
+    {
+      "bioportal_name": "Oripavine derivatives analgesics",
+      "code": "N02AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Oripavine derivatives"
+    },
+    {
+      "bioportal_name": "Morphinan derivatives, opiod analgesics",
+      "code": "N02AF",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Morphinan derivatives"
+    },
+    {
+      "bioportal_name": "Other opioids in ATC",
+      "code": "N02AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other opioids"
+    },
+    {
+      "bioportal_name": "OTHER ANALGESICS AND ANTIPYRETICS in ATC",
+      "code": "N02B",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER ANALGESICS AND ANTIPYRETICS"
+    },
+    {
+      "bioportal_name": "Salicylic acid and derivatives, analgesics and antipyretics",
+      "code": "N02BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Salicylic acid and derivatives"
+    },
+    {
+      "bioportal_name": "Pyrazolones, analgesics and antipyretics",
+      "code": "N02BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Pyrazolones"
+    },
+    {
+      "bioportal_name": "Anilide analgesics and antipyretics",
+      "code": "N02BE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Anilides"
+    },
+    {
+      "bioportal_name": "Gabapentinoids, analgesics and antipyretics",
+      "code": "N02BF",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Gabapentinoids"
+    },
+    {
+      "bioportal_name": "Other analgesics and antipyretics in ATC",
+      "code": "N02BG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other analgesics and antipyretics"
+    },
+    {
+      "bioportal_name": "Ergot alkaloids, antimigraine",
+      "code": "N02CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Ergot alkaloids"
+    },
+    {
+      "bioportal_name": "Corticosteroid derivatives, antimigraine drugs",
+      "code": "N02CB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Corticosteroid derivatives"
+    },
+    {
+      "bioportal_name": "Other antimigraine preparations in ATC",
+      "code": "N02CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antimigraine preparations"
+    },
+    {
+      "bioportal_name": "Hydantoin derivatives, antiepileptics",
+      "code": "N03AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Hydantoin derivatives"
+    },
+    {
+      "bioportal_name": "Oxazolidine derivatives, antiepileptics",
+      "code": "N03AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Oxazolidine derivatives"
+    },
+    {
+      "bioportal_name": "Succinimide derivatives, antiepileptics",
+      "code": "N03AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Succinimide derivatives"
+    },
+    {
+      "bioportal_name": "Benzodiazepine derivative antiepileptics",
+      "code": "N03AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Benzodiazepine derivatives"
+    },
+    {
+      "bioportal_name": "Carboxamide derivatives, antiepileptics",
+      "code": "N03AF",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Carboxamide derivatives"
+    },
+    {
+      "bioportal_name": "Fatty acid derivatives, antiepileptics",
+      "code": "N03AG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Fatty acid derivatives"
+    },
+    {
+      "bioportal_name": "Other antiepileptics in ATC",
+      "code": "N03AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antiepileptics"
+    },
+    {
+      "bioportal_name": "Tertiary amines, anticholinergic",
+      "code": "N04AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tertiary amines"
+    },
+    {
+      "bioportal_name": "Ethers chemically close to antihistamines, anticholinergic",
+      "code": "N04AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Ethers chemically close to antihistamines"
+    },
+    {
+      "bioportal_name": "Ethers of tropine or tropine derivatives, anticholinergic",
+      "code": "N04AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Ethers of tropine or tropine derivatives"
+    },
+    {
+      "bioportal_name": "Adamantane derivatives, dopaminergic",
+      "code": "N04BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Adamantane derivatives"
+    },
+    {
+      "bioportal_name": "MAO B Inhibitors, dopaminergic anti-parkinson drugs",
+      "code": "N04BD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Monoamine oxidase B inhibitors"
+    },
+    {
+      "bioportal_name": "Other dopaminergic agents in ATC",
+      "code": "N04BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other dopaminergic agents"
+    },
+    {
+      "bioportal_name": "OTHER ANTIPARKINSON DRUGS in ATC",
+      "code": "N04C",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER ANTIPARKINSON DRUGS"
+    },
+    {
+      "bioportal_name": "Other antiparkinson drugs in ATC",
+      "code": "N04CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antiparkinson drugs"
+    },
+    {
+      "bioportal_name": "Phenothiazines with aliphatic side-chain, antipsychotics",
+      "code": "N05AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Phenothiazines with aliphatic side-chain"
+    },
+    {
+      "bioportal_name": "Phenothiazines with piperazine structure, antipsychotics",
+      "code": "N05AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Phenothiazines with piperazine structure"
+    },
+    {
+      "bioportal_name": "Phenothiazines with piperidine structure, antipsychotics",
+      "code": "N05AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Phenothiazines with piperidine structure"
+    },
+    {
+      "bioportal_name": "Butyrophenone derivatives, antipsychotics",
+      "code": "N05AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Butyrophenone derivatives"
+    },
+    {
+      "bioportal_name": "Indole derivatives, antipsychotic",
+      "code": "N05AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Indole derivatives"
+    },
+    {
+      "bioportal_name": "Thioxanthene derivatives, antipsychotic",
+      "code": "N05AF",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Thioxanthene derivatives"
+    },
+    {
+      "bioportal_name": "Diphenylbutylpiperidine derivatives, antipsychotics",
+      "code": "N05AG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Diphenylbutylpiperidine derivatives"
+    },
+    {
+      "bioportal_name": "Diazepines, oxazepines, thiazepines and oxepines antipsychotic drugs",
+      "code": "N05AH",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Diazepines, oxazepines, thiazepines and oxepines"
+    },
+    {
+      "bioportal_name": "Benzamide antipsychotics",
+      "code": "N05AL",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Benzamides"
+    },
+    {
+      "bioportal_name": "Lithium antipsychotics",
+      "code": "N05AN",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Lithium"
+    },
+    {
+      "bioportal_name": "Other antipsychotics in ATC",
+      "code": "N05AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antipsychotics"
+    },
+    {
+      "bioportal_name": null,
+      "code": "N05AX50",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "xanomeline and trospium"
+    },
+    {
+      "bioportal_name": "Benzodiazepine derivative anxiolytics",
+      "code": "N05BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Benzodiazepine derivatives"
+    },
+    {
+      "bioportal_name": "Diphenylmethane derivatives, anxiolytics",
+      "code": "N05BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Diphenylmethane derivatives"
+    },
+    {
+      "bioportal_name": "Carbamate anxiolytics",
+      "code": "N05BC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Carbamates"
+    },
+    {
+      "bioportal_name": "Dibenzo-bicyclo-octadiene derivative anxiolytics",
+      "code": "N05BD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Dibenzo-bicyclo-octadiene derivatives"
+    },
+    {
+      "bioportal_name": "Azaspirodecanedione derivatives, anxiolytics",
+      "code": "N05BE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Azaspirodecanedione derivatives"
+    },
+    {
+      "bioportal_name": "Other anxiolytics in ATC",
+      "code": "N05BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other anxiolytics"
+    },
+    {
+      "bioportal_name": "Barbiturates, hypnotics and sedatives, plain",
+      "code": "N05CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Barbiturates, plain"
+    },
+    {
+      "bioportal_name": "Benzodiazepine derivative hypnotics and sedatives",
+      "code": "N05CD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Benzodiazepine derivatives"
+    },
+    {
+      "bioportal_name": null,
+      "code": "N05CD16",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "dimdazenil"
+    },
+    {
+      "bioportal_name": "Piperidinedione derivatives, hypnotics and sedatives",
+      "code": "N05CE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Piperidinedione derivatives"
+    },
+    {
+      "bioportal_name": "Benzodiazepine related hypnotics and sedatives",
+      "code": "N05CF",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Benzodiazepine related drugs"
+    },
+    {
+      "bioportal_name": "Melatonin receptor agonists, hypnotics and sedatives",
+      "code": "N05CH",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Melatonin receptor agonists"
+    },
+    {
+      "bioportal_name": "Other hypnotics and sedatives in ATC",
+      "code": "N05CM",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other hypnotics and sedatives"
+    },
+    {
+      "bioportal_name": "MAO A Inhibitors, antidepressant drugs",
+      "code": "N06AG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Monoamine oxidase A inhibitors"
+    },
+    {
+      "bioportal_name": "Other antidepressants in ATC",
+      "code": "N06AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antidepressants"
+    },
+    {
+      "bioportal_name": "Xanthine derivatives, psychostimulants, agents used for ADHD and nootropics",
+      "code": "N06BC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Xanthine derivatives"
+    },
+    {
+      "bioportal_name": "Other psychostimulants and nootropics in ATC",
+      "code": "N06BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other psychostimulants and nootropics"
+    },
+    {
+      "bioportal_name": null,
+      "code": "N06BX53",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "piracetam and cinnarizine"
+    },
+    {
+      "bioportal_name": "Anticholinesterase anti-dementia drugs",
+      "code": "N06DA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Anticholinesterases"
+    },
+    {
+      "bioportal_name": null,
+      "code": "N06DA06",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "benzgalantamine"
+    },
+    {
+      "bioportal_name": "Other anti-dementia drugs in ATC",
+      "code": "N06DX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other anti-dementia drugs"
+    },
+    {
+      "bioportal_name": null,
+      "code": "N06DX06",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "blarcamesine"
+    },
+    {
+      "bioportal_name": null,
+      "code": "N06DX07",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "hydromethylthionine"
+    },
+    {
+      "bioportal_name": "Other anti-dementia drug combinations in ATC",
+      "code": "N06DX30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "OTHER NERVOUS SYSTEM DRUGS in ATC",
+      "code": "N07",
+      "level": 2,
+      "status": "label_difference",
+      "who_name": "OTHER NERVOUS SYSTEM DRUGS"
+    },
+    {
+      "bioportal_name": "Anticholinesterase parasympathomimetics",
+      "code": "N07AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Anticholinesterases"
+    },
+    {
+      "bioportal_name": "Choline esters, parasympathomimetics",
+      "code": "N07AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Choline esters"
+    },
+    {
+      "bioportal_name": "Other parasympathomimetics in ATC",
+      "code": "N07AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other parasympathomimetics"
+    },
+    {
+      "bioportal_name": "OTHER NERVOUS SYSTEM DRUGS in ATC",
+      "code": "N07X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER NERVOUS SYSTEM DRUGS"
+    },
+    {
+      "bioportal_name": "Other nervous system drugs in ATC",
+      "code": "N07XX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other nervous system drugs"
+    },
+    {
+      "bioportal_name": null,
+      "code": "N07XX26",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "pridopidine"
+    },
+    {
+      "bioportal_name": null,
+      "code": "N07XX27",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "levacetylleucine"
+    },
+    {
+      "bioportal_name": "Hydroxyquinoline derivatives for amoebiasis and other protozoal diseases",
+      "code": "P01AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Hydroxyquinoline derivatives"
+    },
+    {
+      "bioportal_name": "Nitroimidazole derivatives, antiprotozoal agents against amoebiasis and other protozoal diseases",
+      "code": "P01AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Nitroimidazole derivatives"
+    },
+    {
+      "bioportal_name": "Dichloroacetamide derivative drugs for amoebiasis and other protozoal diseases",
+      "code": "P01AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Dichloroacetamide derivatives"
+    },
+    {
+      "bioportal_name": "Arsenic compounds, for amoebiasis and other protozoal diseases",
+      "code": "P01AR",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Arsenic compounds"
+    },
+    {
+      "bioportal_name": "Other agents against amoebiasis and other protozoal diseases in ATC",
+      "code": "P01AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other agents against amoebiasis and other protozoal diseases"
+    },
+    {
+      "bioportal_name": "Aminoquinoline antimalarials",
+      "code": "P01BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Aminoquinolines"
+    },
+    {
+      "bioportal_name": "biguanide antimalarials",
+      "code": "P01BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Biguanides"
+    },
+    {
+      "bioportal_name": "Methanolquinolines, antimalarial",
+      "code": "P01BC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Methanolquinolines"
+    },
+    {
+      "bioportal_name": "Diaminopyrimidines, antimalarials",
+      "code": "P01BD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Diaminopyrimidines"
+    },
+    {
+      "bioportal_name": "Other antimalarials in ATC",
+      "code": "P01BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antimalarials"
+    },
+    {
+      "bioportal_name": "Nitroimidazole derivatives, antiprotozoal agents against leishmaniasis and trypanosomiasis",
+      "code": "P01CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Nitroimidazole derivatives"
+    },
+    {
+      "bioportal_name": "Antimony compounds for treatment of leishmaniasis and trypanosomiasis",
+      "code": "P01CB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antimony compounds"
+    },
+    {
+      "bioportal_name": "Nitrofuran derivatives, antiprotozoal drugs",
+      "code": "P01CC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Nitrofuran derivatives"
+    },
+    {
+      "bioportal_name": "Arsenic compounds, for leishmaniasis and trypanosomiasis",
+      "code": "P01CD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Arsenic compounds"
+    },
+    {
+      "bioportal_name": "Other agents against leishmaniasis and trypanosomiasis in ATC",
+      "code": "P01CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other agents against leishmaniasis and trypanosomiasis"
+    },
+    {
+      "bioportal_name": "Quinoline derivatives and related substances, antitrematodals",
+      "code": "P02BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Quinoline derivatives and related substances"
+    },
+    {
+      "bioportal_name": "Organophosphorous compounds, antitrematodals",
+      "code": "P02BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Organophosphorous compounds"
+    },
+    {
+      "bioportal_name": "Other antitrematodal agents in ATC",
+      "code": "P02BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antitrematodal agents"
+    },
+    {
+      "bioportal_name": "Benzimidazole derivatives, antinematodal",
+      "code": "P02CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Benzimidazole derivatives"
+    },
+    {
+      "bioportal_name": null,
+      "code": "P02CA53",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "albendazole and ivermectin"
+    },
+    {
+      "bioportal_name": "Piperazine and derivatives, antinematodal agents",
+      "code": "P02CB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Piperazine and derivatives"
+    },
+    {
+      "bioportal_name": "Tetrahydropyrimidine derivatives, antinematodal",
+      "code": "P02CC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tetrahydropyrimidine derivatives"
+    },
+    {
+      "bioportal_name": "Imidazothiazole derivatives, antinematodal",
+      "code": "P02CE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Imidazothiazole derivatives"
+    },
+    {
+      "bioportal_name": "Other antinematodals in ATC",
+      "code": "P02CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antinematodals"
+    },
+    {
+      "bioportal_name": "Salicylic acid derivative anticestodals",
+      "code": "P02DA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Salicylic acid derivatives"
+    },
+    {
+      "bioportal_name": "Other anticestodals in ATC",
+      "code": "P02DX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other anticestodals"
+    },
+    {
+      "bioportal_name": "Sulfur containing product ectoparasiticides",
+      "code": "P03AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Sulfur containing products"
+    },
+    {
+      "bioportal_name": "Chlorine containing product ectoparasiticides",
+      "code": "P03AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Chlorine containing products"
+    },
+    {
+      "bioportal_name": "Pyrethrines, incl. synthetic compounds, ectoparasiticides, incl. scabicides",
+      "code": "P03AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Pyrethrines, incl. synthetic compounds"
+    },
+    {
+      "bioportal_name": "Other ectoparasiticides, incl. scabicides in ATC",
+      "code": "P03AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other ectoparasiticides, incl. scabicides"
+    },
+    {
+      "bioportal_name": "Other insecticides and repellents in ATC",
+      "code": "P03BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other insecticides and repellents"
+    },
+    {
+      "bioportal_name": "RESPIRATORY SYSTEM DRUGS",
+      "code": "R",
+      "level": 1,
+      "status": "label_difference",
+      "who_name": "RESPIRATORY SYSTEM"
+    },
+    {
+      "bioportal_name": "Antiallergic nasal preparations for topical use, excl. corticosteroids",
+      "code": "R01AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antiallergic agents, excl. corticosteroids"
+    },
+    {
+      "bioportal_name": "Corticosteroid nasal preparations for topical use",
+      "code": "R01AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Corticosteroids"
+    },
+    {
+      "bioportal_name": "Other nasal preparations in ATC",
+      "code": "R01AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other nasal preparations"
+    },
+    {
+      "bioportal_name": "various other nasal preparations in ATC",
+      "code": "R01AX10",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "various"
+    },
+    {
+      "bioportal_name": "other nasal preparation combinations in ATC",
+      "code": "R01AX30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Antiseptic throat preparations",
+      "code": "R02AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antiseptics"
+    },
+    {
+      "bioportal_name": "various antiseptic throat preparations",
+      "code": "R02AA20",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "various"
+    },
+    {
+      "bioportal_name": "Antibiotic throat preparations",
+      "code": "R02AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antibiotics"
+    },
+    {
+      "bioportal_name": "local anesthetic throat preparations",
+      "code": "R02AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Anesthetics, local"
+    },
+    {
+      "bioportal_name": "Other throat preparations in ATC",
+      "code": "R02AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other throat preparations"
+    },
+    {
+      "bioportal_name": "Alpha- and beta-adrenoreceptor agonist inhalants",
+      "code": "R03AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Alpha- and beta-adrenoreceptor agonists"
+    },
+    {
+      "bioportal_name": "Non-selective beta-adrenoreceptor agonist inhalants",
+      "code": "R03AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Non-selective beta-adrenoreceptor agonists"
+    },
+    {
+      "bioportal_name": "Selective beta-2-adrenoreceptor agonist inhalants",
+      "code": "R03AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Selective beta-2-adrenoreceptor agonists"
+    },
+    {
+      "bioportal_name": "Adrenergics inhalants in combination with corticosteroids or other drugs, excl. anticholinergics",
+      "code": "R03AK",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Adrenergics in combination with corticosteroids or other drugs, excl. anticholinergics"
+    },
+    {
+      "bioportal_name": "OTHER DRUGS FOR OBSTRUCTIVE AIRWAY DISEASES, INHALANTS in ATC",
+      "code": "R03B",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER DRUGS FOR OBSTRUCTIVE AIRWAY DISEASES, INHALANTS"
+    },
+    {
+      "bioportal_name": "Glucocorticoid inhalants for obstructive airway disease",
+      "code": "R03BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Glucocorticoids"
+    },
+    {
+      "bioportal_name": "Anticholinergics inhalants for obstructive airway diseases",
+      "code": "R03BB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Anticholinergics"
+    },
+    {
+      "bioportal_name": "Antiallergic inhalants for obstructive airway diseases, excl. corticosteroids",
+      "code": "R03BC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antiallergic agents, excl. corticosteroids"
+    },
+    {
+      "bioportal_name": "Other drugs for obstructive airway diseases, inhalants in ATC",
+      "code": "R03BX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other drugs for obstructive airway diseases, inhalants"
+    },
+    {
+      "bioportal_name": null,
+      "code": "R03BX02",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "ensifentrine"
+    },
+    {
+      "bioportal_name": "Alpha- and beta-adrenoreceptor agonist, systemic drugs",
+      "code": "R03CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Alpha- and beta-adrenoreceptor agonists"
+    },
+    {
+      "bioportal_name": "Non-selective beta-adrenoreceptor agonists for systemic use",
+      "code": "R03CB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Non-selective beta-adrenoreceptor agonists"
+    },
+    {
+      "bioportal_name": "Selective beta-2-adrenoreceptor agonists, systemic",
+      "code": "R03CC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Selective beta-2-adrenoreceptor agonists"
+    },
+    {
+      "bioportal_name": "Adrenergics systemic drugs and other drugs for obstructive airway diseases",
+      "code": "R03CK",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Adrenergics and other drugs for obstructive airway diseases"
+    },
+    {
+      "bioportal_name": "OTHER SYSTEMIC DRUGS FOR OBSTRUCTIVE AIRWAY DISEASES in ATC",
+      "code": "R03D",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER SYSTEMIC DRUGS FOR OBSTRUCTIVE AIRWAY DISEASES"
+    },
+    {
+      "bioportal_name": "Xanthines, systemic for obstructive airway disease",
+      "code": "R03DA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Xanthines"
+    },
+    {
+      "bioportal_name": "Leukotriene receptor antagonists for obstructive airway diseases",
+      "code": "R03DC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Leukotriene receptor antagonists"
+    },
+    {
+      "bioportal_name": "Other systemic drugs for obstructive airway diseases in ATC",
+      "code": "R03DX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other systemic drugs for obstructive airway diseases"
+    },
+    {
+      "bioportal_name": null,
+      "code": "R03DX12",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "depemokimab"
+    },
+    {
+      "bioportal_name": "expectorant combinations excluding combinations with cough suppressants",
+      "code": "R05CA10",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "expectorant combinations, excl. combinations with cough suppressants",
+      "code": "R05CB10",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Opium alkaloids and derivatives, cough suppressants",
+      "code": "R05DA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Opium alkaloids and derivatives"
+    },
+    {
+      "bioportal_name": "opium alkaloids and derivative combination cough suppressants",
+      "code": "R05DA20",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Other cough suppressants in ATC",
+      "code": "R05DB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other cough suppressants"
+    },
+    {
+      "bioportal_name": "other cough suppressant combinations in ATC",
+      "code": "R05DB20",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Other cough suppressants and expectorants in ATC",
+      "code": "R05FB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other cough suppressants and expectorants"
+    },
+    {
+      "bioportal_name": "OTHER COLD PREPARATIONS in ATC",
+      "code": "R05X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER COLD PREPARATIONS"
+    },
+    {
+      "bioportal_name": "Aminoalkyl ethers, systemic antihistamines",
+      "code": "R06AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Aminoalkyl ethers"
+    },
+    {
+      "bioportal_name": "Substituted alkylamines, systemic antihistamines",
+      "code": "R06AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Substituted alkylamines"
+    },
+    {
+      "bioportal_name": "Substituted ethylene diamines, systemic antihistamines",
+      "code": "R06AC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Substituted ethylene diamines"
+    },
+    {
+      "bioportal_name": "Phenothiazine derivatives, systemic antihistamines",
+      "code": "R06AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Phenothiazine derivatives"
+    },
+    {
+      "bioportal_name": "Piperazine derivatives, systemic antihistamines",
+      "code": "R06AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Piperazine derivatives"
+    },
+    {
+      "bioportal_name": "Other antihistamines for systemic use in ATC",
+      "code": "R06AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antihistamines for systemic use"
+    },
+    {
+      "bioportal_name": "OTHER RESPIRATORY SYSTEM PRODUCTS in ATC",
+      "code": "R07",
+      "level": 2,
+      "status": "label_difference",
+      "who_name": "OTHER RESPIRATORY SYSTEM PRODUCTS"
+    },
+    {
+      "bioportal_name": "OTHER RESPIRATORY SYSTEM PRODUCTS in ATC",
+      "code": "R07A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER RESPIRATORY SYSTEM PRODUCTS"
+    },
+    {
+      "bioportal_name": "lung surfactant combinations",
+      "code": "R07AA30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Other respiratory system products in ATC",
+      "code": "R07AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other respiratory system products"
+    },
+    {
+      "bioportal_name": "SENSORY ORGAN DRUGS",
+      "code": "S",
+      "level": 1,
+      "status": "label_difference",
+      "who_name": "SENSORY ORGANS"
+    },
+    {
+      "bioportal_name": "ANTIINFECTIVE OPHTHALMOLOGICS",
+      "code": "S01A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "ANTIINFECTIVES"
+    },
+    {
+      "bioportal_name": "Antibiotics, ophthalmologic",
+      "code": "S01AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antibiotics"
+    },
+    {
+      "bioportal_name": "Sulfonamides, ophthalmologic antiinfectives",
+      "code": "S01AB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Sulfonamides"
+    },
+    {
+      "bioportal_name": "Antivirals, ophthalmologic",
+      "code": "S01AD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antivirals"
+    },
+    {
+      "bioportal_name": "Fluoroquinolone antiinfectives, ophthalmologic",
+      "code": "S01AE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Fluoroquinolones"
+    },
+    {
+      "bioportal_name": "Other antiinfectives in ATC",
+      "code": "S01AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antiinfectives"
+    },
+    {
+      "bioportal_name": null,
+      "code": "S01AX26",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "cethexonium"
+    },
+    {
+      "bioportal_name": "ANTIINFLAMMATORY AGENTS, OPHTHALMOLOGIC",
+      "code": "S01B",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "ANTIINFLAMMATORY AGENTS"
+    },
+    {
+      "bioportal_name": "Corticosteroid ophthalmologic antiinflammatory agents, plain",
+      "code": "S01BA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Corticosteroids, plain"
+    },
+    {
+      "bioportal_name": null,
+      "code": "S01BA17",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "clobetasol"
+    },
+    {
+      "bioportal_name": "Antiinflammatory agents, non-steroidal, ophthalmologic",
+      "code": "S01BC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Antiinflammatory agents, non-steroids"
+    },
+    {
+      "bioportal_name": "Corticosteroids and antiinfectives in combination, opthalmologic",
+      "code": "S01CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Corticosteroids and antiinfectives in combination"
+    },
+    {
+      "bioportal_name": "Parasympathomimetics, antiglaucoma preparations and miotics",
+      "code": "S01EB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Parasympathomimetics"
+    },
+    {
+      "bioportal_name": "Carbonic anhydrase inhibitors, antiglaucoma drugs and miotics",
+      "code": "S01EC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Carbonic anhydrase inhibitors"
+    },
+    {
+      "bioportal_name": "Beta blocking agents, antiglaucoma preparations and miotics",
+      "code": "S01ED",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Beta blocking agents"
+    },
+    {
+      "bioportal_name": "Prostaglandin analogues, antiglaucoma drugs and miotics",
+      "code": "S01EE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Prostaglandin analogues"
+    },
+    {
+      "bioportal_name": "Other antiglaucoma preparations in ATC",
+      "code": "S01EX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antiglaucoma preparations"
+    },
+    {
+      "bioportal_name": "Anticholinergic mydriatics and cycloplegics",
+      "code": "S01FA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Anticholinergics"
+    },
+    {
+      "bioportal_name": "Other antiallergics in ATC",
+      "code": "S01GX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antiallergics"
+    },
+    {
+      "bioportal_name": "Local anesthetics, ophthalmologic",
+      "code": "S01H",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "LOCAL ANESTHETICS"
+    },
+    {
+      "bioportal_name": "local opthalmologic anesthetic combinations",
+      "code": "S01HA30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "DIAGNOSTIC AGENTS, OPHTHAMOLOGIC",
+      "code": "S01J",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "DIAGNOSTIC AGENTS"
+    },
+    {
+      "bioportal_name": "Diagnostic, opthalmologic coloring agents",
+      "code": "S01JA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Colouring agents"
+    },
+    {
+      "bioportal_name": "Other ophthalmological diagnostic agents in ATC",
+      "code": "S01JX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other ophthalmological diagnostic agents"
+    },
+    {
+      "bioportal_name": "SURGICAL AIDS, OPHTHALMOLOGIC",
+      "code": "S01K",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "SURGICAL AIDS"
+    },
+    {
+      "bioportal_name": "Other ophthalmologic surgical aids in ATC",
+      "code": "S01KX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other surgical aids"
+    },
+    {
+      "bioportal_name": "OTHER OPHTHALMOLOGICALS IN ATC",
+      "code": "S01X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER OPHTHALMOLOGICALS"
+    },
+    {
+      "bioportal_name": "Other ophthalmologicals in ATC",
+      "code": "S01XA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other ophthalmologicals"
+    },
+    {
+      "bioportal_name": "ANTIINFECTIVE DRUGS, OTOLOGIC",
+      "code": "S02A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "ANTIINFECTIVES"
+    },
+    {
+      "bioportal_name": "Corticosteroid otologicals",
+      "code": "S02B",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "CORTICOSTEROIDS"
+    },
+    {
+      "bioportal_name": "Corticosteroids and antiinfectives in combination, otologic",
+      "code": "S02C",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "CORTICOSTEROIDS AND ANTIINFECTIVES IN COMBINATION"
+    },
+    {
+      "bioportal_name": "OTHER OTOLOGICALS in ATC",
+      "code": "S02D",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER OTOLOGICALS"
+    },
+    {
+      "bioportal_name": "otologic analgesic and anesthetic combinations",
+      "code": "S02DA30",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "combinations"
+    },
+    {
+      "bioportal_name": "Indifferent preparations, otologicals",
+      "code": "S02DC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Indifferent preparations"
+    },
+    {
+      "bioportal_name": "ANTIINFECTIVES, OPHTHALMOLOGIC AND OTOLOGIC",
+      "code": "S03A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "ANTIINFECTIVES"
+    },
+    {
+      "bioportal_name": "Corticosteroid ophthalmologic and otologic preparations",
+      "code": "S03B",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "CORTICOSTEROIDS"
+    },
+    {
+      "bioportal_name": "Corticosteroids and antiinfectives in combination, opthalmologic and otologic",
+      "code": "S03C",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "CORTICOSTEROIDS AND ANTIINFECTIVES IN COMBINATION"
+    },
+    {
+      "bioportal_name": "OTHER OPHTHALMOLOGICAL AND OTOLOGICAL PREPARATIONS in ATC",
+      "code": "S03D",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER OPHTHALMOLOGICAL AND OTOLOGICAL PREPARATIONS"
+    },
+    {
+      "bioportal_name": "VARIOUS DRUG CLASSES IN ATC",
+      "code": "V",
+      "level": 1,
+      "status": "label_difference",
+      "who_name": "VARIOUS"
+    },
+    {
+      "bioportal_name": "mold fungus and yeast fungus allergenic extracts",
+      "code": "V01AA04",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "mould fungus and yeast fungus"
+    },
+    {
+      "bioportal_name": "tree pollen allergenic extracts",
+      "code": "V01AA05",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "tree pollen"
+    },
+    {
+      "bioportal_name": "insect allergenic extracts",
+      "code": "V01AA07",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "insects"
+    },
+    {
+      "bioportal_name": "Food allergenic extracts",
+      "code": "V01AA08",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "food"
+    },
+    {
+      "bioportal_name": "textile allergenic extracts",
+      "code": "V01AA09",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "textiles"
+    },
+    {
+      "bioportal_name": "flower allergenic extracts",
+      "code": "V01AA10",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "flowers"
+    },
+    {
+      "bioportal_name": "animal allergen extracts",
+      "code": "V01AA11",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "animals"
+    },
+    {
+      "bioportal_name": "various allergen extracts",
+      "code": "V01AA20",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "various"
+    },
+    {
+      "bioportal_name": "Other therapeutic products in ATC",
+      "code": "V03AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other therapeutic products"
+    },
+    {
+      "bioportal_name": "Nerve depressant drugs",
+      "code": "V03AZ",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Nerve depressants"
+    },
+    {
+      "bioportal_name": "URINE TEST DRUGS",
+      "code": "V04B",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "URINE TESTS"
+    },
+    {
+      "bioportal_name": "OTHER DIAGNOSTIC AGENTS in ATC",
+      "code": "V04C",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER DIAGNOSTIC AGENTS"
+    },
+    {
+      "bioportal_name": "Diagnostic agents for diabetes testing",
+      "code": "V04CA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tests for diabetes"
+    },
+    {
+      "bioportal_name": "diagnostic agents for fat absorption testing",
+      "code": "V04CB",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tests for fat absorption"
+    },
+    {
+      "bioportal_name": "Diagnostic agents for bile duct patency testing",
+      "code": "V04CC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tests for bile duct patency"
+    },
+    {
+      "bioportal_name": "pituitary function test diagnostic agents",
+      "code": "V04CD",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tests for pituitary function"
+    },
+    {
+      "bioportal_name": "liver functional capacity test diagnostic agents",
+      "code": "V04CE",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tests for liver functional capacity"
+    },
+    {
+      "bioportal_name": "Tuberculosis diagnostics agents",
+      "code": "V04CF",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tuberculosis diagnostics"
+    },
+    {
+      "bioportal_name": null,
+      "code": "V04CF02",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "mycobacterium tuberculosis, recombinant antigens"
+    },
+    {
+      "bioportal_name": "gastric secretion test diagnostic agents",
+      "code": "V04CG",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tests for gastric secretion"
+    },
+    {
+      "bioportal_name": "renal function and ureteral injuries test diagnostic agents",
+      "code": "V04CH",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tests for renal function and ureteral injuries"
+    },
+    {
+      "bioportal_name": null,
+      "code": "V04CH05",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "relmapirazin"
+    },
+    {
+      "bioportal_name": "thyreoidea function test diagnostic agents",
+      "code": "V04CJ",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tests for thyreoidea function"
+    },
+    {
+      "bioportal_name": "pancreatic function test diagnostic agents",
+      "code": "V04CK",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tests for pancreatic function"
+    },
+    {
+      "bioportal_name": "allergic disease test diagnostic agents",
+      "code": "V04CL",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tests for allergic diseases"
+    },
+    {
+      "bioportal_name": "fertility disturbances test diagnostic agents",
+      "code": "V04CM",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Tests for fertility disturbances"
+    },
+    {
+      "bioportal_name": "Other diagnostic agents in ATC",
+      "code": "V04CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other diagnostic agents"
+    },
+    {
+      "bioportal_name": null,
+      "code": "V04CX13",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "pegulicianine"
+    },
+    {
+      "bioportal_name": "Low-energy diet formulations for treatment of obesity",
+      "code": "V06AA",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Low-energy diets"
+    },
+    {
+      "bioportal_name": "OTHER NUTRIENTS in ATC",
+      "code": "V06D",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER NUTRIENTS"
+    },
+    {
+      "bioportal_name": "Carbohydrate nutrients",
+      "code": "V06DC",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Carbohydrates"
+    },
+    {
+      "bioportal_name": "Other combinations of nutrients in ATC",
+      "code": "V06DX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other combinations of nutrients"
+    },
+    {
+      "bioportal_name": "Other non-therapeutic auxiliary products in ATC",
+      "code": "V07AY",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other non-therapeutic auxiliary products"
+    },
+    {
+      "bioportal_name": null,
+      "code": "V08CA13",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "gadoquatrane"
+    },
+    {
+      "bioportal_name": "Other magnetic resonance imaging contrast media in ATC",
+      "code": "V08CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other magnetic resonance imaging contrast media"
+    },
+    {
+      "bioportal_name": "CENTRAL NERVOUS SYSTEM DIAGNOSTIC RADIOPHARMACEUTICALS",
+      "code": "V09A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "CENTRAL NERVOUS SYSTEM"
+    },
+    {
+      "bioportal_name": "Other central nervous system diagnostic radiopharmaceuticals in ATC",
+      "code": "V09AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other central nervous system diagnostic radiopharmaceuticals"
+    },
+    {
+      "bioportal_name": "SKELETON DIAGNOSTIC RADIOPHARMACEUTICALS",
+      "code": "V09B",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "SKELETON"
+    },
+    {
+      "bioportal_name": "RENAL SYSTEM DIAGNOSTIC RADIOPHARMACEUTICALS",
+      "code": "V09C",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "RENAL SYSTEM"
+    },
+    {
+      "bioportal_name": "Other renal system diagnostic radiopharmaceuticals in ATC",
+      "code": "V09CX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other renal system diagnostic radiopharmaceuticals"
+    },
+    {
+      "bioportal_name": "HEPATIC AND RETICULO ENDOTHELIAL SYSTEM DIAGNOSTIC RADIOPHARMACEUTICALS",
+      "code": "V09D",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "HEPATIC AND RETICULO ENDOTHELIAL SYSTEM"
+    },
+    {
+      "bioportal_name": "Other hepatic and reticulo endothelial system diagnostic radiopharmaceuticals in ATC",
+      "code": "V09DX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other hepatic and reticulo endothelial system diagnostic radiopharmaceuticals"
+    },
+    {
+      "bioportal_name": "RESPIRATORY SYSTEM DIAGNOSTIC RADIOPHARMACEUTICALS",
+      "code": "V09E",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "RESPIRATORY SYSTEM"
+    },
+    {
+      "bioportal_name": "Other respiratory system diagnostic radiopharmaceuticals in ATC",
+      "code": "V09EX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other respiratory system diagnostic radiopharmaceuticals"
+    },
+    {
+      "bioportal_name": "THYROID DIAGNOSTIC RADIOPHARMACEUTICALS",
+      "code": "V09F",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "THYROID"
+    },
+    {
+      "bioportal_name": "CARDIOVASCULAR SYSTEM DIAGNOSTIC RADIOPHARMACEUTICALS",
+      "code": "V09G",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "CARDIOVASCULAR SYSTEM"
+    },
+    {
+      "bioportal_name": "Other cardiovascular system diagnostic radiopharmaceuticals in ATC",
+      "code": "V09GX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other cardiovascular system diagnostic radiopharmaceuticals"
+    },
+    {
+      "bioportal_name": null,
+      "code": "V09GX06",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "flurpiridaz (18F)"
+    },
+    {
+      "bioportal_name": "Other diagnostic radiopharmaceuticals for inflammation and infection detection in ATC",
+      "code": "V09HX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other diagnostic radiopharmaceuticals for inflammation and infection detection"
+    },
+    {
+      "bioportal_name": "TUMOUR DETECTION RADIOPHARMACEUTICALS",
+      "code": "V09I",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "TUMOUR DETECTION"
+    },
+    {
+      "bioportal_name": "Other diagnostic radiopharmaceuticals for tumour detection in ATC",
+      "code": "V09IX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other diagnostic radiopharmaceuticals for tumour detection"
+    },
+    {
+      "bioportal_name": "copper (64Cu) dotatate",
+      "code": "V09IX15",
+      "level": 5,
+      "status": "label_difference",
+      "who_name": "copper (64Cu) oxodotreotide"
+    },
+    {
+      "bioportal_name": null,
+      "code": "V09IX19",
+      "level": 5,
+      "status": "who_only",
+      "who_name": "vidoflufolastat (18F)"
+    },
+    {
+      "bioportal_name": "OTHER DIAGNOSTIC RADIOPHARMACEUTICALS in ATC",
+      "code": "V09X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER DIAGNOSTIC RADIOPHARMACEUTICALS"
+    },
+    {
+      "bioportal_name": "ANTIINFLAMMATORY THERAPEUTIC RADIOPHARMACEUTICALS",
+      "code": "V10A",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "ANTIINFLAMMATORY AGENTS"
+    },
+    {
+      "bioportal_name": "Other antiinflammatory therapeutic radiopharmaceuticals in ATC",
+      "code": "V10AX",
+      "level": 4,
+      "status": "label_difference",
+      "who_name": "Other antiinflammatory therapeutic radiopharmaceuticals"
+    },
+    {
+      "bioportal_name": "OTHER THERAPEUTIC RADIOPHARMACEUTICALS in ATC",
+      "code": "V10X",
+      "level": 3,
+      "status": "label_difference",
+      "who_name": "OTHER THERAPEUTIC RADIOPHARMACEUTICALS"
+    }
+  ]
+}

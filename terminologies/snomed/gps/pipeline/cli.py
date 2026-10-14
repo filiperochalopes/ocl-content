@@ -24,6 +24,7 @@ if _TOOLS not in sys.path:
 
 from ocl_pipeline_loader import load  # noqa: E402
 from ocl_artifacts import (  # noqa: E402
+    upload_ready_map,
     DEFAULT_METHOD, DEFAULT_PART_BYTES, METHODS, build_manifest, create_archive, sha256_file,
     write_bundle, write_json, write_parts,
 )
@@ -106,7 +107,7 @@ def command_build(args: argparse.Namespace) -> int:
     target = {"owner": bulk.TARGET_OWNER, "source": bulk.TARGET_SOURCE, "owner_type": bulk.OWNER_TYPE}
     if not args.no_archive:
         manifest = build_manifest(
-            target=target, mode="full-source-refresh", upload_ready=False, parts=[part.__dict__ for part in parts],
+            target=target, mode="full-source-refresh", upload_ready=upload_ready_map(False, "pending tasks: full-source-refresh expands the 29,577-concept Source to the complete GPS scope; needs fresh snapshot and local rehearsal"), parts=[part.__dict__ for part in parts],
             bundle=bundle.__dict__, method=args.zip_method, bundle_archive=args.archive_name,
             parts_archive=args.parts_archive_name,
         )
@@ -126,7 +127,7 @@ def command_build(args: argparse.Namespace) -> int:
         "schema_version": 1,
         "target": target,
         "mode": "full-source-refresh",
-        "upload_ready": False,
+        "upload_ready": upload_ready_map(False, "pending tasks: full-source-refresh expands the 29,577-concept Source to the complete GPS scope; needs fresh snapshot and local rehearsal"),
         "warning": (
             "This refresh expands the existing 29,577-concept OCL Source to the complete January 2026 GPS "
             "scope (all active concepts plus all concepts inactive since 2012). Before manual import, take a "
@@ -155,7 +156,7 @@ def command_build(args: argparse.Namespace) -> int:
         },
     }
     write_json(output_dir / "bulkimport_audit.json", audit)
-    print(f"mode: full-source-refresh   upload_ready: False")
+    print(f"mode: full-source-refresh   upload_ready.local: False")
     print(f"lines: {len(result.lines):,}   active: {result.active:,}   inactive/retired: {result.retired:,}")
     print(f"parts: {len(parts):,}   bundle: {bundle.name} ({bundle.bytes:,} bytes)")
     if bundle_archive:

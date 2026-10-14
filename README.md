@@ -10,8 +10,9 @@ ocl-content/
 │   ├── README.md           # Terminology README template (sources, provenance, output)
 │   ├── who/atc/            # WHO ATC active build + audited retirement-only update
 │   ├── who/icd-10/         # WHO ICD-10 Source configuration + name pipeline + output
-│   ├── who/icd-11/         # WHO ICD-11 base Source from the Simple Tabulation
-│   └── snomed/gps/         # Complete SNOMED GPS 2026-01 flat-source refresh
+│   ├── who/icd-11/         # WHO ICD-11 base Source from the WHO Simple Tabulation
+│   ├── snomed/gps/         # Complete SNOMED GPS 2026-01 flat-source refresh
+│   └── us-nchs/icd-10-cm/  # FY27 ICD-10-CM base-source refresh
 ├── tools/                  # Shared Python helpers
 ├── skills/                 # Repository-local operational skills
 ├── tests/                  # Tests for shared helpers and terminology pipelines

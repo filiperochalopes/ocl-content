@@ -1,0 +1,22 @@
+{
+  "chapters_checked": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "G",
+    "H",
+    "J",
+    "L",
+    "M",
+    "N",
+    "P",
+    "R",
+    "S",
+    "V"
+  ],
+  "atcddd_last_updated": "2026-01-20",
+  "missing_from_atcddd": [],
+  "missing_from_ontology": [],
+  "scope": "level 1 (chapters) and level 2 (groups) only; see README 'Known limits'"
+}

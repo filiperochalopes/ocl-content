@@ -66,7 +66,7 @@ load_canonical, sha256_file, write_canonical_jsonl = (
 source_export = _pipeline("export")
 AdapterResult = _pipeline("model").AdapterResult
 
-from ocl_artifacts import DEFAULT_METHOD, METHODS, build_manifest, create_archive, part_info_from_disk  # noqa: E402
+from ocl_artifacts import DEFAULT_METHOD, METHODS, build_manifest, upload_ready_map, create_archive, part_info_from_disk  # noqa: E402
 
 TERMINOLOGY_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = TERMINOLOGY_DIR.parents[2]
@@ -331,9 +331,10 @@ def command_build(args: argparse.Namespace) -> int:
             "versioned": False,
         }
 
-    upload_ready = mode == "source-export"
+    ready = mode == "source-export"
+    upload_ready = upload_ready_map(ready, "ready for local import: built from a Source export of the local instance" if ready else "pending tasks: built from the committed baseline, not from an export")
     target = {"owner": TARGET_OWNER, "source": TARGET_SOURCE, "owner_type": "Organization"}
-    warning = None if upload_ready else (
+    warning = None if ready else (
         "Built from the committed baseline, not from a Source export. The Concept bulk importer is not a "
         "PATCH: omitting a collection replaces it. Regenerate with --export and re-verify before uploading."
     )
@@ -447,7 +448,7 @@ def command_build(args: argparse.Namespace) -> int:
     }
     write_json(output_dir / "bulkimport_audit.json", audit)
 
-    print(f"mode: {mode}   upload_ready: {upload_ready}")
+    print(f"mode: {mode}   upload_ready.local: {upload_ready['local']['status']}")
     print(f"changed concepts: {len(result.lines):,}   by locale: {result.locale_counts()}")
     for part in parts:
         print(f"  {part.zip}  {part.lines:,} lines  {part.bytes:,} bytes → {part.zip_bytes:,} bytes zipped  sha256={part.zip_sha256[:12]}…")
@@ -475,7 +476,7 @@ def command_compact(args: argparse.Namespace) -> int:
     manifest = build_manifest(
         target=audit.get("target", {"owner": TARGET_OWNER, "source": TARGET_SOURCE, "owner_type": "Organization"}),
         mode=audit.get("mode", "unknown"),
-        upload_ready=bool(audit.get("upload_ready", False)),
+        upload_ready=audit.get("upload_ready") if isinstance(audit.get("upload_ready"), dict) else upload_ready_map(False, "pending tasks: legacy audit without per-environment state"),
         parts=[part.__dict__ for part in parts],
         bundle=part_info_from_disk(bundle).__dict__,
         method=args.zip_method,

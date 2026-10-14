@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "target": {
+    "owner": "US-NCHS",
+    "source": "ICD-10-CM",
+    "owner_type": "Organization"
+  },
+  "environment": null,
+  "mode": "full-source-refresh",
+  "upload_ready": {
+    "local": {
+      "status": false,
+      "comment": "pending tasks: no --export; legacy extras, CUI and semantic types would be overwritten; open decisions in TBD.md"
+    },
+    "staging": {
+      "status": false,
+      "comment": "pending: local rehearsal not passed; staging bundle not built"
+    },
+    "production": {
+      "status": false,
+      "comment": "pending: staging not validated; production bundle not built"
+    }
+  },
+  "warning": "Draft full-source refresh. Compare against a fresh US-NCHS/ICD-10-CM staging snapshot and complete a local rehearsal before manual import.",
+  "inputs": [
+    {
+      "role": "tabular-xml",
+      "path": "terminologies/us-nchs/icd-10-cm/assets/cdc/2027/icd10cm-table-and-index-2027.zip",
+      "sha256": "99b5c2be16ff53eab861cc0be4b1dacba27f687b8ff4bc700679944355037ee0",
+      "bytes": 20923571,
+      "url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/ICD10CM/2027/icd10cm-table-and-index-2027.zip"
+    },
+    {
+      "role": "order-file",
+      "path": "terminologies/us-nchs/icd-10-cm/assets/cdc/2027/icd10cm-code-descriptions-2027.zip",
+      "sha256": "93e3ad6004badf470c55bfe679b748ae88fd9b2b421851e409eec382c7713b9a",
+      "bytes": 2192779,
+      "url": "https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Publications/ICD10CM/2027/icd10cm-code-descriptions-2027.zip"
+    }
+  ],
+  "read": {
+    "version": "2027",
+    "chapters": 22,
+    "sections": 259,
+    "concrete_codes": 98403,
+    "lines": 98685
+  },
+  "projection": {
+    "included": [
+      "id",
+      "names",
+      "concept_class",
+      "datatype",
+      "retired",
+      "extras",
+      "parent_concept_urls"
+    ],
+    "omitted": [
+      "mappings",
+      "CUI",
+      "semantic types",
+      "instructional notes",
+      "descriptions"
+    ],
+    "extension_parent_rule": "longest explicit XML diagnosis stem"
+  },
+  "output": {
+    "parts": [
+      {
+        "name": "bulkimport_part_001.ndjson",
+        "lines": 98685,
+        "sha256": "2e616a34d70083b518db9b8ccbdff3691763cc63f404549e66db360a90aef9c8",
+        "bytes": 46957713,
+        "zip": "bulkimport_part_001.zip",
+        "zip_bytes": 1167588,
+        "zip_sha256": "7feb24423e873b1c3c27fbe5b9fade00091f15b48746a87045a2d19e5a94f248"
+      }
+    ],
+    "bundle": {
+      "name": "bulkimport_bundle.ndjson",
+      "lines": 98685,
+      "sha256": "2e616a34d70083b518db9b8ccbdff3691763cc63f404549e66db360a90aef9c8",
+      "bytes": 46957713,
+      "zip": "",
+      "zip_bytes": 0,
+      "zip_sha256": ""
+    },
+    "bundle_archive": {
+      "name": "bulkimport_icd10cm.bundle.zip",
+      "sha256": "1abfe9a6b4ee98ca171670e462d02a5f411751dee08cde1b3b28cde9e2effbe8"
+    },
+    "parts_archive": {
+      "name": "bulkimport_icd10cm.parts.zip",
+      "sha256": "e3d60b67b07d5a4269cd4c78c8fe5f50cfeb8d88577dbcb4e62c7bea5f61099d"
+    }
+  },
+  "upload": {
+    "mechanism": "manual",
+    "api_upload": false,
+    "update_existing_required": true
+  }
+}

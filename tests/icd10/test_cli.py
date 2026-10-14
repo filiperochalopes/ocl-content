@@ -41,7 +41,7 @@ def test_build_end_to_end_offline_is_marked_as_a_draft(tmp_path, baseline_csv, d
     output = tmp_path / "output"
     audit = json.loads((output / "bulkimport_audit.json").read_text(encoding="utf-8"))
     assert audit["mode"] == "offline-baseline"
-    assert audit["upload_ready"] is False
+    assert audit["upload_ready"]["local"]["status"] is False and audit["upload_ready"]["staging"]["status"] is False
     assert audit["warning"]
     assert audit["target"] == {"owner": "WHO", "source": "ICD-10-WHO", "owner_type": "Organization"}
     assert audit["build"]["changed_concepts"] > 0
@@ -86,7 +86,7 @@ def test_parts_rebuild_the_bundle_and_the_archive_carries_both(tmp_path, baselin
         manifest = json.loads(archive.read("bulkimport_manifest.json"))
     assert manifest["upload"]["mechanism"] == "manual"
     assert manifest["upload"]["order"] == [part.with_suffix(".zip").name for part in parts]
-    assert manifest["upload_ready"] is False
+    assert manifest["upload_ready"]["local"]["status"] is False
     assert manifest["bundle"]["sha256"] == audit["output"]["bundle"]["sha256"]
     assert audit["upload"]["api_upload"] is False
     assert audit["output"]["bundle_archive"]["sha256"] == hashlib.sha256(bundle_archive_path.read_bytes()).hexdigest()
@@ -240,7 +240,7 @@ def test_export_run_marks_the_artifacts_as_upload_ready(tmp_path, baseline_csv, 
     assert main(build_args(tmp_path, baseline_csv, datasus_dir, atih_xml, "--export", str(export))) == 0
     audit = json.loads((tmp_path / "output" / "bulkimport_audit.json").read_text(encoding="utf-8"))
     assert audit["mode"] == "source-export"
-    assert audit["upload_ready"] is True
+    assert audit["upload_ready"]["local"]["status"] is True and audit["upload_ready"]["production"]["status"] is False
     assert audit["warning"] is None
     assert audit["export"] == {
         "path": "export.json",

@@ -34,6 +34,22 @@ uv run python tools/ocl_export_download.py --env-file .env.production --owner WH
 
 It never overwrites a file, writes `<name>.part` then renames, refuses anything that is not a ZIP holding `export.json`, and records the SHA-256, origin, and `token_sent` in `<name>.provenance.json`. A `204` means no export is ready: it stops and never asks the server to generate one. Exit codes: `0` saved, `2` refused or failed, `3` no export ready, `4` authentication required. The default output is `exports/<host>/<owner>_<source>_<version>.zip`, so production and local never share a name.
 
+**The export is the only fast path to a snapshot — always try it first.** One `GET` streams a
+pre-built ZIP that carries every collection, concepts and mappings alike. The paginated fallback
+(`ocl_concept_snapshot_download.py`) costs one request per 1,000 concepts, so the same 98,000-concept
+ICD-10-CM Source takes minutes instead of seconds and still returns a listing without names,
+descriptions or extras. Page the concepts only when the export answers `204` and an exact ID set is
+all you need.
+
+Two limits worth knowing before you plan around an export:
+
+- `204` means *no export is ready* — it is not an error, and it can stay that way until someone
+  generates the export in the OCL UI. A large Source can take a while after that.
+- `--version` accepts an OCL mnemonic only (`[A-Za-z0-9._@-]`), so a released version whose id
+  contains a space (for instance `ICD-10-CM 2025`) cannot be fetched: the release's export may be
+  ready while the tool refuses the id. Substituting a released version for `HEAD` is not the
+  documented fallback anyway — see [`../CONTRIBUTING.md`](../CONTRIBUTING.md).
+
 ## `ocl_export.py`, `ocl_verify_update.py`
 
 `ocl_export.py` reads an export (`export.json`, NDJSON, or a ZIP holding either) and refuses one that belongs to another owner or Source or repeats an id; the ICD-10 `--export` and the verifier share it.
@@ -49,6 +65,20 @@ Offline converter from an export to a **replica seed** for a local instance: `so
 ## `ocl_artifacts.py`, `ocl_assets.py`, `ocl_pipeline_loader.py`
 
 Shared by every terminology pipeline. `ocl_artifacts.py` writes ordered NDJSON parts, one-member ZIPs for each part, the complete bundle, a single-member `*.bundle.zip` for direct upload, and a `*.parts.zip` distribution wrapper with the nested part ZIPs and manifest. The outer `.parts.zip` is never uploaded; extract it and submit each inner part ZIP in numeric order. Only the bundle ZIP and audit are versioned; all generated parts and the parts wrapper are reproducible and ignored by Git. `ocl_assets.py` downloads a pinned public input and verifies its SHA-256 before keeping it. `ocl_pipeline_loader.py` imports a terminology's `pipeline` package by path (`load("who/icd-10", "align")`), so two pipelines named `pipeline` can coexist in one process. None of them talks to OCL.
+
+### `upload_ready` is per environment
+
+Every bulkimport audit and parts manifest records `upload_ready` as a dict, one entry per environment, built by `upload_ready_map()` in `ocl_artifacts.py`:
+
+```json
+"upload_ready": {
+  "local":      {"status": false, "comment": "pending tasks: ..."},
+  "staging":    {"status": false, "comment": "pending: local rehearsal not passed; staging bundle not built"},
+  "production": {"status": false, "comment": "pending: staging not validated; production bundle not built"}
+}
+```
+
+`local` is the only entry a pipeline may set to `true`, and only after its bundle is built from that instance's own export. `staging` and `production` stay `false` until their own bundle is built from their own export and the earlier environment has passed. Each environment has its own bundle file (`*.local.bundle.zip`, `*.staging.bundle.zip`, `*.bundle.zip` for production); a bundle is never reused across environments.
 
 ## `ocl_http.py`
 
