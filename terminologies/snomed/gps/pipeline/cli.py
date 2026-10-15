@@ -143,7 +143,8 @@ def command_build(args: argparse.Namespace) -> int:
         "projection": {
             "included": ["type", "id", "owner", "owner_type", "source", "concept_class", "datatype", "retired", "names"],
             "omitted": ["hierarchy", "mappings", "descriptions", "extras", "translations", "SNOMED relationships/definitions"],
-            "name_policy": "FSN as non-preferred Fully-Specified; US Preferred Term as preferred Synonym, matching the existing live Source",
+            "concept_class_policy": "trailing semantic tag parsed from each source FSN",
+            "name_policy": "FSN as non-preferred Fully-Specified; US Preferred Term as preferred untyped name (name_type omitted)",
         },
         "output": {
             "directory": display_path(output_dir), "parts": [part.__dict__ for part in parts], "bundle": bundle.__dict__,

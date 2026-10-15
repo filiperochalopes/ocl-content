@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "target": {
+    "owner": "WHO",
+    "source": "ICD-11-WHO",
+    "owner_type": "Organization"
+  },
+  "mode": "production-base-load",
+  "profile": "production",
+  "upload_ready": {
+    "local": {
+      "status": false,
+      "comment": "pending: not yet rehearsed against a local OCL instance; full-source-load needs an empty Source"
+    },
+    "staging": {
+      "status": false,
+      "comment": "pending: local rehearsal not passed; staging bundle not built"
+    },
+    "production": {
+      "status": false,
+      "comment": "pending: staging not validated; production bundle not built"
+    }
+  },
+  "warning": "PRODUCTION profile: base Simple Tabulation load ONLY. No aliases and no post-coordinated layer were built — both require decoding the WHO ICD-API search index / inspecting /describe behaviour, which this profile deliberately avoids (reverse-engineering risk under the ICD-11 licence). The staging bundle (output/staging/) is the full build with that additive layer; it is never uploaded to production. This bundle creates complete concepts (names and extras), so load it only into an empty WHO/ICD-11-WHO Source; the importer would overwrite an existing concept.",
+  "inputs": [
+    {
+      "role": "simple-tabulation",
+      "path": "terminologies/who/icd-11/assets/who/2026-01/SimpleTabulation-ICD-11-MMS-en.zip",
+      "sha256": "f1356588f40953a83e3af2b662deab47c5e269f944d1ea4ed0cfeb2007c7cd39",
+      "bytes": 4214980,
+      "authority": "WHO",
+      "edition": "ICD-11 MMS 2026-01, header 'Version:2026 Jan 17 - 05:30 UTC'",
+      "release": "2026-01",
+      "version_label": "Version:2026 Jan 17 - 05:30 UTC",
+      "matches_pinned_asset": true,
+      "source_url": "https://icdcdn.who.int/static/releasefiles/2026-01/SimpleTabulation-ICD-11-MMS-en.zip"
+    }
+  ],
+  "read": {
+    "entities": 37052,
+    "skipped": {
+      "no-supported-identifier": 100
+    }
+  },
+  "build": {
+    "lines": 37053,
+    "class_counts": {
+      "Block": 1360,
+      "Chapter": 28,
+      "Diagnosis": 35664,
+      "Root": 1
+    },
+    "rooted_without_parent": 0,
+    "max_part_zip_bytes": 2097152,
+    "base_concepts_with_foundation_url": 31678
+  },
+  "output": {
+    "directory": "terminologies/who/icd-11/output/production",
+    "parts": [
+      {
+        "name": "bulkimport_part_001.ndjson",
+        "lines": 37053,
+        "sha256": "d450f01b18968b598a0ceffe745a3605ec33f70e1fcef5ac8bfc578088a403f0",
+        "bytes": 25963214,
+        "zip": "bulkimport_part_001.zip",
+        "zip_bytes": 1309038,
+        "zip_sha256": "306355ed7fb29f76475c4129c336dff15ccbe5aa9ded539bcaac495dba74ef86"
+      }
+    ],
+    "bundle": {
+      "name": "bulkimport_bundle.ndjson",
+      "lines": 37053,
+      "sha256": "d450f01b18968b598a0ceffe745a3605ec33f70e1fcef5ac8bfc578088a403f0",
+      "bytes": 25963214,
+      "zip": "",
+      "zip_bytes": 0,
+      "zip_sha256": ""
+    },
+    "bundle_archive": {
+      "name": "bulkimport_icd11-who.bundle.zip",
+      "bytes": 1309034,
+      "method": "deflate",
+      "payload_bytes": 25963214,
+      "members": [
+        {
+          "name": "bulkimport_bundle.ndjson",
+          "lines": 37053,
+          "bytes": 25963214,
+          "compressed_bytes": 1308888,
+          "sha256": "d450f01b18968b598a0ceffe745a3605ec33f70e1fcef5ac8bfc578088a403f0"
+        }
+      ],
+      "ratio": 0.0504,
+      "sha256": "60b65ea8335fb1f1ef0ca32f24d4cb0fe11dac64d447d84d6ca4fba7645d80a7"
+    },
+    "parts_archive": {
+      "name": "bulkimport_icd11-who.parts.zip",
+      "bytes": 1295714,
+      "method": "deflate",
+      "payload_bytes": 1310823,
+      "members": [
+        {
+          "name": "bulkimport_part_001.zip",
+          "lines": 6912,
+          "bytes": 1309038,
+          "compressed_bytes": 1294700,
+          "sha256": "306355ed7fb29f76475c4129c336dff15ccbe5aa9ded539bcaac495dba74ef86"
+        },
+        {
+          "name": "bulkimport_manifest.json",
+          "lines": 0,
+          "bytes": 1785,
+          "compressed_bytes": 746,
+          "sha256": "cf0c28cddf0123987d7b42fe43f03b4747874fb5aa852ad68e54a2cdef07adbd"
+        }
+      ],
+      "ratio": 0.9885,
+      "sha256": "8295fd526fdb3e80487890e5ef5e7c914f37c5b346645fdcdf95cf1441baef34"
+    },
+    "versioned": [
+      "bulkimport_audit.json",
+      "bulkimport_icd11-who.bundle.zip"
+    ],
+    "not_versioned": [
+      "bulkimport_part_001.ndjson",
+      "bulkimport_part_001.zip",
+      "bulkimport_bundle.ndjson",
+      "bulkimport_icd11-who.parts.zip"
+    ]
+  },
+  "projection": {
+    "included": [
+      "type",
+      "id",
+      "owner",
+      "owner_type",
+      "source",
+      "concept_class",
+      "datatype",
+      "retired",
+      "names",
+      "extras",
+      "parent_concept_urls"
+    ],
+    "omitted": [
+      "Source record",
+      "mappings",
+      "post-coordinated codes",
+      "alias names (Foundation synonyms)",
+      "descriptions (except the root)"
+    ]
+  },
+  "upload": {
+    "mechanism": "manual",
+    "api_upload": false,
+    "note": "The .bundle.zip contains exactly one complete NDJSON file and can be uploaded as one import. The .parts.zip is a distribution container, not an OCL upload: extract it, then upload each inner bulkimport_part_NNN.zip in numeric order through the OCL form, reusing one Queue ID. Each inner part ZIP contains exactly one NDJSON file."
+  }
+}

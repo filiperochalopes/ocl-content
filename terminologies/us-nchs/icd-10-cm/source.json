@@ -4,7 +4,7 @@
   "canonical_url": "http://hl7.org/fhir/sid/icd-10-cm",
   "version": "FY27",
   "name": "ICD-10-CM",
-  "description": "International Classification of Diseases, Tenth Revision, Clinical Modification. FY27 content is derived from CMS/NCHS Tabular XML and the companion full order file. The root, chapters, sections, concrete diagnosis codes, parent hierarchy, order number, valid-for-submission flag, and leaf status are modeled from those official files. The legacy staging source carried UMLS enrichments (CUI and Semantic Types) that CMS/NCHS does not supply; they are not carried (temporary policy, pending a documented decision). Tabular instructional-note fields (EXCLUDES1, EXCLUDES2, USE ADDITIONAL, CODE FIRST, CODE ALSO, Note) are preserved in an update.",
+  "description": "International Classification of Diseases, Tenth Revision, Clinical Modification. FY27 content is derived from CMS/NCHS Tabular XML and the companion full order file. The root, chapters, sections, concrete diagnosis codes, parent hierarchy, order number, valid-for-submission flag, leaf status, Tabular instructional notes (excludes1, excludes2, useAdditionalCode, codeFirst, codeAlso, notes) and seventh-character instructions are modeled from those official files. The legacy staging source carried UMLS enrichments (CUI and Semantic Types) that CMS/NCHS does not supply; they are not carried (temporary policy, pending a documented decision).",
   "copyright": "Developed by the National Center for Health Statistics (NCHS) and the Centers for Medicare & Medicaid Services (CMS), U.S. Department of Health and Human Services. U.S. government works are not subject to copyright protection within the United States. ICD-10-CM is based on the WHO International Classification of Diseases, Tenth Revision; WHO authorized NCHS to develop the U.S. clinical modification.",
   "content": {
     "requires_mappings": false,
@@ -36,40 +36,40 @@
       "description": "Derived from the FY27 hierarchy; false when the concept has a child chapter, a nested structural section, an explicit diagnosis, or a seventh-character extension code."
     },
     {
-      "code": "EXCLUDES1",
+      "code": "excludes1",
       "type": "string",
       "display": "Not coded here",
-      "description": "ICD-10-CM Tabular List Excludes1 instructional note(s): the excluded condition is not coded together with this concept. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."
+      "description": "ICD-10-CM Tabular List <excludes1> instructional note(s), regenerated from the FY27 Tabular XML for every applicable concept; one list item per <note>, in document order. Excludes1: the excluded condition is mutually exclusive with this concept and is not coded together with it."
     },
     {
-      "code": "EXCLUDES2",
+      "code": "excludes2",
       "type": "string",
       "display": "Not included here",
-      "description": "ICD-10-CM Tabular List Excludes2 instructional note(s): the excluded condition is not part of this concept, but both conditions may be coded when present. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."
+      "description": "ICD-10-CM Tabular List <excludes2> instructional note(s), regenerated from the FY27 Tabular XML for every applicable concept; one list item per <note>, in document order. Excludes2: the excluded condition is not part of this concept, but both conditions may be present and coded together."
     },
     {
-      "code": "USE ADDITIONAL",
+      "code": "useAdditionalCode",
       "type": "string",
       "display": "Use additional code",
-      "description": "ICD-10-CM Tabular List Use Additional Code instructional note(s), carried by the legacy source for applicable concepts. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."
+      "description": "ICD-10-CM Tabular List <useAdditionalCode> instructional note(s), regenerated from the FY27 Tabular XML for every applicable concept; one list item per <note>, in document order. Use additional code: an additional code is needed to give a complete picture of the condition."
     },
     {
-      "code": "CODE FIRST",
+      "code": "codeFirst",
       "type": "string",
       "display": "Code first",
-      "description": "ICD-10-CM Tabular List Code First instructional note(s), carried by the legacy source for applicable concepts. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."
+      "description": "ICD-10-CM Tabular List <codeFirst> instructional note(s), regenerated from the FY27 Tabular XML for every applicable concept; one list item per <note>, in document order. Code first: the underlying condition is sequenced before this concept."
     },
     {
-      "code": "CODE ALSO",
+      "code": "codeAlso",
       "type": "string",
       "display": "Code also",
-      "description": "ICD-10-CM Tabular List Code Also instructional note(s), carried by the legacy source for applicable concepts. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."
+      "description": "ICD-10-CM Tabular List <codeAlso> instructional note(s), regenerated from the FY27 Tabular XML for every applicable concept; one list item per <note>, in document order. Code also: two codes may be required to describe the condition; their sequencing depends on the circumstances."
     },
     {
-      "code": "Note",
+      "code": "notes",
       "type": "string",
       "display": "Note",
-      "description": "ICD-10-CM Tabular List general instructional note(s), carried by the legacy source for applicable concepts. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."
+      "description": "ICD-10-CM Tabular List <notes> instructional note(s), regenerated from the FY27 Tabular XML for every applicable concept; one list item per <note>, in document order. General instructional notes of the chapter, section or code."
     }
   ],
   "filters": [

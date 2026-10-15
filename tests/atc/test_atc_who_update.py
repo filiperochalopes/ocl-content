@@ -61,7 +61,7 @@ def test_projects_who_records_and_retires_local_concepts_and_mappings():
         "mappings": [mapping("retire-me"), mapping("already-retired", retired=True)],
     }
 
-    result = who_update.build(snapshot, export)
+    result = who_update.build(snapshot, export, {})
 
     assert [(line["type"], line["id"], line.get("__action")) for line in result.lines] == [
         ("Concept", "Root", None),
@@ -113,7 +113,7 @@ def test_mapping_delete_does_not_require_a_target_concept_url():
         "mappings": [missing_target],
     }
 
-    result = who_update.build(snapshot, export)
+    result = who_update.build(snapshot, export, {})
 
     deleted = next(line for line in result.lines if line["type"] == "Mapping")
     assert deleted["id"] == "to-source-only"
@@ -139,10 +139,14 @@ def test_cli_builds_local_update_bundle_from_who_snapshot_and_export(tmp_path):
     snapshot_path.write_text(json.dumps(snapshot), encoding="utf-8")
     export_path.write_text(json.dumps(export), encoding="utf-8")
 
+    ddd_path = tmp_path / "ddd.xml"
+    ddd_path.write_text(
+        "<xml xmlns:z='#RowsetSchema'><z:row ATCCode='A' DDD='1' UnitType='g' AdmCode='O'/></xml>", encoding="utf-8"
+    )
     cli = load("who/atc", "cli")
     assert cli.main([
         "build-who-update", "--snapshot", str(snapshot_path), "--export", str(export_path),
-        "--output-dir", str(output_dir),
+        "--ddd-xml", str(ddd_path), "--output-dir", str(output_dir),
     ]) == 0
 
     audit = json.loads((output_dir / "bulkimport_audit.json").read_text(encoding="utf-8"))

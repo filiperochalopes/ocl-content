@@ -6,6 +6,12 @@ Tabular XML (chapters, sections, explicit diagnosis nesting, and extension defin
 submission-valid flag, short description, and long description). The XML does not enumerate every
 seventh-character extension code, so those codes keep the longest explicit XML-code prefix as parent.
 
+Instructional elements are read verbatim from the Tabular XML for every chapter, section and diagnosis:
+``excludes1``, ``excludes2``, ``useAdditionalCode``, ``codeFirst``, ``codeAlso`` and ``notes`` (each a list of
+``<note>`` texts in document order, whitespace-collapsed), plus ``sevenChrNote``/``sevenChrDef`` (the
+seventh-character instruction and its extension meanings). A ``<section>`` that only wraps the diagnosis of the
+same code (e.g. ``B10``) is one OCL concept, so its instructions are merged into that diagnosis.
+
 Sections are direct XML children of chapters. A narrow, reviewed exception adds a structural parent
 between sibling sections when the candidate parent has no direct diagnosis and its declared range
 contains the child range. `sectionIndex` supplies the authoritative `first`/`last` bounds when it
@@ -21,6 +27,7 @@ import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from pathlib import Path
 
+INSTRUCTION_TAGS = ("excludes1", "excludes2", "useAdditionalCode", "codeFirst", "codeAlso", "notes")
 TABULAR_RE = re.compile(r"icd10cm-tabular_-2027\.xml$", re.IGNORECASE)
 ORDER_RE = re.compile(r"icd10cm-order-2027\.txt$", re.IGNORECASE)
 RANGE_RE = re.compile(r"\(([^()]+)\)\s*$")
@@ -47,6 +54,18 @@ class Code:
 
 
 @dataclass
+class SeventhCharacter:
+    """``sevenChrNote`` texts and the ordered ``sevenChrDef`` entries of one ``<diag>``.
+
+    An entry is ``(char, meaning)`` for an ``<extension>``; a ``<note>`` the XML places inside ``sevenChrDef``
+    is ``(None, text)`` and qualifies the entry before it, so document order is kept.
+    """
+
+    notes: list[str] = field(default_factory=list)
+    entries: list[tuple[str | None, str]] = field(default_factory=list)
+
+
+@dataclass
 class Release:
     version: str
     tabular_member: str
@@ -55,10 +74,39 @@ class Release:
     codes: dict[str, Code] = field(default_factory=dict)
     node_order: list[str] = field(default_factory=list)
     code_order: list[str] = field(default_factory=list)
+    instructions: dict[str, dict[str, list[str]]] = field(default_factory=dict)
+    seventh: dict[str, SeventhCharacter] = field(default_factory=dict)
+    merged_section_wrappers: list[str] = field(default_factory=list)
 
 
 def dotted(code: str) -> str:
     return f"{code[:3]}.{code[3:]}" if len(code) > 3 else code
+
+
+def _text(value: str | None) -> str:
+    return " ".join((value or "").split())
+
+
+def _note_texts(element: ET.Element, tag: str) -> list[str]:
+    """Texts of every ``<note>`` inside the direct ``tag`` children of ``element``, in document order."""
+    return [text for wrapper in element.findall(tag) for note in wrapper.findall("note") if (text := _text(note.text))]
+
+
+def _read_instructions(release: Release, key: str, element: ET.Element) -> None:
+    """Record the instruction lists of ``element`` under ``key``, appending when ``key`` already has some."""
+    for tag in INSTRUCTION_TAGS:
+        if texts := _note_texts(element, tag):
+            release.instructions.setdefault(key, {}).setdefault(tag, []).extend(texts)
+    notes = _note_texts(element, "sevenChrNote")
+    definition = element.find("sevenChrDef")
+    entries: list[tuple[str | None, str]] = []
+    for item in definition if definition is not None else []:
+        if item.tag == "extension":
+            entries.append((item.get("char") or "", _text(item.text)))
+        elif item.tag == "note" and _text(item.text):
+            entries.append((None, _text(item.text)))
+    if notes or entries:
+        release.seventh[key] = SeventhCharacter(notes, entries)
 
 
 def _member(archive: zipfile.ZipFile, pattern: re.Pattern[str], path: Path) -> str:
@@ -155,6 +203,7 @@ def _read_xml(path: Path, archive: zipfile.ZipFile, member: str) -> Release:
             raise ValueError(f"{path}: diagnosis element under {parent!r} has no code/title")
         position += 1
         _add_node(release, Node(code=code, title=title, parent=parent, kind="diag", order=position))
+        _read_instructions(release, code, element)
         for child in element.findall("diag"):
             visit_diag(child, code)
 
@@ -163,6 +212,7 @@ def _read_xml(path: Path, archive: zipfile.ZipFile, member: str) -> Release:
         chapter_code = _chapter_code(chapter_title, path)
         position += 1
         _add_node(release, Node(chapter_code, chapter_title, None, "chapter", position))
+        _read_instructions(release, chapter_code, chapter)
         sections = chapter.findall("section")
         section_parents = _section_parents(chapter_code, chapter, sections)
         section_records: list[tuple[ET.Element, str, str, list[ET.Element], bool]] = []
@@ -177,6 +227,11 @@ def _read_xml(path: Path, archive: zipfile.ZipFile, member: str) -> Release:
             # retain the diagnosis and attach it directly to the chapter, matching the existing staging tree.
             section_is_code = any((diagnosis.findtext("name") or "").strip() == section_code for diagnosis in direct_diagnoses)
             section_records.append((section, section_code, section_title, direct_diagnoses, section_is_code))
+            # A wrapper section and its same-code diagnosis are one OCL concept: the section's instructions
+            # are recorded first under that code, the diagnosis' own are appended when it is visited.
+            _read_instructions(release, section_code, section)
+            if section_is_code:
+                release.merged_section_wrappers.append(section_code)
 
         depth_cache: dict[str, int] = {}
 

@@ -6,7 +6,7 @@ import re
 from dataclasses import dataclass, field
 from urllib.parse import quote
 
-from .release import Release
+from .release import INSTRUCTION_TAGS, Release, dotted
 
 TARGET_OWNER = "US-NCHS"
 TARGET_SOURCE = "ICD-10-CM"
@@ -26,12 +26,63 @@ def root_line() -> dict:
             "extras": {"Leaf Node": False}}
 
 
+SEVENTH_DESCRIPTION_TYPE = "Seventh Character"
+EXAMPLE_SEGMENT = re.compile(r"(?:^|; )\S+ - [^;]* \([A-Z0-9.]+\)(?:;|$)")
+
+
 @dataclass(frozen=True)
 class BuildResult:
     lines: list[dict]
     diagnosis_codes: int
     chapter_nodes: int
     section_nodes: int
+    stats: dict = field(default_factory=dict)
+
+
+def instruction_extras(release: Release, code: str) -> dict[str, list[str]]:
+    """Official Tabular instruction lists of one concept, under the XML element names, in a fixed key order."""
+    found = release.instructions.get(code, {})
+    return {tag: list(found[tag]) for tag in INSTRUCTION_TAGS if found.get(tag)}
+
+
+def seventh_character_examples(release: Release) -> dict[str, dict[str, list[str]]]:
+    """Concrete seven-character order codes under each ``sevenChrDef`` stem, by extension character.
+
+    Only an explicit XML ancestor counts, so a stem such as ``H40.10`` finds ``H40.10X0``... while a broad
+    category finds every code beneath it (callers show an example only when exactly one code matches).
+    """
+    found: dict[str, dict[str, list[str]]] = {}
+    for code in release.code_order:
+        bare = code.replace(".", "")
+        if len(bare) != 7:
+            continue
+        for end in range(3, 7):
+            stem = dotted(bare[:end])
+            if stem in release.seventh:
+                found.setdefault(stem, {}).setdefault(bare[-1], []).append(code)
+    return found
+
+
+def seventh_description(release: Release, code: str, examples: dict[str, dict[str, list[str]]]) -> dict | None:
+    """One description per diagnosis with ``sevenChrNote``/``sevenChrDef``, ``; `` separated (newlines are not
+    accepted in descriptions): the note, then ``char - meaning (code)`` per extension. A ``<note>`` inside
+    ``sevenChrDef`` is its own segment right after the extension it follows."""
+    item = release.seventh.get(code)
+    if item is None:
+        return None
+    parts = list(item.notes)
+    for char, text in item.entries:
+        if char is None:
+            parts.append(text)
+            continue
+        matches = examples.get(code, {}).get(char, [])
+        parts.append(f"{char} - {text}" + (f" ({matches[0]})" if len(matches) == 1 else ""))
+    if not parts:
+        return None
+    text = ""
+    for part in parts:
+        text += part if not text else (" " if text.endswith(":") else "; ") + part  # "...:" introduces the list
+    return {"description": text, "locale": "en", "locale_preferred": True, "description_type": SEVENTH_DESCRIPTION_TYPE}
 
 
 def build(release: Release) -> BuildResult:
@@ -42,6 +93,8 @@ def build(release: Release) -> BuildResult:
     for code in release.codes.values():
         children.setdefault(code.parent, []).append(code.code)
 
+    examples = seventh_character_examples(release)
+    descriptions = {code: description for code in release.seventh if (description := seventh_description(release, code, examples))}
     lines = [root_line()]
     for code in release.node_order:
         node = release.nodes[code]
@@ -52,7 +105,7 @@ def build(release: Release) -> BuildResult:
         lines.append({"type": "Concept", "id": node.code, "owner": TARGET_OWNER, "owner_type": OWNER_TYPE, "source": TARGET_SOURCE,
                       "concept_class": concept_class, "datatype": "None", "retired": False,
                       "names": [{"name": node.title, "locale": "en", "locale_preferred": True, "name_type": "Fully Specified"}],
-                      "extras": {"Leaf Node": not bool(children.get(node.code))},
+                      "extras": {"Leaf Node": not bool(children.get(node.code)), **instruction_extras(release, node.code)},
                       "parent_concept_urls": [concept_url(parent)]})
     for code in release.code_order:
         item = release.codes[code]
@@ -60,18 +113,32 @@ def build(release: Release) -> BuildResult:
                       "concept_class": "Diagnosis", "datatype": "None", "retired": False,
                       "names": [{"name": item.long_description, "locale": "en", "locale_preferred": True, "name_type": "Fully Specified"}],
                       "extras": {"Order number": item.order_number, "Valid for submission": item.valid_for_submission,
-                                 "Leaf Node": not bool(children.get(item.code))},
+                                 "Leaf Node": not bool(children.get(item.code)), **instruction_extras(release, item.code)},
                       "parent_concept_urls": [concept_url(item.parent)]})
+        if item.code in descriptions:
+            lines[-1]["descriptions"] = [descriptions[item.code]]
     positions = {line["id"]: index for index, line in enumerate(lines)}
     problems = [line["id"] for line in lines[1:] if positions[line["parent_concept_urls"][0].rstrip('/').rsplit('/', 1)[1]] >= positions[line["id"]]]
     if problems:
         raise ValueError(f"{len(problems)} hierarchy parent(s) come after children, e.g. {problems[:5]}")
-    return BuildResult(lines, len(release.codes), sum(n.kind == "chapter" for n in release.nodes.values()), sum(n.kind == "section" for n in release.nodes.values()))
+    ids = set(positions)
+    stats = {
+        "instruction_concepts": {tag: sum(tag in line["extras"] for line in lines) for tag in INSTRUCTION_TAGS},
+        "seventh_character_descriptions": sum("descriptions" in line for line in lines),
+        "seventh_character_descriptions_with_code_examples": sum(bool(EXAMPLE_SEGMENT.search(d["description"])) for line in lines for d in line.get("descriptions", [])),
+        "instruction_ids_without_concept": sorted(set(release.instructions) - ids),
+        "seventh_character_ids_without_concept": sorted(set(release.seventh) - ids),
+        "seventh_character_inline_notes": {code: [text for char, text in item.entries if char is None] for code, item in release.seventh.items() if any(char is None for char, _ in item.entries)},
+        "wrapper_sections_merged": list(release.merged_section_wrappers),
+    }
+    return BuildResult(lines, len(release.codes), sum(n.kind == "chapter" for n in release.nodes.values()), sum(n.kind == "section" for n in release.nodes.values()), stats)
 
 
 
 NAME_KEYS = ("name", "locale", "locale_preferred", "name_type")
-FY_EXTRAS = ("Order number", "Valid for submission", "Leaf Node")
+FY_EXTRAS = ("Order number", "Valid for submission", "Leaf Node", *INSTRUCTION_TAGS)
+# Upper-case labels of the legacy loader for the same instructions; the extras now carry the official XML names.
+LEGACY_INSTRUCTION_EXTRAS = ("EXCLUDES1", "EXCLUDES2", "USE ADDITIONAL", "CODE FIRST", "CODE ALSO", "Note")
 SEMANTIC_TYPE_ID = re.compile(r"T\d{3}")
 UMLS_EXTRAS = ("CUI", "Semantic Types")
 
@@ -93,10 +160,13 @@ def project_update(result: BuildResult, existing: dict[str, dict]) -> UpdateResu
 
     The bulk importer rebuilds ``names`` and replaces ``extras`` wholesale, so a line for a concept the target
     already holds must carry everything the release does not govern: the existing non-preferred names
-    (English synonyms), descriptions, and every legacy extra (CUI, Semantic Types, EXCLUDES1/2, USE ADDITIONAL,
-    CODE FIRST, CODE ALSO, Note). Only the English preferred name, ``Order number``, ``Valid for submission``,
-    ``Leaf Node``, the parent link and the ``concept_class`` (Root/Chapter/Section/Diagnosis, as decided for
-    FY27) come from the release; ``datatype`` too. Ids absent from the release are reported, never retired here.
+    (English synonyms), descriptions other than the seventh-character one, and any other extra. The English
+    preferred name, ``Order number``, ``Valid for submission``, ``Leaf Node``, the Tabular instruction lists
+    (``excludes1``, ``excludes2``, ``useAdditionalCode``, ``codeFirst``, ``codeAlso``, ``notes``), the
+    seventh-character description, the parent link and the ``concept_class`` (Root/Chapter/Section/Diagnosis, as
+    decided for FY27) come from the release; ``datatype`` too. The legacy upper-case instruction extras
+    (``EXCLUDES1``, ``USE ADDITIONAL``, ``Note``...) are replaced by them, never carried. Ids absent from the
+    release are reported, never retired here.
 
     UMLS is out of every update until the decision in ``TBD.md`` says otherwise: ``CUI`` and ``Semantic Types`` are
     not carried (OCL replaces ``extras`` wholesale, so they disappear from each updated concept) and one
@@ -104,7 +174,8 @@ def project_update(result: BuildResult, existing: dict[str, dict]) -> UpdateResu
     Semantic Type identifiers and not ICD-10-CM codes. Other ids absent from the release are only reported.
     """
     lines, st = [], {"existing_updated": 0, "created": 0, "preferred_name_changed": 0, "synonyms_preserved": 0,
-                     "concepts_with_synonyms": 0, "legacy_extras_preserved": 0, "parent_changed": 0, "extras_values_changed": 0, "concept_class_changed": 0, "umls_extras_dropped": 0, "semantic_type_concepts_retired": 0}
+                     "concepts_with_synonyms": 0, "legacy_extras_preserved": 0, "parent_changed": 0, "extras_values_changed": 0, "concept_class_changed": 0, "umls_extras_dropped": 0, "semantic_type_concepts_retired": 0,
+                     "legacy_instruction_extras_replaced": 0}
     release_ids = set()
     for line in result.lines:
         release_ids.add(line["id"])
@@ -122,9 +193,13 @@ def project_update(result: BuildResult, existing: dict[str, dict]) -> UpdateResu
         if keep:
             st["concepts_with_synonyms"] += 1
             st["synonyms_preserved"] += len(keep)
-        if old.get("descriptions"):
-            out["descriptions"] = [{k: v for k, v in d.items() if k in ("description", "locale", "locale_preferred", "description_type")} for d in old["descriptions"]]
+        kept = [{k: v for k, v in d.items() if k in ("description", "locale", "locale_preferred", "description_type")}
+                for d in old.get("descriptions") or [] if d.get("description_type") != SEVENTH_DESCRIPTION_TYPE]
+        if kept or line.get("descriptions"):
+            out["descriptions"] = [*line.get("descriptions", []), *kept]
         legacy = {k: v for k, v in (old.get("extras") or {}).items() if k not in FY_EXTRAS}
+        st["legacy_instruction_extras_replaced"] += sum(k in legacy for k in LEGACY_INSTRUCTION_EXTRAS)
+        legacy = {k: v for k, v in legacy.items() if k not in LEGACY_INSTRUCTION_EXTRAS}
         st["umls_extras_dropped"] += sum(k in legacy for k in UMLS_EXTRAS)
         legacy = {k: v for k, v in legacy.items() if k not in UMLS_EXTRAS}
         st["legacy_extras_preserved"] += len(legacy)

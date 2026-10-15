@@ -80,11 +80,21 @@ def records_from_snapshot(snapshot: dict[str, Any]) -> list[WhoRecord]:
     return sorted(records, key=lambda record: (record.level, record.code))
 
 
-def concept_line(record: WhoRecord) -> dict[str, Any]:
-    """Build the complete desired state for one WHOCC classification concept."""
+def concept_line(record: WhoRecord, ddd: str | None = None) -> dict[str, Any]:
+    """Build the complete desired state for one WHOCC classification concept.
+
+    ``ddd`` is the already formatted ``DDD`` string for this code, or ``None`` when the WHOCC DDD
+    file gives it no DDD value; the extra is then omitted rather than written empty.
+    """
     parent = base.ROOT_ID if record.level == 1 else record.parent
     if parent is None:
         raise ValueError(f"WHOCC record {record.code!r} has no parent")
+    extras: dict[str, Any] = {
+        "ATC Level": record.level,
+        "Is_Drug_Class": "Y" if record.level < 5 else "N",
+    }
+    if ddd:
+        extras["DDD"] = ddd
     return {
         "type": "Concept",
         "id": record.code,
@@ -101,10 +111,7 @@ def concept_line(record: WhoRecord) -> dict[str, Any]:
             "name_type": base.NAME_TYPE_FSN,
         }],
         "descriptions": [],
-        "extras": {
-            "ATC Level": record.level,
-            "Is_Drug_Class": "Y" if record.level < 5 else "N",
-        },
+        "extras": extras,
         "parent_concept_urls": [base.concept_url(parent)],
     }
 
@@ -160,8 +167,12 @@ def _resources_by_id(resources: object, resource_type: str) -> dict[str, dict[st
     return result
 
 
-def build(snapshot: dict[str, Any], export: dict[str, Any]) -> UpdateResult:
+def build(snapshot: dict[str, Any], export: dict[str, Any], ddd: dict[str, str]) -> UpdateResult:
     """Return the deterministic WHOCC-only update for one complete WHOATC export.
+
+    ``ddd`` maps an ATC code to its ``DDD`` extra string (see :mod:`ddd_xml`). It is required, even
+    when empty, because a bulk update replaces ``extras`` wholesale: omitting the DDD input would
+    silently delete the DDD of every concept that already has one.
 
     Ordering is intentional: full desired concept records first, mapping retirements next while both
     endpoints still exist, and concept retirements last. ``__action: DELETE`` means retirement in
@@ -174,6 +185,9 @@ def build(snapshot: dict[str, Any], export: dict[str, Any]) -> UpdateResult:
     mappings = _resources_by_id(export.get("mappings"), "Mapping")
 
     record_ids = {record.code for record in records}
+    unknown_ddd = sorted(set(ddd) - record_ids)
+    if unknown_ddd:
+        raise ValueError(f"DDD extras name codes absent from the WHOCC snapshot: {unknown_ddd[:10]}")
     root = concepts.get(base.ROOT_ID)
     root_line = base.root_line()
     stats = {
@@ -201,7 +215,7 @@ def build(snapshot: dict[str, Any], export: dict[str, Any]) -> UpdateResult:
             stats["retired_concepts_reactivated"] += 1
         else:
             stats["active_concepts_updated"] += 1
-        desired_concepts.append(concept_line(record))
+        desired_concepts.append(concept_line(record, ddd.get(record.code)))
 
     mapping_deletes: list[dict[str, Any]] = []
     for mapping_id, mapping in sorted(mappings.items()):

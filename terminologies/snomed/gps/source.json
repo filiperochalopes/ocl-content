@@ -1,12 +1,31 @@
 {
   "owner": "SNOMED-International",
   "source": "SNOMED-GPS",
-  "canonical_url": "http://terminology.hl7.org/ValueSet/snomed-intl-gps",
+  "canonical_url": "http://snomed.info/sct?fhir_vs=refset/787778008",
   "name": "SNOMED Global Patient Set (GPS)",
-  "description": "The SNOMED International Global Patient Set (GPS), a flat identifier-and-term artifact. The January 2026 release includes all active SNOMED CT International Edition concepts and all concepts inactive since 2012. Each concept preserves the source ConceptID, active status, Fully Specified Name, and US Preferred Term. GPS does not contain SNOMED CT hierarchies, relationships, definitions, mappings, translations, or semantic reasoning content.",
+  "description": "The SNOMED International Global Patient Set (GPS), a flat identifier-and-term artifact. The January 2026 release includes all active SNOMED CT International Edition concepts and all concepts inactive since 2012. Each concept preserves the source ConceptID, active status, Fully Specified Name, and US Preferred Term; the trailing semantic tag of the Fully Specified Name is projected as the OCL concept class. GPS does not contain SNOMED CT hierarchies, relationships, definitions, mappings, translations, or semantic reasoning content.",
   "copyright": "© 2026 International Health Terminology Standards Development Organisation (IHTSDO), trading as SNOMED International. SNOMED CT® was originally created by the College of American Pathologists. The Global Patient Set (GPS) is distributed under the Creative Commons Attribution-NoDerivatives 4.0 International Public License (CC BY-ND 4.0): https://creativecommons.org/licenses/by-nd/4.0/. Copyright in partner-organization materials remains with their respective owners. SNOMED®, SNOMED CT® and IHTSDO® are registered trademarks of International Health Terminology Standards Development Organisation. GPS release information: https://www.snomed.org/gps.",
   "content": {"requires_mappings": false, "has_hierarchy": false},
-  "properties": [],
-  "filters": [],
-  "meta": {"display": {"concept_summary_properties": [], "concept_filter_order": []}}
+  "properties": [
+    {
+      "code": "concept_class",
+      "type": "code",
+      "display": "Concept class",
+      "description": "SNOMED semantic tag parsed from the trailing parenthesized tag of the source Fully Specified Name and emitted as the OCL concept class."
+    }
+  ],
+  "filters": [
+    {
+      "code": "concept_class",
+      "operator": ["="],
+      "value": "disorder",
+      "description": "Filters concepts by the semantic-tag-derived OCL concept class; disorder is a valid example value."
+    }
+  ],
+  "meta": {
+    "display": {
+      "concept_summary_properties": ["concept_class"],
+      "concept_filter_order": ["concept_class"]
+    }
+  }
 }

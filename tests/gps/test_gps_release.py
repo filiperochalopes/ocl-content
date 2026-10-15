@@ -24,12 +24,29 @@ def test_projects_exact_flat_gps_semantics(gps_zip):
     active, inactive = result.lines
     assert active["id"] == "22298006" and active["retired"] is False
     assert inactive["id"] == "80146002" and inactive["retired"] is True
-    assert active["concept_class"] == "Misc" and active["datatype"] == "None"
+    assert active["concept_class"] == "disorder" and active["datatype"] == "None"
     assert active["names"] == [
         {"name": "Myocardial infarction (disorder)", "locale": "en", "locale_preferred": False, "name_type": "Fully-Specified"},
-        {"name": "Myocardial infarction", "locale": "en", "locale_preferred": True, "name_type": "Synonym"},
+        {"name": "Myocardial infarction", "locale": "en", "locale_preferred": True},
     ]
     assert "parent_concept_urls" not in active and "mappings" not in active and "extras" not in active
+
+
+def test_projects_fsn_semantic_tag_as_concept_class_and_untyped_preferred_name(gps_zip):
+    result = build(reader.read(gps_zip))
+    active = result.lines[0]
+    assert active["concept_class"] == "disorder"
+    assert active["names"][0]["name_type"] == "Fully-Specified"
+    assert active["names"][1] == {"name": "Myocardial infarction", "locale": "en", "locale_preferred": True}
+
+
+@pytest.mark.parametrize("fsn", ["Myocardial infarction disorder", "Myocardial infarction ( )"])
+def test_fsn_without_one_nonempty_trailing_semantic_tag_is_refused(gps_zip, fsn):
+    release = reader.read(gps_zip)
+    malformed = release.concepts[0].__class__("22298006", True, fsn, "Myocardial infarction", 2)
+    release.concepts[0] = malformed
+    with pytest.raises(ValueError, match="trailing semantic tag"):
+        build(release)
 
 
 def test_duplicate_ids_are_refused(gps_zip, tmp_path):

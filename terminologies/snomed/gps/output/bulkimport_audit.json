@@ -6,7 +6,20 @@
     "owner_type": "Organization"
   },
   "mode": "full-source-refresh",
-  "upload_ready": false,
+  "upload_ready": {
+    "local": {
+      "status": false,
+      "comment": "pending tasks: full-source-refresh expands the 29,577-concept Source to the complete GPS scope; needs fresh snapshot and local rehearsal"
+    },
+    "staging": {
+      "status": false,
+      "comment": "pending: local rehearsal not passed; staging bundle not built"
+    },
+    "production": {
+      "status": false,
+      "comment": "pending: staging not validated; production bundle not built"
+    }
+  },
   "warning": "This refresh expands the existing 29,577-concept OCL Source to the complete January 2026 GPS scope (all active concepts plus all concepts inactive since 2012). Before manual import, take a fresh OCL snapshot and perform a local rehearsal; the importer replaces collection fields.",
   "inputs": [
     {
@@ -46,130 +59,131 @@
       "translations",
       "SNOMED relationships/definitions"
     ],
-    "name_policy": "FSN as non-preferred Fully-Specified; US Preferred Term as preferred Synonym, matching the existing live Source"
+    "concept_class_policy": "trailing semantic tag parsed from each source FSN",
+    "name_policy": "FSN as non-preferred Fully-Specified; US Preferred Term as preferred untyped name (name_type omitted)"
   },
   "output": {
     "directory": "terminologies/snomed/gps/output",
     "parts": [
       {
         "name": "bulkimport_part_001.ndjson",
-        "lines": 74600,
-        "sha256": "716d3892ddd18c84b199c0600c6f1a5298aceec81884b3572e449f5786534f22",
-        "bytes": 30193086,
+        "lines": 70528,
+        "sha256": "77e92c66daf18161147ef54c0f3bc3134efe9a7075d849d61ceae6e94da3c543",
+        "bytes": 27406599,
         "zip": "bulkimport_part_001.zip",
-        "zip_bytes": 2060379,
-        "zip_sha256": "c58e6a9c429e37dc394946d6b57198efe432c27b58baa73edbe2126ddea6b23c"
+        "zip_bytes": 2048292,
+        "zip_sha256": "dd32c8ee6e6d3fab4488e8780330b4ed3cd7bc5cbbc9674a474072bba7ad5695"
       },
       {
         "name": "bulkimport_part_002.ndjson",
-        "lines": 104434,
-        "sha256": "d4d0d1c5e21d1d64ab82a194faba9a3dcfa61e0f670fcc3084b97d8878e5fd3f",
-        "bytes": 43011639,
+        "lines": 100950,
+        "sha256": "651364b4482146dddd105ee2214928cb82556952c46f04b9493e1889cb9a505b",
+        "bytes": 39960046,
         "zip": "bulkimport_part_002.zip",
-        "zip_bytes": 2066726,
-        "zip_sha256": "02d519279ba5461e591822745d7c974768bf8d76e7f9afa848ee3b43eac11ab7"
+        "zip_bytes": 2064138,
+        "zip_sha256": "78144472cad7d2a55686a4c0a6e782bbbfec46eb453e3d23c25f038023241ea9"
       },
       {
         "name": "bulkimport_part_003.ndjson",
-        "lines": 96326,
-        "sha256": "35a8278213d3ef05d450d0488de480b8d441c34b551f1be9e7dea07e8886aca3",
-        "bytes": 40256810,
+        "lines": 96809,
+        "sha256": "0e61a89120c9373a6fa76648dcde497beba39a671086d2119e5362512a88e27c",
+        "bytes": 38846868,
         "zip": "bulkimport_part_003.zip",
-        "zip_bytes": 2051090,
-        "zip_sha256": "08a25eecee10f595357e1326cebe5d86b40d182481df4f6a6d81036d8743a2bf"
+        "zip_bytes": 2064610,
+        "zip_sha256": "d1ab4567c067d71bf9158474ef79694499c9a7c4c6b43d58bcd0b72a9ffffaad"
       },
       {
         "name": "bulkimport_part_004.ndjson",
-        "lines": 86043,
-        "sha256": "cba0b8fb77cad425e6fa4692c0c947fc88363df1854a879bda49c1225f10a48f",
-        "bytes": 37199126,
+        "lines": 80984,
+        "sha256": "d9c73623b99cd6b03c37f55662a71b06e1dcd572798af517e81741b57aba2567",
+        "bytes": 33396558,
         "zip": "bulkimport_part_004.zip",
-        "zip_bytes": 2073131,
-        "zip_sha256": "aa6436a3f550e51493455b6a269d099f83ccd8046dc732ca50efe61afe729c9f"
+        "zip_bytes": 2073767,
+        "zip_sha256": "6fe5252d0421b5758ddb2a8c8db9a72566621a233502e98b36c9985d1192478b"
       },
       {
         "name": "bulkimport_part_005.ndjson",
-        "lines": 68271,
-        "sha256": "34e210ffb5ba0d0eb5cf15d058d4b7022894996fee9579ddbf6c49ea4703cab0",
-        "bytes": 30118025,
+        "lines": 80403,
+        "sha256": "0d439ce3b51902942c55d92c908efa77b72e9ef629e768fcadf30b4ab21dc426",
+        "bytes": 34424057,
         "zip": "bulkimport_part_005.zip",
-        "zip_bytes": 1606864,
-        "zip_sha256": "a5b8dc70b2aec5ed2c8be541fbff96e9cf754b85159373b596d6d227a470c722"
+        "zip_bytes": 1902696,
+        "zip_sha256": "a54bbb089f1a58a69e98f122017d327fdcc0c6bd027845cde5ed5e51acc59797"
       }
     ],
     "bundle": {
       "name": "bulkimport_bundle.ndjson",
       "lines": 429674,
-      "sha256": "728314f092f4c68aa10bcc19a252b611bf3ca1653164b4f1722bd29ae994cbc8",
-      "bytes": 180778686,
+      "sha256": "42cb38fb13968478f9a19d109e3f05c40aaa49c4ba60fc335ca03eef040fd77c",
+      "bytes": 174034128,
       "zip": "",
       "zip_bytes": 0,
       "zip_sha256": ""
     },
     "bundle_archive": {
       "name": "bulkimport_snomed-gps.bundle.zip",
-      "bytes": 9855927,
+      "bytes": 10151050,
       "method": "deflate",
-      "ratio": 0.0545,
-      "sha256": "84d27df40fe2a6318f922b0c6399a39b049a569337c3e35c3604825e566859e5",
+      "ratio": 0.0583,
+      "sha256": "604356701183bd3205b6e3b870d1985fac5bb9a3cc1aec27fe1d464a5e5ceda5",
       "members": [
         {
           "name": "bulkimport_bundle.ndjson",
           "lines": 429674,
-          "bytes": 180778686,
-          "compressed_bytes": 9855781,
-          "sha256": "728314f092f4c68aa10bcc19a252b611bf3ca1653164b4f1722bd29ae994cbc8"
+          "bytes": 174034128,
+          "compressed_bytes": 10150904,
+          "sha256": "42cb38fb13968478f9a19d109e3f05c40aaa49c4ba60fc335ca03eef040fd77c"
         }
       ]
     },
     "parts_archive": {
       "name": "bulkimport_snomed-gps.parts.zip",
-      "bytes": 9793462,
+      "bytes": 10057861,
       "method": "deflate",
-      "ratio": 0.9931,
-      "sha256": "2b16db46422f5885c6dffdccd8c17aa108c152995d4e822accfe9e9bc1a438b9",
+      "ratio": 0.9903,
+      "sha256": "36f90f2bd39a8d98d4faf5d1d2de710a22413b6119730825984cbe5e4b58e8ae",
       "members": [
         {
           "name": "bulkimport_part_001.zip",
-          "lines": 8845,
-          "bytes": 2060379,
-          "compressed_bytes": 2050543,
-          "sha256": "c58e6a9c429e37dc394946d6b57198efe432c27b58baa73edbe2126ddea6b23c"
+          "lines": 9102,
+          "bytes": 2048292,
+          "compressed_bytes": 2028186,
+          "sha256": "dd32c8ee6e6d3fab4488e8780330b4ed3cd7bc5cbbc9674a474072bba7ad5695"
         },
         {
           "name": "bulkimport_part_002.zip",
-          "lines": 7727,
-          "bytes": 2066726,
-          "compressed_bytes": 2043190,
-          "sha256": "02d519279ba5461e591822745d7c974768bf8d76e7f9afa848ee3b43eac11ab7"
+          "lines": 8118,
+          "bytes": 2064138,
+          "compressed_bytes": 2034491,
+          "sha256": "78144472cad7d2a55686a4c0a6e782bbbfec46eb453e3d23c25f038023241ea9"
         },
         {
           "name": "bulkimport_part_003.zip",
-          "lines": 7343,
-          "bytes": 2051090,
-          "compressed_bytes": 2032498,
-          "sha256": "08a25eecee10f595357e1326cebe5d86b40d182481df4f6a6d81036d8743a2bf"
+          "lines": 8435,
+          "bytes": 2064610,
+          "compressed_bytes": 2039376,
+          "sha256": "d1ab4567c067d71bf9158474ef79694499c9a7c4c6b43d58bcd0b72a9ffffaad"
         },
         {
           "name": "bulkimport_part_004.zip",
-          "lines": 7818,
-          "bytes": 2073131,
-          "compressed_bytes": 2061611,
-          "sha256": "aa6436a3f550e51493455b6a269d099f83ccd8046dc732ca50efe61afe729c9f"
+          "lines": 10590,
+          "bytes": 2073767,
+          "compressed_bytes": 2058573,
+          "sha256": "6fe5252d0421b5758ddb2a8c8db9a72566621a233502e98b36c9985d1192478b"
         },
         {
           "name": "bulkimport_part_005.zip",
-          "lines": 6056,
-          "bytes": 1606864,
-          "compressed_bytes": 1603729,
-          "sha256": "a5b8dc70b2aec5ed2c8be541fbff96e9cf754b85159373b596d6d227a470c722"
+          "lines": 7843,
+          "bytes": 1902696,
+          "compressed_bytes": 1895192,
+          "sha256": "a54bbb089f1a58a69e98f122017d327fdcc0c6bd027845cde5ed5e51acc59797"
         },
         {
           "name": "bulkimport_manifest.json",
           "lines": 0,
-          "bytes": 2894,
-          "compressed_bytes": 1135,
-          "sha256": "a5a45e08332d8203779474843783e23d4b41acc48e1a6f52f6b99bb91948ee42"
+          "bytes": 3351,
+          "compressed_bytes": 1287,
+          "sha256": "8e12b9281d010add3053f141e54c40e2909a8045f8dbdedf91c503924d30835b"
         }
       ]
     },

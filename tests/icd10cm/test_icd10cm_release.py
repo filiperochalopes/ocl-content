@@ -57,5 +57,39 @@ def test_build_exposes_order_and_leaf_metadata_without_unofficial_cuis(fy27_zip)
     result = builder.build(reader.read(fy27_zip))
     lines = {line["id"]: line for line in result.lines}
     assert lines["A00.0"]["extras"] == {"Order number": 2, "Valid for submission": True, "Leaf Node": True}
-    assert lines["A00"]["extras"] == {"Order number": 1, "Valid for submission": False, "Leaf Node": False}
+    assert lines["A00"]["extras"]["Order number"] == 1 and lines["A00"]["extras"]["Leaf Node"] is False
     assert "CUI" not in lines["A00.0"]["extras"]
+
+
+def test_instruction_lists_are_regenerated_from_the_xml_with_official_names(fy27_zip):
+    lines = {line["id"]: line for line in builder.build(reader.read(fy27_zip)).lines}
+    # list per <note>, document order, whitespace collapsed, official XML element names (no upper-case legacy labels)
+    assert lines["A00"]["extras"]["excludes1"] == ["carrier of cholera (Z22.0)", "cholera NOS (A00.9)"]
+    assert lines["A00"]["extras"]["useAdditionalCode"] == ["code to identify resistance (Z16.-)"]
+    assert lines["A00-B99"]["extras"]["notes"] == ["Chapter note."]
+    assert lines["A00-A99"]["extras"]["notes"] == ["Applies to the contained sections."]
+    assert not {"EXCLUDES1", "EXCLUDES2", "USE ADDITIONAL", "CODE FIRST", "CODE ALSO", "Note"} & {k for l in lines.values() for k in l["extras"]}
+    assert "excludes1" not in lines["A00.0"]["extras"]
+
+
+def test_wrapper_section_instructions_merge_into_the_same_code_diagnosis(fy27_zip):
+    release = reader.read(fy27_zip)
+    lines = {line["id"]: line for line in builder.build(release).lines}
+    assert release.merged_section_wrappers == ["B10"]
+    assert lines["B10"]["extras"]["notes"] == ["Wrapper note."] and lines["B10"]["extras"]["excludes2"] == ["herpes simplex (B00.-)"]
+
+
+def test_seventh_character_note_and_definition_become_one_description(fy27_zip):
+    release = reader.read(fy27_zip)
+    result = builder.build(release)
+    lines = {line["id"]: line for line in result.lines}
+    [description] = lines["S52.521"]["descriptions"]
+    # the order file has only S52.521A: exactly one concrete code for A gets an example, D (no code) does not; the <note> inside sevenChrDef follows the extension it qualifies
+    assert description["description"] == "The appropriate 7th character is to be added.; A - initial encounter (S52.521A); initial encounter NOS; D - subsequent encounter"
+    assert description["description_type"] == "Seventh Character" and description["locale"] == "en"
+    assert "descriptions" not in lines["A00"] and "descriptions" not in lines["S52.521A"]
+    assert "\n" not in description["description"]  # descriptions take ; separators, not newlines
+    assert result.stats["seventh_character_inline_notes"] == {"S52.521": ["initial encounter NOS"]}
+    assert result.stats["seventh_character_descriptions"] == 1
+    assert result.stats["seventh_character_descriptions_with_code_examples"] == 1
+    assert result.stats["instruction_concepts"]["excludes1"] == 1

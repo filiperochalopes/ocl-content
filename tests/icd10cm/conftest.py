@@ -13,15 +13,19 @@ XML = """<?xml version=\"1.0\" encoding=\"utf-8\"?>
   <chapter>
     <name>1</name>
     <desc>Certain infectious and parasitic diseases (A00-B99)</desc>
+    <notes><note>Chapter note.</note></notes>
     <section id="A00-A99"><desc>Editorial intestinal range (A00-A99)</desc><notes><note>Applies to the contained sections.</note></notes></section>
     <section id="A00-A09">
       <desc>Intestinal infectious diseases (A00-A09)</desc>
       <diag>
         <name>A00</name><desc>Cholera</desc>
+        <excludes1><note>carrier of cholera (Z22.0)</note><note>cholera  NOS
+          (A00.9)</note></excludes1>
+        <useAdditionalCode><note>code to identify resistance (Z16.-)</note></useAdditionalCode>
         <diag><name>A00.0</name><desc>Cholera due to Vibrio cholerae</desc></diag>
       </diag>
     </section>
-    <section id="B10"><desc>Other human herpesviruses (B10)</desc><diag><name>B10</name><desc>Other human herpesviruses</desc></diag></section>
+    <section id="B10"><desc>Other human herpesviruses (B10)</desc><notes><note>Wrapper note.</note></notes><diag><name>B10</name><desc>Other human herpesviruses</desc><excludes2><note>herpes simplex (B00.-)</note></excludes2></diag></section>
   </chapter>
   <chapter>
     <name>19</name>
@@ -29,7 +33,7 @@ XML = """<?xml version=\"1.0\" encoding=\"utf-8\"?>
     <section id="S00-S59"><desc>Editorial-free structural range (S00-S59)</desc></section>
     <section id="S52-S59">
       <desc>Injuries to the forearm (S52-S59)</desc>
-      <diag><name>S52.521</name><desc>Torus fracture of lower end of right radius</desc><sevenChrDef><extension char=\"A\">initial encounter</extension></sevenChrDef></diag>
+      <diag><name>S52.521</name><desc>Torus fracture of lower end of right radius</desc><sevenChrNote><note>The appropriate 7th character is to be added.</note></sevenChrNote><sevenChrDef><extension char=\"A\">initial encounter</extension><note>initial encounter NOS</note><extension char=\"D\">subsequent encounter</extension></sevenChrDef></diag>
     </section>
   </chapter>
 </ICD10CM.tabular>

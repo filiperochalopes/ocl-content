@@ -22,9 +22,9 @@ them.
 | Owner / Source | `SNOMED-International` / `SNOMED-GPS` |
 | Hierarchy | none |
 | Mappings | none |
-| Class / datatype | `Misc` / `None` (class is emitted on every concept line only; it is not a declared Source property and is not shown in the concept summary or filters) |
+| Class / datatype | Trailing FSN semantic tag / `None` (for example, `Quilonia ethiopica (organism)` → `organism`; `Concept class` is the sole declared Source property, filter, and concept-summary column) |
 | FSN | English non-preferred `Fully-Specified` name |
-| US Preferred Term | English preferred `Synonym` name |
+| US Preferred Term | English preferred untyped name (`name_type` omitted) |
 | Lifecycle | TSV `Active=1` → `retired: false`; `Active=0` → `retired: true` |
 
 The name projection matches representative existing concepts read from production on October 12, 2026.

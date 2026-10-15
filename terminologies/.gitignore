@@ -8,13 +8,19 @@
 
 # Generated working artifacts. Only the single-member bundle ZIP and bulkimport_audit.json are versioned:
 # the parts ZIP is a reproducible distribution wrapper for individual upload ZIPs; raw parts, nested
-# upload ZIPs, bundle NDJSON, and alignment report are deterministically regenerable.
+# upload ZIPs, bundle NDJSON, and alignment report are deterministically regenerable. The patterns also
+# cover profile subdirectories (e.g. output/staging/, output/production/, output/postcoordinated/).
 */*/output/*.ndjson
 */*/output/*_part_*.zip
 */*/output/*.parts.zip
 */*/output/*.jsonl
 */*/output/alignment_report.csv
+*/*/output/ptbr_translation_alignment_*.csv
 */*/output/*.dev.audit.json
+*/*/output/**/*.ndjson
+*/*/output/**/*_part_*.zip
+*/*/output/**/*.parts.zip
+*/*/output/**/*.jsonl
 
 # Audited update proposals are regenerated from a fresh immutable snapshot immediately before review;
 # unlike a full-source bundle, their nested output is never committed as a stale candidate.

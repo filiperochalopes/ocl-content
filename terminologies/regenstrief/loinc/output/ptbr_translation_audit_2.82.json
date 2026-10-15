@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "audit_type": "read-only-loinc-pt-BR-translation-comparison",
+  "scope": "LOINC_NUM records and pt-BR Fully-Specified, Short, and Related names only; exact string comparison",
+  "decision_limit": "This is data-presence and exact-label comparison evidence, not a clinical equivalence or translation-quality judgment.",
+  "release": {
+    "declared_version": "2.82",
+    "archive_path": "/Users/filipelopes/Downloads/Loinc_2.82.zip",
+    "archive_sha256": "6844c04ee57cb9b77050df54f4b0a5b82cd6be520cad9245e8de54db0638dd62",
+    "linguistic_variant_member": "AccessoryFiles/LinguisticVariants/ptBR11LinguisticVariant.csv",
+    "linguistic_variant_sha256": "3e64fef460e9fe2747684845dbd3216bedc8b412039c22671496a2e10c48456d",
+    "linguistic_variant_rows": 58468,
+    "columns": [
+      "LOINC_NUM",
+      "COMPONENT",
+      "PROPERTY",
+      "TIME_ASPCT",
+      "SYSTEM",
+      "SCALE_TYP",
+      "METHOD_TYP",
+      "CLASS",
+      "SHORTNAME",
+      "LONG_COMMON_NAME",
+      "RELATEDNAMES2",
+      "LinguisticVariantDisplayName"
+    ],
+    "consumer_name_column_present": false
+  },
+  "ocl_export": {
+    "path": "exports/api.staging.openconceptlab.org/Regenstrief_LOINC_2.82.zip",
+    "sha256": "1d21c0a45e456a3df7a92b664649ab445a8337e3c7be0df87bf956f285836e95",
+    "bytes": 256314056,
+    "api_origin": "https://api.staging.openconceptlab.org",
+    "retrieved_at": "2026-10-15T13:53:47+00:00",
+    "owner": "Regenstrief",
+    "source": "LOINC",
+    "version": "2.82",
+    "concept_records_in_export": 295266,
+    "loinc_class_concepts": 109325,
+    "active_loinc_class_concepts": 104334
+  },
+  "counts": {
+    "release_rows": 58468,
+    "unique_loinc_codes": 58468,
+    "concepts": {
+      "found": 58468
+    },
+    "fields": {
+      "fully_specified": {
+        "exact-match": 58468
+      },
+      "short": {
+        "exact-match": 52298,
+        "not-provided-by-release": 6170
+      },
+      "related": {
+        "exact-match": 52672,
+        "not-provided-by-release": 5796
+      }
+    }
+  },
+  "outputs": {
+    "summary": "ptbr_translation_audit_2.82.json",
+    "details": "ptbr_translation_alignment_2.82.csv"
+  }
+}

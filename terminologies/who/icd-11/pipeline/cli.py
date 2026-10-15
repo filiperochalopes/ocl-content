@@ -62,7 +62,8 @@ TERMINOLOGY_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = TERMINOLOGY_DIR.parents[2]
 ASSETS_DIR = TERMINOLOGY_DIR / "assets"
 DEFAULT_INPUT = ASSETS_DIR / "who" / "2026-01" / "SimpleTabulation-ICD-11-MMS-en.zip"
-DEFAULT_OUTPUT_DIR = TERMINOLOGY_DIR / "output"
+DEFAULT_OUTPUT_DIR = TERMINOLOGY_DIR / "output" / "staging"
+DEFAULT_PRODUCTION_OUTPUT_DIR = TERMINOLOGY_DIR / "output" / "production"
 DEFAULT_BUNDLE_ARCHIVE = "bulkimport_icd11-who.bundle.zip"
 DEFAULT_PARTS_ARCHIVE = "bulkimport_icd11-who.parts.zip"
 LEGACY_ARCHIVE = "bulkimport_icd11-who.zip"
@@ -120,6 +121,21 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     build_parser.add_argument("--include-rejected", action="store_true",
         help="with --postcoordinated-csv, also build describe_status=rejected_by_api rows (excluded by default)")
+
+    production = subparsers.add_parser(
+        "build-production",
+        help="PRODUCTION profile: base Simple Tabulation load ONLY — no aliases, no post-coordinated "
+             "layer (those require decoding the WHO ICD-API search index / inspecting /describe, a "
+             "reverse-engineering risk under the ICD-11 licence; staging-only, see README)",
+    )
+    production.add_argument("--input", type=Path, default=DEFAULT_INPUT, help="Simple Tabulation .zip or .txt")
+    production.add_argument("--output-dir", type=Path, default=DEFAULT_PRODUCTION_OUTPUT_DIR)
+    production.add_argument("--max-part-size", type=parse_size, default=DEFAULT_PART_BYTES, metavar="SIZE",
+        help="cap on the COMPRESSED size of each part's upload ZIP (default 2mb)")
+    production.add_argument("--zip-method", choices=sorted(METHODS), default=DEFAULT_METHOD)
+    production.add_argument("--archive-name", default=DEFAULT_BUNDLE_ARCHIVE, help="single-member full-bundle ZIP")
+    production.add_argument("--parts-archive-name", default=DEFAULT_PARTS_ARCHIVE, help="distribution ZIP containing each upload-part ZIP")
+    production.add_argument("--no-archive", action="store_true", help="skip both hand-off ZIPs (parts and bundle remain)")
 
     postcoord = subparsers.add_parser(
         "build-postcoordinated",
@@ -413,6 +429,155 @@ def command_build(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_build_production(args: argparse.Namespace) -> int:
+    """PRODUCTION profile: base Simple Tabulation load only.
+
+    Structurally excludes the alias and post-coordinated layers: this subcommand takes no
+    ``--flat-synonyms``/``--postcoordinated-csv``/``--index-file`` arguments, so it cannot build them
+    even by mistake. Those layers depend on decoding the WHO ICD-API's internal protobuf search index
+    and inspecting ``/describe`` outcomes (``pipeline/foundation_index.py``, the sibling
+    ``ciel-scripts`` capture) — a reverse-engineering risk the owner does not want anywhere near the
+    production Source. This profile reads only the published Simple Tabulation file and emits exactly
+    the ``WHO``-sourced columns plus this pipeline's documented, disclosed additions (``concept_class``,
+    ``Foundation URL``, the synthetic root) — see README § License and compliance.
+    """
+    path = Path(args.input)
+    if not path.is_file():
+        print(f"error: Simple Tabulation input not found: {path}\n       run: cli.py fetch-assets", file=sys.stderr)
+        return 1
+    tabulation = simple_tabulation.read(path)
+    print(f"{tabulation.version_label}: {len(tabulation.rows):,} entities, {len(tabulation.skipped):,} rows skipped")
+    result = build(tabulation)
+    lines = result.lines
+
+    output_dir = Path(args.output_dir)
+    parts = write_parts(output_dir, lines, args.max_part_size)
+    bundle = write_bundle(output_dir, lines)
+
+    target = {"owner": TARGET_OWNER, "source": TARGET_SOURCE, "owner_type": "Organization"}
+    mode = "production-base-load"
+    warning = (
+        "PRODUCTION profile: base Simple Tabulation load ONLY. No aliases and no post-coordinated "
+        "layer were built — both require decoding the WHO ICD-API search index / inspecting /describe "
+        "behaviour, which this profile deliberately avoids (reverse-engineering risk under the ICD-11 "
+        "licence). The staging bundle (output/staging/) is the full build with that additive layer; it "
+        "is never uploaded to production. This bundle creates complete concepts (names and extras), so "
+        "load it only into an empty WHO/ICD-11-WHO Source; the importer would overwrite an existing concept."
+    )
+    upload_comment = "pending: not yet rehearsed against a local OCL instance; full-source-load needs an empty Source"
+    bundle_archive_info = None
+    parts_archive_info = None
+    if not args.no_archive:
+        manifest = build_manifest(
+            target=target,
+            mode=mode,
+            upload_ready=upload_ready_map(False, upload_comment),
+            parts=[part.__dict__ for part in parts],
+            bundle=bundle.__dict__,
+            method=args.zip_method,
+            bundle_archive=args.archive_name,
+            parts_archive=args.parts_archive_name,
+        )
+        bundle_archive_info = create_archive(
+            output_dir, files=[output_dir / bundle.name], archive_name=args.archive_name, method=args.zip_method,
+        )
+        parts_archive_info = create_archive(
+            output_dir, files=[output_dir / part.zip for part in parts],
+            manifest=manifest, archive_name=args.parts_archive_name, method=args.zip_method,
+        )
+
+    def archive_record(info):
+        if info is None:
+            return None
+        return {
+            **{key: value for key, value in info.__dict__.items() if key != "members"},
+            "members": [member.__dict__ for member in info.members],
+            "ratio": round(info.ratio, 4),
+            "sha256": sha256_file(output_dir / info.name),
+        }
+
+    reasons: dict[str, int] = {}
+    for entry in tabulation.skipped:
+        reasons[entry["reason"]] = reasons.get(entry["reason"], 0) + 1
+    asset = asset_registry.resolve("simple-tabulation")
+    sha = sha256_file(path)
+    audit = {
+        "schema_version": 1,
+        "target": target,
+        "mode": mode,
+        "profile": "production",
+        "upload_ready": upload_ready_map(False, upload_comment),
+        "warning": warning,
+        "inputs": [
+            {
+                "role": "simple-tabulation",
+                "path": display_path(path),
+                "sha256": sha,
+                "bytes": path.stat().st_size,
+                "authority": asset.authority,
+                "edition": asset.edition,
+                "release": tabulation.release,
+                "version_label": tabulation.version_label,
+                "matches_pinned_asset": sha == asset.sha256,
+                "source_url": asset.url,
+            }
+        ],
+        "read": {"entities": len(tabulation.rows), "skipped": dict(sorted(reasons.items()))},
+        "build": {
+            "lines": len(lines),
+            "class_counts": result.class_counts,
+            "rooted_without_parent": result.rooted_without_parent,
+            "max_part_zip_bytes": args.max_part_size,
+        },
+        "output": {
+            "directory": display_path(output_dir),
+            "parts": [part.__dict__ for part in parts],
+            "bundle": bundle.__dict__,
+            "bundle_archive": archive_record(bundle_archive_info),
+            "parts_archive": archive_record(parts_archive_info),
+            "versioned": sorted(([bundle_archive_info.name] if bundle_archive_info else []) + ["bulkimport_audit.json"]),
+            "not_versioned": [part.name for part in parts]
+            + [part.zip for part in parts]
+            + [bundle.name]
+            + ([parts_archive_info.name] if parts_archive_info else []),
+        },
+        "projection": {
+            "included": [
+                "type", "id", "owner", "owner_type", "source", "concept_class", "datatype", "retired",
+                "names", "extras", "parent_concept_urls",
+            ],
+            "omitted": [
+                "Source record", "mappings", "post-coordinated codes", "alias names (Foundation synonyms)",
+                "descriptions (except the root)",
+            ],
+        },
+        "upload": {
+            "mechanism": "manual",
+            "api_upload": False,
+            "note": (
+                "The .bundle.zip contains exactly one complete NDJSON file and can be uploaded as one import. "
+                "The .parts.zip is a distribution container, not an OCL upload: extract it, then upload each "
+                "inner bulkimport_part_NNN.zip in numeric order through the OCL form, reusing one Queue ID. "
+                "Each inner part ZIP contains exactly one NDJSON file."
+            ),
+        },
+    }
+    audit["build"]["base_concepts_with_foundation_url"] = sum(
+        1 for line in result.lines if "Foundation URL" in line.get("extras", {})
+    )
+    write_json(output_dir / "bulkimport_audit.json", audit)
+
+    print(f"profile: production   mode: {mode}   upload_ready.local: False")
+    print(f"lines: {len(lines):,}   classes: {result.class_counts}")
+    for part in parts:
+        print(f"  {part.zip}  {part.lines:,} lines  {part.bytes:,} bytes → {part.zip_bytes:,} bytes zipped  sha256={part.zip_sha256[:12]}…")
+    print(f"bundle: {bundle.name}  {bundle.lines:,} lines  {bundle.bytes:,} bytes")
+    for info in (bundle_archive_info, parts_archive_info):
+        if info:
+            print(f"archive: {info.name}  {info.bytes:,} bytes ({info.method}, ratio {info.ratio:.3f})")
+    return 0
+
+
 def command_build_postcoordinated(args: argparse.Namespace) -> int:
     tabulation_path = Path(args.simple_tabulation)
     if not tabulation_path.is_file():
@@ -597,6 +762,8 @@ def main(argv: list[str] | None = None) -> int:
             return command_fetch_assets(args)
         if args.command == "build-postcoordinated":
             return command_build_postcoordinated(args)
+        if args.command == "build-production":
+            return command_build_production(args)
         if args.command == "review":
             return command_review(args)
         return command_build(args)

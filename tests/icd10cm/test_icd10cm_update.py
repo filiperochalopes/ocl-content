@@ -33,7 +33,7 @@ def build_release(fy27_zip):
 def test_update_preserves_what_the_release_does_not_govern(fy27_zip):
     result = build_release(fy27_zip)
     existing = {
-        "A00.0": old_concept("A00.0", "Old name", {"CUI": "C1", "Semantic Types": ["T047"], "EXCLUDES1": "x", "Order number": 2.0},
+        "A00.0": old_concept("A00.0", "Old name", {"CUI": "C1", "Semantic Types": ["T047"], "EXCLUDES1": "x", "Note": "n", "Other": "keep", "Order number": 2.0},
                              synonyms=["Cholera NOS"]),
         "T047": old_concept("T047", "Disease or Syndrome", {"Leaf Node": True}),
         "B10-B10": old_concept("B10-B10", "range", {"Leaf Node": True}),
@@ -44,7 +44,10 @@ def test_update_preserves_what_the_release_does_not_govern(fy27_zip):
     line = by["A00.0"]
     assert [n["name"] for n in line["names"]] == ["Cholera due to Vibrio cholerae", "Cholera NOS"]
     assert line["names"][1]["name_type"] == "Synonym" and set(line["names"][1]) == set(builder.NAME_KEYS)
-    assert "CUI" not in line["extras"] and "Semantic Types" not in line["extras"] and line["extras"]["EXCLUDES1"] == "x"
+    assert "CUI" not in line["extras"] and "Semantic Types" not in line["extras"]
+    # legacy upper-case instruction extras are replaced by the XML-derived ones, never carried; unknown extras stay
+    assert "EXCLUDES1" not in line["extras"] and "Note" not in line["extras"] and line["extras"]["Other"] == "keep"
+    assert update.stats["legacy_instruction_extras_replaced"] == 2
     assert line["extras"]["Order number"] == 2 and line["extras"]["Valid for submission"] is True
     assert update.stats["preferred_name_changed"] == 1 and update.stats["synonyms_preserved"] == 1
     assert update.stats["created"] == len(result.lines) - 1 and update.stats["existing_updated"] == 1
@@ -90,8 +93,23 @@ def test_update_drops_umls_and_retires_only_semantic_type_concepts(fy27_zip):
     update = builder.project_update(result, existing)
     by = {l["id"]: l for l in update.lines}
     assert "CUI" not in by["A00.0"]["extras"] and "Semantic Types" not in by["A00.0"]["extras"]
-    assert by["A00.0"]["extras"]["EXCLUDES1"] == "keep"
+    assert "EXCLUDES1" not in by["A00.0"]["extras"]
     deletes = [l for l in update.lines if l.get("__action")]
     assert [(l["id"], l["__action"], l["concept_class"]) for l in deletes] == [("T047", "DELETE", "Diagnosis")]
     assert update.stats["umls_extras_dropped"] == 2 and update.stats["semantic_type_concepts_retired"] == 1
     assert "B10-B10" not in {l["id"] for l in deletes}
+
+
+def test_update_regenerates_instructions_and_keeps_only_foreign_descriptions(fy27_zip):
+    result = build_release(fy27_zip)
+    old_seventh = {"description": "stale", "locale": "en", "locale_preferred": True, "description_type": "Seventh Character"}
+    other = {"description": "kept", "locale": "en", "locale_preferred": False, "description_type": "Note"}
+    existing = {"A00": old_concept("A00", "Cholera", {"EXCLUDES1": "old text"}),
+                "S52.521": {**old_concept("S52.521", "x", {}), "descriptions": [old_seventh, other]}}
+    by = {l["id"]: l for l in builder.project_update(result, existing).lines}
+    assert by["A00"]["extras"]["excludes1"] == ["carrier of cholera (Z22.0)", "cholera NOS (A00.9)"]
+    assert "EXCLUDES1" not in by["A00"]["extras"]
+    descriptions = by["S52.521"]["descriptions"]
+    assert [d["description_type"] for d in descriptions] == ["Seventh Character", "Note"] and descriptions[0]["description"] != "stale"
+    # a code the target does not hold yet is created with its instructions
+    assert by["B10"]["extras"]["notes"] == ["Wrapper note."]

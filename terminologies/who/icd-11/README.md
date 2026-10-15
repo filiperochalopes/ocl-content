@@ -150,6 +150,31 @@ Vancouver (clauses 1.2.2–1.2.5 and 1.3 are on p. 2):
 > license agreement [Internet]. Geneva: World Health Organization; 2020 [cited 2026 Oct 12].
 > Available from: <https://icd.who.int/en/docs/ICD11-license.pdf>
 
+## Staging vs. production: two separate bundles
+
+This workspace produces **two independent bundles**, never one for the other's use:
+
+| | `cli.py build` → `output/staging/` | `cli.py build-production` → `output/production/` |
+| --- | --- | --- |
+| Content | Base Simple Tabulation load **+** (optionally) Foundation-entity aliases **+** the post-coordinated layer | Base Simple Tabulation load **only** |
+| Inputs | Published Simple Tabulation, plus the external `--flat-synonyms`/`--postcoordinated-csv`/`--index-file` when supplied | Published Simple Tabulation only — the subcommand takes no alias/post-coordinated flags, so it cannot build them even by mistake |
+| Decodes the WHO ICD-API search index / inspects `/describe`? | Yes, when the alias/post-coordinated inputs are supplied (`pipeline/foundation_index.py`, fed from the sibling `ciel-scripts` capture) | **Never** |
+| Destination | Staging only — rehearsal and review | The only profile ever uploaded to the production `WHO/ICD-11-WHO` Source |
+| `mode` in the audit | `full-source-load` | `production-base-load` |
+
+**Why the split.** Decoding the WHO ICD-API's internal protobuf search index and probing `/describe`
+behaviour (how the alias and post-coordinated layers are produced) risks being read as reverse
+engineering of WHO's system — a use the ICD-11 licence does not grant (see
+[License and compliance](#license-and-compliance) below, clause 1.2.1). The base Simple Tabulation
+load never does this: it only parses WHO's own published, downloadable release file. Keeping the two
+profiles in separate directories with separate CLI entry points (rather than a shared command with
+optional flags) makes the exclusion structural, not a matter of remembering not to pass a flag.
+
+```bash
+uv run python terminologies/who/icd-11/pipeline/cli.py build              # staging: output/staging/
+uv run python terminologies/who/icd-11/pipeline/cli.py build-production   # production: output/production/
+```
+
 ## Pipeline and output
 
 ```text
@@ -161,17 +186,26 @@ pipeline/
 ```
 
 ```bash
-uv run python terminologies/who/icd-11/pipeline/cli.py build
+uv run python terminologies/who/icd-11/pipeline/cli.py build              # staging
+uv run python terminologies/who/icd-11/pipeline/cli.py build-production   # production
 ```
 
 ```text
 output/
-├── bulkimport_part_001.zip … NNN      # upload files, ≤ 2 MB compressed → NOT versioned
-├── bulkimport_part_001.ndjson … NNN   # what each zip holds, ordered     → NOT versioned
-├── bulkimport_bundle.ndjson                # every line in order                  → NOT versioned
-├── bulkimport_icd11-who.bundle.zip         # one member: bulkimport_bundle.ndjson → versioned; direct upload
-├── bulkimport_icd11-who.parts.zip          # inner part ZIPs + manifest            → NOT versioned; extract first
-└── bulkimport_audit.json                   # provenance + counts + hashes          → versioned
+├── staging/                                 # cli.py build — full, staging-only (never uploaded to production)
+│   ├── bulkimport_part_001.zip … NNN      # upload files, ≤ 2 MB compressed → NOT versioned
+│   ├── bulkimport_part_001.ndjson … NNN   # what each zip holds, ordered     → NOT versioned
+│   ├── bulkimport_bundle.ndjson                # every line in order                  → NOT versioned
+│   ├── bulkimport_icd11-who.bundle.zip         # one member: bulkimport_bundle.ndjson → versioned; direct upload
+│   ├── bulkimport_icd11-who.parts.zip          # inner part ZIPs + manifest            → NOT versioned; extract first
+│   └── bulkimport_audit.json                   # provenance + counts + hashes          → versioned
+└── production/                              # cli.py build-production — base-only, the only one ever uploaded to prod
+    ├── bulkimport_part_001.zip … NNN
+    ├── bulkimport_part_001.ndjson … NNN
+    ├── bulkimport_bundle.ndjson
+    ├── bulkimport_icd11-who.bundle.zip         # versioned
+    ├── bulkimport_icd11-who.parts.zip
+    └── bulkimport_audit.json                   # versioned
 ```
 
 The `.bundle.zip` is a single-member archive for one full import. The `.parts.zip` is only a distribution wrapper:
@@ -221,13 +255,16 @@ skipped count are identical. One field is now deliberately different: the refere
 
 ## Uploading is manual
 
-No script in this repository uploads a bulk import to OCL. A one-shot import uses
-`bulkimport_icd11-who.bundle.zip` (one NDJSON member). For multipart import, extract
-`bulkimport_icd11-who.parts.zip` and upload only the inner `bulkimport_part_NNN.zip` files **in
-numeric order** through the OCL bulk-import form with one Queue ID. Never upload the outer
-`.parts.zip`. The lines create complete concepts, so load them only into an **empty**
-`WHO/ICD-11-WHO` Source — the importer would overwrite an existing concept's names and extras. Add
-`en` to `supported_locales` and set the hierarchy root as described above before loading.
+No script in this repository uploads a bulk import to OCL. **Only the `output/production/` bundle is
+ever uploaded to the production `WHO/ICD-11-WHO` Source** — `output/staging/` (with aliases and/or the
+post-coordinated layer) is for local rehearsal and review only, never production, per the licence
+reasoning above. For either bundle, a one-shot import uses `bulkimport_icd11-who.bundle.zip` (one
+NDJSON member). For multipart import, extract `bulkimport_icd11-who.parts.zip` and upload only the
+inner `bulkimport_part_NNN.zip` files **in numeric order** through the OCL bulk-import form with one
+Queue ID. Never upload the outer `.parts.zip`. The lines create complete concepts, so load them only
+into an **empty** `WHO/ICD-11-WHO` Source — the importer would overwrite an existing concept's names
+and extras. Add `en` to `supported_locales` and set the hierarchy root as described above before
+loading.
 
 ## Aliases and the single bundle
 

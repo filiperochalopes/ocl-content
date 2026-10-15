@@ -24,6 +24,12 @@
       "description": "1-5, derived from the five-level WHOCC ATC hierarchy recorded in the crawl snapshot; the public Index does not supply a separate numeric property."
     },
     {
+      "code": "DDD",
+      "type": "string",
+      "display": "Defined Daily Dose",
+      "description": "WHOCC Defined Daily Dose, from the official ATC_ddd release file. One entry per DDD row, in file order, separated by '; ': '<DDD> <unit> (<route>) <comment>'; unit, route and comment are omitted when the file gives none. Absent when the WHOCC gives the code no DDD value. Route abbreviations are expanded with the WHOCC legend; values outside it are kept as published."
+    },
+    {
       "code": "Is_Drug_Class",
       "type": "code",
       "display": "Is drug class",

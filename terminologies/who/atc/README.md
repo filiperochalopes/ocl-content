@@ -14,8 +14,8 @@ artifact. Retirements are a separate, audited update; no `REPLACED BY` mapping i
 - **No mappings**: the active artifact and retirement artifact contain no `Mapping` resource. The
   live Source currently has historical `REPLACED BY` mappings from the legacy load, but this pipeline
   neither creates nor updates them.
-- **Out of scope**: DDD values and ATC/DDD Guidelines text. The WHOCC index crawl is read-only
-  comparison evidence; it does not yet replace the active bulk-import builder's input contract.
+- **Out of scope**: ATC/DDD Guidelines text. DDD values are in scope only through `build-who-update`
+  (see "DDD extra" below). The WHOCC index crawl is read-only comparison evidence.
 - **Reference implementation**: `ciel-scripts/ocl_uploader_whoatc.py` is retained as read-only
   historical evidence. Its BioPortal Turtle parsing, level→class logic, and hierarchy were useful
   references; its alterations-based retirement/mapping logic is intentionally **not** replicated.
@@ -129,6 +129,7 @@ terminologies/who/atc/
 │   ├── atcddd_alterations.py      # optional cross-check reader; not lifecycle evidence
 │   ├── atcddd_crosscheck.py       # bounded level-1/2 live structural cross-check
 │   ├── atcddd_index.py            # all-level WHOCC Index crawler + comparison report writers
+│   ├── ddd_xml.py                 # WHOCC ATC_ddd.xml reader -> DDD extra string
 │   ├── build_bulkimport.py        # active concepts only
 │   └── cli.py                     # fetch-assets | build | diff-export | build-retirements | crosscheck-chapters | crawl-index
 └── output/
@@ -159,6 +160,7 @@ own complete BEFORE export**; this command is offline and does not call or uploa
 uv run python terminologies/who/atc/pipeline/cli.py build-who-update \
   --snapshot terminologies/who/atc/output/whoatc_index_snapshot.json \
   --export /absolute/path/to/WHO_WHOATC_HEAD.local.zip \
+  --ddd-xml "/absolute/path/to/2026 ATC_ddd.xml" \
   --output-dir exports/api.ocl.localhost/build/whoatc
 ```
 
@@ -169,6 +171,39 @@ exact identifier from WHOCC and `Mapping` `__action: "DELETE"` lines for every a
 The order is desired-state concepts, mapping retirements, then concept retirements. The local bundle is
 created under `exports/api.ocl.localhost/build/whoatc/`; it is a local rehearsal artifact and is not
 versioned in `output/`.
+
+### DDD extra
+
+The official WHOCC release file `2026 ATC_ddd.xml` (supplied by the owner; kept **outside** the
+repository, SHA-256 `06032d7fb73fff909118d43848091fe7e00f9c79f7bb269543dc04a26ad357fe`) feeds one string
+extra, `DDD` (Defined Daily Dose: the assumed average daily maintenance dose of a drug for its main
+indication in adults; a statistical unit for drug-utilisation comparison, not a prescribing dose).
+`--ddd-xml` is required: `extras` is replaced wholesale by an update, so a build without the DDD input
+would delete the DDD of every concept that has one.
+
+Owner decisions (2026-10-15):
+
+- one string per concept, one entry per XML row, **in file order**; entry = `<DDD> <unit> (<route>) <comment>`
+  with a space between value and unit, the route in parentheses and the comment last; missing parts are omitted;
+- a row with an empty `DDD` writes nothing, and a code with only such rows gets no extra (9 codes:
+  `S01ED01`–`S01ED06`, `S01EE02`–`S01EE04`);
+- partial rows (no unit or no route, e.g. `S01EB01`) are kept as published and counted in the audit;
+- result on the 2026 file: 2,777 rows, 2,768 written, 2,230 concepts with a `DDD`.
+
+Route (`AdmCode`) abbreviations are expanded with the WHOCC's own legend, "Route of administration
+(Adm.R)" on <https://atcddd.fhi.no/atc_ddd_index/> (last updated 2026-01-20): `N` nasal, `O` oral,
+`P` parenteral, `R` rectal, `SL` sublingual/buccal/oromucosal, `TD` transdermal, `V` vaginal, `Implant`
+implant, `Inhal` inhalation, `Instill` instillation. Values outside the legend (`Inhal.solution`,
+`Chewing gum`, `implant`, `intravesical`, ...) are kept as published and counted in the audit.
+
+**Separator (decided 2026-10-15): `"; "`.** The oclweb3 concept table renders an extra as normal-flow text, so a
+newline collapses into a space (`5 mg (rectal) 50 mcg (transdermal)` becomes ambiguous); verified on a local
+Source. The value lives in one constant, `ddd_xml.LINE_SEPARATOR`.
+
+**Route values outside the legend (decided 2026-10-15): kept as published.** The 2026 file has 12 such values
+(`Inhal.solution` 25, `Inhal.powder` 23, `Inhal.aerosol` 23, `implant` 5, `intravesical` 3, `oral aerosol` 2,
+`ointment` 2, and one each of `Chewing gum`, `Instill.solution`, `lamella`, `s.c. implant`, `urethral`); the audit
+lists them under `routes_outside_whocc_legend`.
 
 ### Retirement decision and audited retirement artifact
 

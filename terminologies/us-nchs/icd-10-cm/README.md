@@ -47,13 +47,33 @@ The staging FY25 source carries properties not all supplied by the FY27 CMS/NCHS
 |---|---|
 | `Order number` | Official FY27 order-file sequence; preserve as an integer. |
 | `Leaf Node` | Derived from the modeled hierarchy. |
-| `EXCLUDES1`, `EXCLUDES2`, `USE ADDITIONAL`, `CODE FIRST`, `CODE ALSO`, `Note` | Official Tabular instructional notes present in the legacy source. An update must preserve them or regenerate them explicitly from XML; emitting a narrower `extras` object deletes them. |
+| `excludes1`, `excludes2`, `useAdditionalCode`, `codeFirst`, `codeAlso`, `notes` | Official Tabular instructional notes, **regenerated from the FY27 Tabular XML for every chapter, section and diagnosis** (not carried from the legacy export). The extra key is the XML element name; the value is a list with one item per `<note>`, in document order, whitespace-collapsed. `Excludes1` ("not coded here") and `Excludes2` ("not included here") stay separate. A `<section>` that only wraps the same-code `<diag>` (e.g. `B10`, 38 cases) is one OCL concept, so its instructions are merged into that diagnosis. |
+| `EXCLUDES1`, `EXCLUDES2`, `USE ADDITIONAL`, `CODE FIRST`, `CODE ALSO`, `Note` | Legacy upper-case labels of the same instructions. **Replaced** by the XML-named extras above on every updated concept; never carried. |
 | `CUI`, `Semantic Types` | Legacy UMLS enrichment, absent from the CMS/NCHS FY27 package. Preserve unchanged until its provenance and intended use are reviewed. |
 
 OCL update semantics matter: an update rebuilds the `names` collection from the line and replaces the
 entire `extras` object whenever `extras` is supplied. The update artifact therefore cannot emit only
-its newly computed fields; it needs a projection that preserves the target's legacy extras alongside
+its newly computed fields; it needs a projection that preserves the target's non-governed extras alongside
 the FY27-derived fields.
+
+### Seventh-character instructions
+
+Every `<diag>` with `sevenChrNote` + `sevenChrDef` (508 in FY27, always together) gets one description of
+type `Seventh Character` (locale `en`), as a single line with `; ` separators (descriptions do not take
+newlines): the note text, then `char - meaning` per extension. When exactly one concrete order-file code under
+that diagnosis ends with the extension character, its code is appended. For `H40.10`:
+
+```
+One of the following 7th characters is to be assigned to code H40.10 to designate the stage of glaucoma; 0 - stage unspecified (H40.10X0); 1 - mild stage (H40.10X1); ...
+```
+
+A `<note>` the XML places inside `<sevenChrDef>` (8 in FY27: `S52`, `S72`, `S82`, `H34.81`, `H34.83`, `H35.31`,
+`H35.32`, `W08`) is read as a note on the extension it follows and emitted as its own `; ` segment right after
+it, e.g. `...; B - initial encounter for open fracture type I or II; initial encounter for open fracture NOS; C - ...`.
+The codes come from the order file, never composed from the stem (the `X` placeholder in `H40.10X0` is there
+because the order file has it). Stems with child diagnoses (430 of the 508) list the meanings without codes,
+because the concrete codes depend on the child. `inclusionTerm` and `includes` are not part of this build yet;
+the legacy synonyms that mirror `inclusionTerm` are preserved by an update (see `TBD.md`).
 
 ## OCL target and model
 
@@ -102,8 +122,11 @@ uv run python terminologies/us-nchs/icd-10-cm/pipeline/cli.py build \
 ```
 
 `--export` and `--environment` go together. A line for a concept the target already holds keeps what the
-release does not govern: the existing non-preferred names (English synonyms), descriptions, every legacy
-extra except UMLS (`EXCLUDES1/2`, `USE ADDITIONAL`, `CODE FIRST`, `CODE ALSO`, `Note`), From the release come the English preferred name, `Order number`, `Leaf Node`, the parent link and the `concept_class` (`Root`/`Chapter`/`Section`/`Diagnosis`;
+release does not govern: the existing non-preferred names (English synonyms), descriptions other than the
+seventh-character one, and any extra the release does not name. From the release come the English preferred name,
+`Order number`, `Valid for submission`, `Leaf Node`, the instruction extras, the seventh-character description, the
+parent link and the `concept_class` (`Root`/`Chapter`/`Section`/`Diagnosis`; UMLS extras are dropped and the legacy
+upper-case instruction extras are replaced, counted in `legacy_instruction_extras_replaced`;
 existing concepts whose class changes are counted in `concept_class_changed`). Ids in the release but not in the export are
 created. Ids in the export but not in the release are **reported, never retired** (`not_in_release_ids` in
 the audit) until the `TBD.md` retirement decision exists (the UMLS `T001`–`T204` ids are the exception, see below). No `external_id` is emitted.

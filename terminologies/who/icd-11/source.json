@@ -87,6 +87,14 @@
       "description": "Focuses the concept list on diagnosis categories rather than the synthetic root, chapters, and blocks."
     },
     {
+      "code": "ChapterNo",
+      "operator": [
+        "="
+      ],
+      "value": "01",
+      "description": "Focuses the concept list on an ICD-11 chapter, using the WHO Simple Tabulation ChapterNo field (for example 01 or X)."
+    },
+    {
       "code": "isLeaf",
       "operator": [
         "="

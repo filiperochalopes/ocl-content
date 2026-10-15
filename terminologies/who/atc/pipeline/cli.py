@@ -3,7 +3,8 @@
     # offline, target-specific WHOCC update from a prior all-level crawler snapshot
     python3 terminologies/who/atc/pipeline/cli.py build-who-update \
         --snapshot terminologies/who/atc/output/whoatc_index_snapshot.json \
-        --export exports/api.ocl.localhost/WHO_WHOATC_HEAD.local.zip
+        --export exports/api.ocl.localhost/WHO_WHOATC_HEAD.local.zip \
+        --ddd-xml "/path/to/2026 ATC_ddd.xml"
 
     # legacy BioPortal build (historical comparison only; not the selected WHOCC release)
     python3 terminologies/who/atc/pipeline/cli.py build
@@ -43,6 +44,7 @@ ttl_reader = _pipeline("ttl_reader")
 atcddd_crosscheck = _pipeline("atcddd_crosscheck")
 atcddd_index = _pipeline("atcddd_index")
 who_update = _pipeline("who_update")
+ddd_xml = _pipeline("ddd_xml")
 align_module = _pipeline("align")
 retirements = _pipeline("retirements")
 _bulk = _pipeline("build_bulkimport")
@@ -120,6 +122,10 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     who_update_parser.add_argument(
         "--export", type=Path, required=True,
         help="complete BEFORE export (.zip or export.json) of the target WHO/WHOATC environment",
+    )
+    who_update_parser.add_argument(
+        "--ddd-xml", type=Path, required=True,
+        help="WHOCC release file '<year> ATC_ddd.xml' (kept outside the repository; its SHA-256 goes in the audit)",
     )
     who_update_parser.add_argument("--output-dir", type=Path, default=DEFAULT_LOCAL_UPDATE_DIR)
     who_update_parser.add_argument("--max-part-size", type=parse_size, default=DEFAULT_PART_BYTES, metavar="SIZE")
@@ -301,7 +307,14 @@ def command_build_who_update(args: argparse.Namespace) -> int:
         )
         return 1
 
-    result = who_update.build(snapshot, export)
+    try:
+        ddd_rows = ddd_xml.read_rows(Path(args.ddd_xml))
+        ddd_result = ddd_xml.project(ddd_rows, {record["code"] for record in snapshot.get("records", [])})
+    except (FileNotFoundError, ValueError) as error:
+        print(f"error: cannot use DDD file {args.ddd_xml}: {error}", file=sys.stderr)
+        return 1
+
+    result = who_update.build(snapshot, export, ddd_result.extras)
     output_dir = Path(args.output_dir)
     parts = write_parts(output_dir, result.lines, args.max_part_size)
     bundle = write_bundle(output_dir, result.lines)
@@ -362,6 +375,13 @@ def command_build_who_update(args: argparse.Namespace) -> int:
                 "who_last_updated": snapshot.get("metadata", {}).get("who_last_updated"),
             },
             {
+                "role": "who-atc-ddd-release-xml",
+                "path": display_path(Path(args.ddd_xml)),
+                "sha256": sha256_file(Path(args.ddd_xml)),
+                "provenance": "official WHOCC release file supplied by the owner; not redistributed from this repository",
+                **ddd_result.stats,
+            },
+            {
                 "role": "local-before-export",
                 "path": display_path(export_path),
                 "sha256": sha256_file(export_path),
@@ -379,7 +399,7 @@ def command_build_who_update(args: argparse.Namespace) -> int:
             "bundle_lines": len(result.lines),
         },
         "projection": {
-            "who_concepts": "one preferred English WHOCC title; descriptions empty; extras limited to ATC Level and Is_Drug_Class",
+            "who_concepts": "one preferred English WHOCC title; descriptions empty; extras limited to ATC Level, Is_Drug_Class and, where the WHOCC DDD file gives a DDD value, DDD (one string, one entry per XML row in file order)",
             "retirements": "Concept and Mapping __action DELETE lines retire versioned resources; they do not physically delete history",
             "line_order": ["WHOCC concept desired-state lines", "active Mapping DELETE lines", "active Concept DELETE lines"],
         },
