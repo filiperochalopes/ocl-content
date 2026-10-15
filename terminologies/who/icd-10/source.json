@@ -1,6 +1,7 @@
 {
   "owner": "WHO",
   "source": "ICD-10-WHO",
+  "canonical_url": "http://hl7.org/fhir/sid/icd-10",
   "name": "ICD-10 WHO Version",
   "description": "WHO International Classification of Diseases, Tenth Revision, modeled as a navigable classification hierarchy in OCL.",
   "content": {

@@ -61,20 +61,14 @@ def root_line() -> dict:
 def concept_line(entry: AtcClass) -> dict:
     names = [{"name": entry.title, "locale": "en", "locale_preferred": True, "name_type": NAME_TYPE_FSN}]
 
-    descriptions = []
-    if entry.cui:
-        descriptions.append(
-            {"description": f"UMLS CUI: {entry.cui}", "locale": "en", "locale_preferred": True, "type": "Note"}
-        )
+    descriptions = []  # no UMLS CUI note: UMLS is out of every output until the TBD.md decision
 
     is_drug_class = entry.is_drug_class or ("Y" if entry.level != 5 else "N")
     extras = {
-        "ATC Level": str(entry.level),
-        "Semantic Types": list(entry.semantic_types),
-        "CUI": entry.cui or "",
+        "ATC Level": int(entry.level),
         "Is_Drug_Class": is_drug_class,
     }
-    extras = {key: value for key, value in extras.items() if value}
+    extras = {key: value for key, value in extras.items() if value not in ("", [], None)}
 
     parent = ROOT_ID if entry.level == 1 or not entry.parent else entry.parent
     return {

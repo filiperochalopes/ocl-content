@@ -44,12 +44,12 @@ def test_update_preserves_what_the_release_does_not_govern(fy27_zip):
     line = by["A00.0"]
     assert [n["name"] for n in line["names"]] == ["Cholera due to Vibrio cholerae", "Cholera NOS"]
     assert line["names"][1]["name_type"] == "Synonym" and set(line["names"][1]) == set(builder.NAME_KEYS)
-    assert line["extras"]["CUI"] == "C1" and line["extras"]["Semantic Types"] == ["T047"] and line["extras"]["EXCLUDES1"] == "x"
+    assert "CUI" not in line["extras"] and "Semantic Types" not in line["extras"] and line["extras"]["EXCLUDES1"] == "x"
     assert line["extras"]["Order number"] == 2 and line["extras"]["Valid for submission"] is True
     assert update.stats["preferred_name_changed"] == 1 and update.stats["synonyms_preserved"] == 1
     assert update.stats["created"] == len(result.lines) - 1 and update.stats["existing_updated"] == 1
     assert update.not_in_release == {"semantic_type_ids": ["T047"], "synthetic_ranges": ["B10-B10"], "other_codes": ["A00.9"]}
-    assert not any(l.get("__action") or "external_id" in l or any("external_id" in n for n in l["names"]) for l in update.lines)
+    assert not any("external_id" in l or any("external_id" in n for n in l.get("names", [])) for l in update.lines)
 
 
 def test_update_applies_the_release_class_and_never_retires(fy27_zip):
@@ -77,3 +77,21 @@ def test_cli_export_requires_environment_and_writes_environment_named_bundle(fy2
     assert audit["upload_ready"]["staging"]["status"] is False and audit["upload_ready"]["production"]["status"] is False
     assert (out / "bulkimport_icd10cm.staging.bundle.zip").is_file()
     assert any(i["role"] == "target-export" and i["concepts"] == 1 for i in audit["inputs"])
+
+
+def test_update_drops_umls_and_retires_only_semantic_type_concepts(fy27_zip):
+    result = build_release(fy27_zip)
+    existing = {
+        "A00.0": old_concept("A00.0", "x", {"CUI": "C1", "Semantic Types": ["T047"], "EXCLUDES1": "keep"}),
+        "T047": old_concept("T047", "Disease or Syndrome", {"Leaf Node": True}),
+        "T191": {**old_concept("T191", "Neoplastic Process", {}), "retired": True},
+        "B10-B10": old_concept("B10-B10", "range", {"Leaf Node": True}),
+    }
+    update = builder.project_update(result, existing)
+    by = {l["id"]: l for l in update.lines}
+    assert "CUI" not in by["A00.0"]["extras"] and "Semantic Types" not in by["A00.0"]["extras"]
+    assert by["A00.0"]["extras"]["EXCLUDES1"] == "keep"
+    deletes = [l for l in update.lines if l.get("__action")]
+    assert [(l["id"], l["__action"], l["concept_class"]) for l in deletes] == [("T047", "DELETE", "Diagnosis")]
+    assert update.stats["umls_extras_dropped"] == 2 and update.stats["semantic_type_concepts_retired"] == 1
+    assert "B10-B10" not in {l["id"] for l in deletes}

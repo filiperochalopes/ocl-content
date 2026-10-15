@@ -1,25 +1,101 @@
 {
   "owner": "US-NCHS",
   "source": "ICD-10-CM",
+  "canonical_url": "http://hl7.org/fhir/sid/icd-10-cm",
   "version": "FY27",
   "name": "ICD-10-CM",
-  "description": "International Classification of Diseases, Tenth Revision, Clinical Modification. FY27 content is derived from CMS/NCHS Tabular XML and the companion full order file. The root, chapters, sections, concrete diagnosis codes, parent hierarchy, order number, valid-for-submission flag, and leaf status are modeled from those official files. The existing staging source also carries legacy UMLS enrichments (CUI and Semantic Types) and Tabular instructional-note fields (EXCLUDES1, EXCLUDES2, USE ADDITIONAL); they must be preserved in an update unless a separately reviewed decision changes them. CMS/NCHS does not supply UMLS metadata, and its provenance in the legacy load is under review.",
-  "content": {"requires_mappings": false, "has_hierarchy": true},
+  "description": "International Classification of Diseases, Tenth Revision, Clinical Modification. FY27 content is derived from CMS/NCHS Tabular XML and the companion full order file. The root, chapters, sections, concrete diagnosis codes, parent hierarchy, order number, valid-for-submission flag, and leaf status are modeled from those official files. The legacy staging source carried UMLS enrichments (CUI and Semantic Types) that CMS/NCHS does not supply; they are not carried (temporary policy, pending a documented decision). Tabular instructional-note fields (EXCLUDES1, EXCLUDES2, USE ADDITIONAL, CODE FIRST, CODE ALSO, Note) are preserved in an update.",
+  "content": {
+    "requires_mappings": false,
+    "has_hierarchy": true
+  },
   "properties": [
-    {"code":"concept_class","type":"code","display":"Concept class","description":"OCL class projected from the official FY27 XML role: Root for the synthetic root, Chapter for chapter ranges, Section for section ranges, and Diagnosis for XML diag nodes and concrete seventh-character extensions."},
-    {"code":"CUI","type":"string","display":"UMLS CUI","description":"Legacy UMLS Concept Unique Identifier(s), stored verbatim by the prior load. This field is not supplied by the CMS/NCHS FY27 files; its legacy provenance is under review and an update must preserve it until a separate decision is approved."},
-    {"code":"Semantic Types","type":"string","display":"UMLS semantic types","description":"Legacy UMLS Semantic Type code(s), for example T047. The prior load stores an array even though the Source property is rendered as text. This field is not supplied by CMS/NCHS FY27 files; its legacy provenance is under review and an update must preserve it until a separate decision is approved."},
-    {"code":"Order number","type":"integer","display":"Order number","description":"The five-digit, 1-based record sequence in the complete CMS/NCHS FY27 order file. It is a release-local ordering aid, not the ICD-10-CM code or a clinical identifier; it can change whenever a release inserts, removes, or reorders codes."},
-    {"code":"Valid for submission","type":"boolean","display":"Valid for submission","description":"CMS/NCHS order-file flag: true when the concrete code is valid for submission in the stated fiscal-year release."},
-    {"code":"Leaf Node","type":"boolean","display":"Leaf node","description":"Derived from the FY27 hierarchy; false when the concept has a child chapter, a nested structural section, an explicit diagnosis, or a seventh-character extension code."},
-    {"code":"EXCLUDES1","type":"string","display":"Not coded here","description":"ICD-10-CM Tabular List Excludes1 instructional note(s): the excluded condition is not coded together with this concept. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."},
-    {"code":"EXCLUDES2","type":"string","display":"Not included here","description":"ICD-10-CM Tabular List Excludes2 instructional note(s): the excluded condition is not part of this concept, but both conditions may be coded when present. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."},
-    {"code":"USE ADDITIONAL","type":"string","display":"Use additional code","description":"ICD-10-CM Tabular List Use Additional Code instructional note(s), carried by the legacy source for applicable concepts. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."},
-    {"code":"CODE FIRST","type":"string","display":"Code first","description":"ICD-10-CM Tabular List Code First instructional note(s), carried by the legacy source for applicable concepts. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."},
-    {"code":"CODE ALSO","type":"string","display":"Code also","description":"ICD-10-CM Tabular List Code Also instructional note(s), carried by the legacy source for applicable concepts. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."},
-    {"code":"Note","type":"string","display":"Note","description":"ICD-10-CM Tabular List general instructional note(s), carried by the legacy source for applicable concepts. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."}
+    {
+      "code": "concept_class",
+      "type": "code",
+      "display": "Concept class",
+      "description": "OCL class projected from the official FY27 XML role: Root for the synthetic root, Chapter for chapter ranges, Section for section ranges, and Diagnosis for XML diag nodes and concrete seventh-character extensions."
+    },
+    {
+      "code": "Order number",
+      "type": "integer",
+      "display": "Order number",
+      "description": "The five-digit, 1-based record sequence in the complete CMS/NCHS FY27 order file. It is a release-local ordering aid, not the ICD-10-CM code or a clinical identifier; it can change whenever a release inserts, removes, or reorders codes."
+    },
+    {
+      "code": "Valid for submission",
+      "type": "boolean",
+      "display": "Valid for submission",
+      "description": "CMS/NCHS order-file flag: true when the concrete code is valid for submission in the stated fiscal-year release."
+    },
+    {
+      "code": "Leaf Node",
+      "type": "boolean",
+      "display": "Leaf node",
+      "description": "Derived from the FY27 hierarchy; false when the concept has a child chapter, a nested structural section, an explicit diagnosis, or a seventh-character extension code."
+    },
+    {
+      "code": "EXCLUDES1",
+      "type": "string",
+      "display": "Not coded here",
+      "description": "ICD-10-CM Tabular List Excludes1 instructional note(s): the excluded condition is not coded together with this concept. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."
+    },
+    {
+      "code": "EXCLUDES2",
+      "type": "string",
+      "display": "Not included here",
+      "description": "ICD-10-CM Tabular List Excludes2 instructional note(s): the excluded condition is not part of this concept, but both conditions may be coded when present. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."
+    },
+    {
+      "code": "USE ADDITIONAL",
+      "type": "string",
+      "display": "Use additional code",
+      "description": "ICD-10-CM Tabular List Use Additional Code instructional note(s), carried by the legacy source for applicable concepts. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."
+    },
+    {
+      "code": "CODE FIRST",
+      "type": "string",
+      "display": "Code first",
+      "description": "ICD-10-CM Tabular List Code First instructional note(s), carried by the legacy source for applicable concepts. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."
+    },
+    {
+      "code": "CODE ALSO",
+      "type": "string",
+      "display": "Code also",
+      "description": "ICD-10-CM Tabular List Code Also instructional note(s), carried by the legacy source for applicable concepts. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."
+    },
+    {
+      "code": "Note",
+      "type": "string",
+      "display": "Note",
+      "description": "ICD-10-CM Tabular List general instructional note(s), carried by the legacy source for applicable concepts. These notes are official Tabular content and must be preserved or regenerated explicitly in an update."
+    }
   ],
-  "filters": [{"code":"Valid for submission","operator":["="],"value":"true","description":"Focuses the list on concrete codes valid for submission."}],
-  "meta": {"display":{"concept_summary_properties":["concept_class","Valid for submission","Leaf Node"],"concept_filter_order":["Valid for submission","Leaf Node"]}},
-  "hierarchy": {"root_concept_id":"ICD-10-CM","meaning":"grouped-by"}
+  "filters": [
+    {
+      "code": "Valid for submission",
+      "operator": [
+        "="
+      ],
+      "value": "true",
+      "description": "Focuses the list on concrete codes valid for submission."
+    }
+  ],
+  "meta": {
+    "display": {
+      "concept_summary_properties": [
+        "concept_class",
+        "Valid for submission",
+        "Leaf Node"
+      ],
+      "concept_filter_order": [
+        "Valid for submission",
+        "Leaf Node"
+      ]
+    }
+  },
+  "hierarchy": {
+    "root_concept_id": "ICD-10-CM",
+    "meaning": "grouped-by"
+  }
 }

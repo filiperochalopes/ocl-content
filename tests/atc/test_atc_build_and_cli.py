@@ -49,19 +49,17 @@ def test_extras_use_the_documented_keys_and_datatype_is_none(ttl_path):
     lines_by_id = {line["id"]: line for line in lines_for(ttl_path) if line["type"] == "Concept"}
     chapter = lines_by_id["A"]
     assert chapter["datatype"] == "None"
-    assert chapter["extras"]["ATC Level"] == "1"
-    assert chapter["extras"]["CUI"] == "C3653992"
+    assert chapter["extras"]["ATC Level"] == 1
+    assert "CUI" not in chapter["extras"] and "Semantic Types" not in chapter["extras"]
     assert chapter["extras"]["Is_Drug_Class"] == "Y"
-    assert chapter["extras"]["Semantic Types"] == ["T121"]
     leaf = lines_by_id["A01AD02"]
     assert leaf["extras"]["Is_Drug_Class"] == "N"  # derived: absent in the file at level 5
 
 
-def test_cui_becomes_a_note_description(ttl_path):
-    lines_by_id = {line["id"]: line for line in lines_for(ttl_path) if line["type"] == "Concept"}
-    assert lines_by_id["A"]["descriptions"] == [
-        {"description": "UMLS CUI: C3653992", "locale": "en", "locale_preferred": True, "type": "Note"}
-    ]
+def test_no_umls_content_is_emitted(ttl_path):
+    for line in lines_for(ttl_path):
+        assert "CUI" not in (line.get("extras") or {}) and "Semantic Types" not in (line.get("extras") or {})
+        assert not any("UMLS" in d["description"] for d in line.get("descriptions") or [])
 
 
 def test_full_active_build_contains_no_mappings_or_retirements(ttl_path):

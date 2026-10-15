@@ -104,11 +104,11 @@ uv run python terminologies/us-nchs/icd-10-cm/pipeline/cli.py build \
 
 `--export` and `--environment` go together. A line for a concept the target already holds keeps what the
 release does not govern: the existing non-preferred names (English synonyms), descriptions, every legacy
-extra (`CUI`, `Semantic Types`, `EXCLUDES1/2`, `USE ADDITIONAL`, `CODE FIRST`, `CODE ALSO`, `Note`), From the release come the English preferred name, `Order number`,
+extra except UMLS (`EXCLUDES1/2`, `USE ADDITIONAL`, `CODE FIRST`, `CODE ALSO`, `Note`), From the release come the English preferred name, `Order number`,
 `Valid for submission`, `Leaf Node`, the parent link and the `concept_class` (`Root`/`Chapter`/`Section`/`Diagnosis`;
 existing concepts whose class changes are counted in `concept_class_changed`). Ids in the release but not in the export are
 created. Ids in the export but not in the release are **reported, never retired** (`not_in_release_ids` in
-the audit) until the `TBD.md` retirement decision exists. No `external_id` is emitted.
+the audit) until the `TBD.md` retirement decision exists (the UMLS `T001`–`T204` ids are the exception, see below). No `external_id` is emitted.
 
 Measured on the FY25 staging export (`ICD-10-CM 2025`, 98,030 concepts) against FY27: 97,829 updated,
 856 created, 199 preferred names changed, 13,491 synonyms on 7,161 concepts preserved (a build without
@@ -119,6 +119,23 @@ figures are relied on.
 
 The audit records `environment`, the export's path/SHA-256/concept count, and a per-environment
 `upload_ready`; staging stays `false` until a local rehearsal passes.
+
+### UMLS is out of every output (temporary policy)
+
+Until a documented decision says otherwise, no environment receives UMLS content: every update drops `CUI` and
+`Semantic Types` from `extras` (OCL replaces `extras` wholesale, so they disappear from each updated concept) and
+appends one `__action: "DELETE"` line per active `T001`–`T204` concept. Those 127 identifiers are UMLS Semantic
+Type codes, not ICD-10-CM codes: none of them is a code in the FY27 release (`not_in_release.semantic_type_ids` in
+the audit lists them and none collides with a release id). The 41 synthetic ranges and 33 retired extension codes
+are **not** retired; they are listed in the audit. `source.json` no longer declares `CUI` or `Semantic Types`.
+`TBD.md` keeps the UMLS question open; reversing this means restoring the two properties and the preservation in
+`project_update()`.
+
+### Source configuration after a replica
+
+A replica Source created from `source.create.json` has no declared properties, filters or display metadata: apply
+`source.json` with `ocl_source_config.py --check --include-hierarchy`, send the printed PATCH by hand, and rebuild
+the concept index; see [`../../../tests/README.md`](../../../tests/README.md).
 
 ### Draft full-source refresh (no export)
 

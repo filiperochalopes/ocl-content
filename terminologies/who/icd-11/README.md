@@ -224,6 +224,105 @@ numeric order** through the OCL bulk-import form with one Queue ID. Never upload
 `WHO/ICD-11-WHO` Source — the importer would overwrite an existing concept's names and extras. Add
 `en` to `supported_locales` and set the hierarchy root as described above before loading.
 
+## Post-coordinated codes (additive layer)
+
+A **separate, additive** layer on top of the base load above: indexed post-coordinated ICD-11 codes
+(composite WHO codes such as `1A00&XN62R` or `5B81.Y/1A00`, each with its own Entity ID in the WHO
+ICD-API search index but no row of its own in the Simple Tabulation). It never touches a concept the
+base load already created — it only *adds* new `Diagnosis` concepts plus a `NARROWER-THAN` mapping
+from each one to its first stem (per the owner's explicit decision: a mapping, not a
+`parent_concept_urls` change — see "Design decisions" below).
+
+```bash
+uv run python terminologies/who/icd-11/pipeline/cli.py build-postcoordinated \
+  --input <path to postcoord_index_items_full.csv> \
+  --output-dir terminologies/who/icd-11/output/postcoordinated
+```
+
+### Input (external, not committed)
+
+`--input` is the *full* CSV produced by the sibling `ciel-scripts` repository's
+`list_postcoordinated_index_codes.py --full-csv` (invoked via `run_icd_api_postcoord_index_export.sh`),
+which reads the protobuf search index a local `whoicd/icd-api` Docker container loads at boot and
+hydrates each composite with one `/describe` and one Foundation-entity call. That generator is **not**
+a WHO-published file — it is produced locally from a Docker container — so it is **not** copied into
+this repository's `assets/`; the path is supplied on the command line at build time. Porting that
+capture into a versioned, self-contained script in this pipeline (pulling the official `whoicd/icd-api`
+image directly, rather than a personal compose file) is a planned follow-up, tracked but not yet built.
+
+### Design decisions (owner-confirmed)
+
+| Decision | Choice | Why |
+| --- | --- | --- |
+| Concept `id` | The raw WHO composite code, `&`/`/` kept as-is (not encoded, not normalized) | The owner's explicit choice: it is the real ICD-11 code |
+| Stem relationship | `NARROWER-THAN` **mapping** to the first stem only — no `parent_concept_urls` | Matches the `ciel-scripts` reference loader's modeling; the base hierarchy built above is never touched |
+| `concept_class` | `Diagnosis` (same class as the base stems) | Owner decision, plus `extras.is_postcoordinated` to distinguish it |
+| Rejected codes (`describe_status=rejected_by_api`) | **Excluded by default**; pass `--include-rejected` to add them too | "Indexed" ≠ "valid" (the index still serves composites the API's own `/describe` value-set rules currently reject); the owner reviews them first via the HTML report below |
+| Capture-script versioning | Deferred | Input stays external for now; porting the Docker-based capture into this pipeline is a tracked follow-up |
+
+### A real, confirmed OCL bug — and the fix this builder applies
+
+A concept id containing `/` creates fine, but a **raw, unencoded `/` in a mapping's
+`from_concept_url` silently truncates `from_concept_code` at the first `/`** — a live instance of
+[OpenConceptLab/ocl_issues#739](https://github.com/OpenConceptLab/ocl_issues/issues/739), confirmed
+against this project's local OCL (2.3.208-dev) before this builder was written: creating a mapping
+with `from_concept_url: ".../concepts/5B81.Y/1A00/"` resolved `from_concept_code` to `5B81.Y`,
+silently dropping `/1A00`. **Fix**: percent-encode the slash as `%2F` (`quote(id, safe='')`, already
+this repo's `concept_url()` convention) — confirmed to resolve `from_concept_code`/`from_concept_url`
+correctly. `postcoord_mapping_line()` always goes through `concept_url()`, so every mapping this
+builder emits is already encoded correctly.
+
+A second, independent manifestation of the same underlying issue: fetching such a concept directly by
+a *single* percent-encoded path (`GET .../concepts/5B81.Y%2F1A00/`) still 404s; only a *double*
+encoding (`%252F`) in the request path reaches it. That only matters for a future per-concept
+verification/GET tool, never for the bulk-import NDJSON lines this builder writes.
+
+### Rejected-codes review
+
+Before deciding whether to pass `--include-rejected`, review every indexed code's title source
+(own WHO Foundation entity vs. composed-only), `describe_status`, Entity ID, and the local ICD-API
+container's browse link, in one dense, filterable HTML (built to show several thousand rows at once):
+
+```bash
+uv run python terminologies/who/icd-11/pipeline/cli.py review \
+  --input <path to postcoord_index_items_full.csv> \
+  --output terminologies/who/icd-11/output/postcoord_index_review.html
+# --rows rejected   -> only the describe_status=rejected_by_api rows
+# --rows ok         -> only the describe_status=ok rows
+```
+
+### Properties and extras
+
+Declared in [`source.json`](source.json), alongside the base load's properties: `is_postcoordinated`
+(`True` on every concept this layer adds — not a WHO field), `Entity ID` (the composite Linearization
+URI, WHO field verbatim), `StemCode` (derived from the code, not the CSV's own `stem_code` column —
+see below), `Axes` (WHO `/describe` axis names), and `DescribeStatus` (`ok`/`rejected_by_api`, the WHO
+API's own validation outcome as captured by this pipeline). `ExtensionCodes`, `ExtensionLabels`,
+`DescribeError`, and `BrowseURL` extras are emitted but not yet declared as Source properties.
+
+The first stem is always derived from the composite `code` string itself (everything before its
+first `&` or `/`), never from the CSV's own `stem_code` column: that column comes from the `/describe`
+hydration and is empty on every rejected row, while the composite code always carries its first
+component regardless of hydration outcome.
+
+### Current result (full capture, release 2026-01)
+
+| | |
+| --- | --- |
+| Indexed composites | 4,227 (3,638 with an extension value, 657 with a second stem) |
+| `describe_status=ok` | 3,559 → **built by default** |
+| `describe_status=rejected_by_api` | 668 → excluded by default, reviewed separately |
+| Unknown stems (not in the base Source) | 0, in both the default and `--include-rejected` run |
+| Default build | 3,559 concepts + 3,559 mappings → 1 part, 176,748-byte bundle ZIP |
+
+### Local rehearsal
+
+This is the *additive update* case, not a fresh load: `WHO/ICD-11-WHO` already holds the base 37,053
+concepts locally. Upload only into that already-populated Source (never an empty one — the base load's
+own rehearsal is the "empty Source" case). After the manual import, confirm with read-only GETs that
+`active_concepts`/`active_mappings` grew by exactly the counts above and that a sample mapping (e.g.
+one whose `from_concept_url` contains `%2F`) resolves to the correct `from_concept_code`.
+
 ## Local rehearsal before production
 
 This workspace is the *create a new Source* case. Create the empty `WHO/ICD-11-WHO` Source on a local OCL instance (the body to apply comes from `tools/ocl_source_config.py`), upload the parts by hand, download the resulting export, and run `tools/ocl_verify_update.py --mode create`: every artifact concept must exist with exactly its names, extras, and class, and the Source must hold no other concept. Commit the report under `evidence/`. See [`../../../tests/README.md`](../../../tests/README.md) (Flow B).

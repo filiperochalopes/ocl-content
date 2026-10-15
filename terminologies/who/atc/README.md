@@ -105,8 +105,10 @@ This is a comparison of an update list with the site, not a validation of the wh
 
 UMLS CUIs and Semantic Types are **not** official ATC content and are not WHOCC-published. They describe a
 relationship between an ATC code and a UMLS concept, so they belong in **mappings** (to a UMLS source), not
-as attributes on the concept. Policy for the WHOCC-based build: it neither emits nor depends on them, and
-BioPortal (UMLS 2025AB) stays a legacy, supplementary input. What the existing live concepts hold today
+as attributes on the concept. Temporary policy, every output: no `CUI`, no `Semantic Types` and no UMLS CUI note description is emitted (the
+active build and `source.json` no longer carry them), and BioPortal (UMLS 2025AB) stays a legacy input.
+`ATC Level` is not WHOCC content: it comes from the BioPortal `ATC_LEVEL` predicate and equals the code's level
+(1–5). It is kept as an **integer** property and emitted as an integer. What the existing live concepts hold today
 (`CUI`, `Semantic Types`, and the 127 `T001`–`T204` semantic-type concepts) is a separate, explicitly
 audited decision; it is not made by this build.
 
@@ -144,7 +146,7 @@ uv run python terminologies/who/atc/pipeline/cli.py build
 
 The active build maps ATC level 1→`Chapter`, 2→`Group`, 3–4→`Subgroup`, and 5→`Code`.
 Level-1 classes hang under `Root`; every other code uses the upstream `rdfs:subClassOf` parent. Its
-extras are `ATC Level`, `CUI`, `Semantic Types`, and `Is_Drug_Class`.
+extras are `ATC Level` (integer) and `Is_Drug_Class`; UMLS fields are not emitted.
 
 ### Retirement decision and audited retirement artifact
 

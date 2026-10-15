@@ -26,7 +26,7 @@ import os
 import sys
 from pathlib import Path
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -68,6 +68,17 @@ def _require_string(config: dict[str, Any], key: str) -> str:
     return value
 
 
+def _validate_canonical_url(config: dict[str, Any]) -> None:
+    value = config.get("canonical_url")
+    if value is None:
+        return
+    if not isinstance(value, str):
+        raise ConfigError("canonical_url must be an absolute HTTP or HTTPS URI")
+    parsed = urlsplit(value)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc or parsed.username or parsed.password:
+        raise ConfigError("canonical_url must be an absolute HTTP or HTTPS URI")
+
+
 def validate_config(config: dict[str, Any]) -> None:
     if not isinstance(config, dict):
         raise ConfigError("configuration must be a JSON object")
@@ -75,6 +86,7 @@ def validate_config(config: dict[str, Any]) -> None:
     _require_identifier(config, "source")
     _require_string(config, "name")
     _require_string(config, "description")
+    _validate_canonical_url(config)
 
     content = config.get("content")
     if not isinstance(content, dict):
@@ -204,6 +216,8 @@ def build_patch(
         "filters": config.get("filters", []),
         "meta": deep_merge(current_meta, configured_meta),
     }
+    if "canonical_url" in config:
+        patch["canonical_url"] = config["canonical_url"]
     if include_hierarchy:
         hierarchy = config.get("hierarchy")
         if hierarchy is None:

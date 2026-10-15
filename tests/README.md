@@ -164,6 +164,9 @@ uv run python tools/ocl_replica_seed.py --export exports/prod/WHO_ICD-10-WHO_HEA
 #   -> create the Source on the local instance with source.create.json (the org must exist),
 #   -> upload the parts by hand, in numeric order, with one Queue ID, and wait for the task,
 #   -> then apply post_import.patch.json (hierarchy_root_url) and add pt_BR and fr to supported_locales.
+#   -> then apply the terminology's source.json: `ocl_source_config.py --config <source.json> --check --include-hierarchy`
+#      prints the PATCH (properties, filters, meta.display, hierarchy); send it by hand, then rebuild the concept index.
+#      source.create.json does NOT carry them, so without this step the UI shows every extra as `custom`.
 
 # optional: the seed parts must reproduce the production concepts before anything is loaded
 uv run python tools/ocl_verify_update.py --mode create --after exports/prod/WHO_ICD-10-WHO_HEAD.zip \
@@ -234,6 +237,14 @@ Source and adds `extras`, which would defeat a faithful replica; the Source is c
 `source.create.json`, whose `id` is the header's `short_code` (the header's own `id` is the *version*,
 `HEAD`) and which leaves out server-owned fields, empty values, the export's `__export_time` artifact,
 and the hierarchy settings (the root concept does not exist yet; they wait in `post_import.patch.json`).
+
+**`source.create.json` is not the Source's declared configuration.** It copies the export's header, which on a
+Source loaded without `properties`, `filters` or `meta.display` leaves them empty. A replica created only from it
+looks wrong in the UI: every extra is tagged `custom`, and the filters and summary columns are missing. After the
+import, apply the terminology's own `source.json` (`ocl_source_config.py --check [--include-hierarchy]` prints the
+PATCH body; there is no `--apply`) and then rebuild the concept index
+(`POST /orgs/<owner>/sources/<source>/concepts/indexes/`, poll the returned task), because the PATCH does not
+reindex. A bundle never carries Source configuration, so re-uploading it cannot fix this.
 The sibling `ciel-scripts/bulk_import_refactor.py` does the same kind of conversion, but it is written
 for copying under a different name and it can upload; it is kept as a reference only.
 

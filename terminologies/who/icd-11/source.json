@@ -1,6 +1,7 @@
 {
   "owner": "WHO",
   "source": "ICD-11-WHO",
+  "canonical_url": "http://id.who.int/icd/release/11/mms",
   "name": "ICD-11 WHO Version",
   "description": "WHO International Classification of Diseases, 11th Revision (MMS), modeled as a navigable classification hierarchy in OCL. Content is reproduced from the WHO ICD-11 MMS Simple Tabulation (release 2026-01); codes, titles, and Foundation/Linearization URIs are preserved verbatim. © WHO 2020, licensed CC BY-ND 3.0 IGO. This Source adds no mappings and no translations. The synthetic root concept ICD-11-Root, the concept_class property, and the release-pinned BrowserLink are added by this pipeline and are not WHO content; every other property is a WHO Simple Tabulation field. Citation: International Classification of Diseases, Eleventh Revision (ICD-11), World Health Organization (WHO) 2019, https://icd.who.int/browse11. Licensed under the Creative Commons Attribution-NoDerivatives 3.0 IGO licence (CC BY-ND 3.0 IGO).",
   "content": {
@@ -61,6 +62,36 @@
       "type": "string",
       "display": "Linearization URI",
       "description": "WHO ICD-11 MMS linearization URI, supplied by the Simple Tabulation (WHO field)."
+    },
+    {
+      "code": "is_postcoordinated",
+      "type": "code",
+      "display": "Post-coordinated",
+      "description": "True when this Diagnosis concept is an indexed post-coordinated code (a composite WHO code such as '1A00&XN62R' or '5B81.Y/1A00'), added by the separate post-coordinated layer. Not a WHO Simple Tabulation field: derived by this pipeline from the WHO ICD-API search index."
+    },
+    {
+      "code": "Entity ID",
+      "type": "string",
+      "display": "Entity ID",
+      "description": "Composite WHO Linearization URI the post-coordinated code resolves to in the ICD-API search index (WHO field, verbatim), for example 'http://id.who.int/icd/release/11/2026-01/mms/257068234 & http://id.who.int/icd/release/11/2026-01/mms/802386629'. Present only on is_postcoordinated concepts."
+    },
+    {
+      "code": "StemCode",
+      "type": "string",
+      "display": "Stem code",
+      "description": "The post-coordinated code's first stem, e.g. '1A00' from '1A00&XN62R'. Not a WHO field: derived by this pipeline by splitting the composite code; the same stem is also the target of the concept's NARROWER-THAN mapping."
+    },
+    {
+      "code": "Axes",
+      "type": "string",
+      "display": "Post-coordination axes",
+      "description": "WHO post-coordination axis name(s) used by the code (e.g. infectiousAgent, hasManifestation), from the ICD-API /describe endpoint (WHO field), '|'-joined when there is more than one."
+    },
+    {
+      "code": "DescribeStatus",
+      "type": "code",
+      "display": "Describe status",
+      "description": "'ok' when the WHO ICD-API's own /describe value-set rules accept the composite code, 'rejected_by_api' when the index serves it but /describe currently rejects it. Captured by this pipeline from the WHO API's response, not invented."
     }
   ],
   "filters": [
@@ -75,6 +106,12 @@
       "operator": ["="],
       "value": "True",
       "description": "Focuses the concept list on leaf entities."
+    },
+    {
+      "code": "is_postcoordinated",
+      "operator": ["="],
+      "value": "True",
+      "description": "Focuses the concept list on indexed post-coordinated codes (the separate add-on layer)."
     }
   ],
   "meta": {

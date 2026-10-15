@@ -75,6 +75,23 @@ def test_build_patch_preserves_existing_meta_keys():
     }
 
 
+def test_build_patch_includes_configured_canonical_url():
+    configured = config()
+    configured["canonical_url"] = "http://hl7.org/fhir/sid/icd-10"
+
+    payload = subject.build_patch(configured, {})
+
+    assert payload["canonical_url"] == "http://hl7.org/fhir/sid/icd-10"
+
+
+def test_validate_config_rejects_a_non_uri_canonical_url():
+    configured = config()
+    configured["canonical_url"] = "not a uri"
+
+    with pytest.raises(subject.ConfigError, match="canonical_url must be an absolute HTTP or HTTPS URI"):
+        subject.validate_config(configured)
+
+
 def test_build_patch_omits_hierarchy_unless_explicitly_requested():
     configured = config()
     configured["hierarchy"] = {"root_concept_id": "ICD-10", "meaning": "is-a"}

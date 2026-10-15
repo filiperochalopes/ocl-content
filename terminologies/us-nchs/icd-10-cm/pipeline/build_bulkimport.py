@@ -73,6 +73,7 @@ def build(release: Release) -> BuildResult:
 NAME_KEYS = ("name", "locale", "locale_preferred", "name_type")
 FY_EXTRAS = ("Order number", "Valid for submission", "Leaf Node")
 SEMANTIC_TYPE_ID = re.compile(r"T\d{3}")
+UMLS_EXTRAS = ("CUI", "Semantic Types")
 
 
 def _clean_name(name: dict) -> dict:
@@ -96,9 +97,14 @@ def project_update(result: BuildResult, existing: dict[str, dict]) -> UpdateResu
     CODE FIRST, CODE ALSO, Note). Only the English preferred name, ``Order number``, ``Valid for submission``,
     ``Leaf Node``, the parent link and the ``concept_class`` (Root/Chapter/Section/Diagnosis, as decided for
     FY27) come from the release; ``datatype`` too. Ids absent from the release are reported, never retired here.
+
+    UMLS is out of every update until the decision in ``TBD.md`` says otherwise: ``CUI`` and ``Semantic Types`` are
+    not carried (OCL replaces ``extras`` wholesale, so they disappear from each updated concept) and one
+    ``__action: "DELETE"`` (retirement) line is appended per active ``T001``-``T204`` concept, which are UMLS
+    Semantic Type identifiers and not ICD-10-CM codes. Other ids absent from the release are only reported.
     """
     lines, st = [], {"existing_updated": 0, "created": 0, "preferred_name_changed": 0, "synonyms_preserved": 0,
-                     "concepts_with_synonyms": 0, "legacy_extras_preserved": 0, "parent_changed": 0, "extras_values_changed": 0, "concept_class_changed": 0}
+                     "concepts_with_synonyms": 0, "legacy_extras_preserved": 0, "parent_changed": 0, "extras_values_changed": 0, "concept_class_changed": 0, "umls_extras_dropped": 0, "semantic_type_concepts_retired": 0}
     release_ids = set()
     for line in result.lines:
         release_ids.add(line["id"])
@@ -119,6 +125,8 @@ def project_update(result: BuildResult, existing: dict[str, dict]) -> UpdateResu
         if old.get("descriptions"):
             out["descriptions"] = [{k: v for k, v in d.items() if k in ("description", "locale", "locale_preferred", "description_type")} for d in old["descriptions"]]
         legacy = {k: v for k, v in (old.get("extras") or {}).items() if k not in FY_EXTRAS}
+        st["umls_extras_dropped"] += sum(k in legacy for k in UMLS_EXTRAS)
+        legacy = {k: v for k, v in legacy.items() if k not in UMLS_EXTRAS}
         st["legacy_extras_preserved"] += len(legacy)
         before_fy = {k: (old.get("extras") or {}).get(k) for k in FY_EXTRAS}
         out["extras"] = {**legacy, **line["extras"]}
@@ -131,6 +139,13 @@ def project_update(result: BuildResult, existing: dict[str, dict]) -> UpdateResu
         st["existing_updated"] += 1
         lines.append(out)
     gone = sorted(i for i, c in existing.items() if i not in release_ids and not c.get("retired"))
+    for i in gone:
+        if SEMANTIC_TYPE_ID.fullmatch(i):
+            old = existing[i]
+            lines.append({"type": "Concept", "id": i, "owner": old.get("owner") or "US-NCHS", "owner_type": "Organization",
+                          "source": old.get("source") or "ICD-10-CM", "concept_class": old.get("concept_class") or "Diagnosis",
+                          "__action": "DELETE"})
+            st["semantic_type_concepts_retired"] += 1
     buckets = {"semantic_type_ids": [i for i in gone if SEMANTIC_TYPE_ID.fullmatch(i)],
                "synthetic_ranges": [i for i in gone if "-" in i],
                "other_codes": [i for i in gone if not SEMANTIC_TYPE_ID.fullmatch(i) and "-" not in i]}
