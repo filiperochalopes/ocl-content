@@ -22,7 +22,7 @@ them.
 | Owner / Source | `SNOMED-International` / `SNOMED-GPS` |
 | Hierarchy | none |
 | Mappings | none |
-| Class / datatype | `Misc` / `None` |
+| Class / datatype | `Misc` / `None` (class is emitted on every concept line only; it is not a declared Source property and is not shown in the concept summary or filters) |
 | FSN | English non-preferred `Fully-Specified` name |
 | US Preferred Term | English preferred `Synonym` name |
 | Lifecycle | TSV `Active=1` → `retired: false`; `Active=0` → `retired: true` |
@@ -31,9 +31,15 @@ The name projection matches representative existing concepts read from productio
 
 ## Provenance and licence
 
-The manually acquired source is documented in [`assets/README.md`](assets/README.md). The release
-README states CC BY-ND 4.0. The raw ZIP is Git-ignored; `verify-asset` validates the pinned SHA-256
-before every build.
+The manually acquired source is documented in [`assets/README.md`](assets/README.md). The January 2026
+package's implementation guide and the [GPS product page](https://www.snomed.org/gps) state that the GPS
+is distributed under CC BY-ND 4.0; the package `Readme.txt` separately carries copyright, College of
+American Pathologists, and partner-rights notices. The current [online Technical Application page](https://docs.snomed.org/implementation-guides/gps-implementation-guide/technical-application)
+shows CC BY 4.0 instead, so the official materials conflict; this configuration follows the exact
+January 2026 package and product page and should be rechecked with SNOMED International before the next
+release. The complete attribution, third-party rights note, trademark attribution, and licence link are
+stored in [`source.json`](source.json) under `copyright`, separate from the content-scope `description`.
+The raw ZIP is Git-ignored; `verify-asset` validates the pinned SHA-256 before every build.
 
 ## Commands
 

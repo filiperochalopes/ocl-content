@@ -61,12 +61,14 @@ The BioPortal submission is immutable and hash-pinned in [`pipeline/assets.py`](
 
 ## Upstream authority, licensing, and enrichment policy
 
-**Status: proposed; the authority decision is pending (see `TBD.md`).** Nothing below authorizes an OCL update.
+**Owner decision (2026-10-15):** the WHO Collaborating Centre (WHOCC) public ATC/DDD Index 2026 is the canonical authority for ATC codes, preferred names, hierarchy, and lifecycle. The WHOATC concept build must use the all-level WHOCC crawl only; do not emit BioPortal/UMLS concepts, CUIs, Semantic Types, or BioPortal-only aliases. The Source `copyright` notice records the WHOCC attribution only: no open redistribution licence is asserted, and this is not a legal opinion.
+
+**Implementation status:** `build-who-update` now projects the all-level WHOCC crawl snapshot into an audited, target-specific update bundle when given that environment's complete BEFORE export. It replaces WHOATC names, descriptions, and extras with the approved WHOCC-only projection; it also retires active concepts absent by exact code and active legacy mappings. The legacy `build` command and `output/bulkimport_whoatc.bundle.zip` still consume BioPortal submission 25 / UMLS 2025AB and remain historical comparison artifacts; do not upload that legacy bundle as the WHOCC release.
 
 ### Authority and target version
 
 The WHO Collaborating Centre for Drug Statistics Methodology (WHOCC, Norwegian Institute of Public Health)
-is the proposed authority for ATC codes, English names, hierarchy, lifecycle, and DDDs. The planned OCL
+is the selected authority for ATC codes, English names, hierarchy, lifecycle, and DDDs. The selected OCL
 Source Version for the ATC/DDD Index 2026 edition is **`ATC-DDD-2026`** (valid from January 1, 2026; the
 public index reports *Last updated: 2026-01-20*). The existing production versions use the UMLS-style
 `2023AA`; that scheme names a UMLS release, which is not what the WHOCC publishes.
@@ -86,11 +88,12 @@ public index reports *Last updated: 2026-01-20*). The existing production versio
 - The WHOCC *User conditions* (March 2024) state, among other things: the Index and Guidelines are updated
   annually with versions valid from January 1; there must always be a reference to the version used;
   translations should be done by a national competent authority; and the Centre takes no responsibility for
-  translations or for use in electronic health systems. They do not describe a redistribution licence, so
-  the legal position of republishing the content in OCL is **not established here** and needs the owners'
-  decision before any release. Any published Source must cite its origin in its description, for example:
-  *WHO Collaborating Centre for Drug Statistics Methodology, ATC classification index with DDDs, 2026.
-  Oslo, Norway 2026; obtained from the public ATC/DDD Index (https://atcddd.fhi.no/atc_ddd_index/).*
+  translations or for use in electronic health systems. They do not state an open redistribution licence.
+  **Owner decision:** use the public searchable index as the ATC content source and publish the citation in
+  `source.json` and the live Source `copyright` field, without asserting an open licence. This records the
+  owner's use decision, not a legal opinion. The citation is: *WHO Collaborating Centre for Drug Statistics
+  Methodology, ATC classification index with DDDs, 2026. Oslo, Norway 2026* (public index:
+  <https://atcddd.fhi.no/atc_ddd_index/>).
 
 ### Verified: the 2026 update workbook is already in the public index
 
@@ -103,14 +106,13 @@ This is a comparison of an update list with the site, not a validation of the wh
 
 ### CUI and Semantic Types are not part of the classification
 
-UMLS CUIs and Semantic Types are **not** official ATC content and are not WHOCC-published. They describe a
-relationship between an ATC code and a UMLS concept, so they belong in **mappings** (to a UMLS source), not
-as attributes on the concept. Temporary policy, every output: no `CUI`, no `Semantic Types` and no UMLS CUI note description is emitted (the
-active build and `source.json` no longer carry them), and BioPortal (UMLS 2025AB) stays a legacy input.
-`ATC Level` is not WHOCC content: it comes from the BioPortal `ATC_LEVEL` predicate and equals the code's level
-(1–5). It is kept as an **integer** property and emitted as an integer. What the existing live concepts hold today
-(`CUI`, `Semantic Types`, and the 127 `T001`–`T204` semantic-type concepts) is a separate, explicitly
-audited decision; it is not made by this build.
+The WHOCC-only build excludes UMLS CUIs, Semantic Types, UMLS CUI Note descriptions, and BioPortal-only
+aliases. WHOCC provides the five-level classification; `ATC Level` is derived from the code's level and
+`Is_Drug_Class` from the level-1–4 group versus level-5 substance distinction. No UMLS data is emitted
+or maintained as part of the target Source. The current production Source still has legacy content to
+review separately: the 127 active UMLS Semantic Type concepts (`T001`–`T204`, with gaps) and historical
+`REPLACED BY` mappings. They are not retired or rewritten by the Source copyright PATCH or by this
+build-migration decision; any lifecycle changes require a separate audited proposal.
 
 ## Pipeline
 
@@ -132,7 +134,7 @@ terminologies/who/atc/
 └── output/
 ```
 
-### Active-content build
+### Legacy BioPortal active-content build (historical comparison only)
 
 ```bash
 # Fetch or verify the pinned BioPortal Turtle file. If it was downloaded manually,
@@ -144,9 +146,29 @@ uv run python terminologies/who/atc/pipeline/cli.py fetch-assets
 uv run python terminologies/who/atc/pipeline/cli.py build
 ```
 
-The active build maps ATC level 1→`Chapter`, 2→`Group`, 3–4→`Subgroup`, and 5→`Code`.
+The legacy BioPortal build maps ATC level 1→`Chapter`, 2→`Group`, 3–4→`Subgroup`, and 5→`Code`.
 Level-1 classes hang under `Root`; every other code uses the upstream `rdfs:subClassOf` parent. Its
 extras are `ATC Level` (integer) and `Is_Drug_Class`; UMLS fields are not emitted.
+
+### WHOCC local update build
+
+The WHOCC snapshot itself is the content input. Build an update only from the **target local Source's
+own complete BEFORE export**; this command is offline and does not call or upload to OCL:
+
+```bash
+uv run python terminologies/who/atc/pipeline/cli.py build-who-update \
+  --snapshot terminologies/who/atc/output/whoatc_index_snapshot.json \
+  --export /absolute/path/to/WHO_WHOATC_HEAD.local.zip \
+  --output-dir exports/api.ocl.localhost/build/whoatc
+```
+
+It emits the synthetic root plus all WHOCC codes in the snapshot, replacing each target concept's names,
+descriptions, and extras with one English WHOCC preferred name, no descriptions, and derived `ATC Level`
+/ `Is_Drug_Class`. It emits `Concept` `__action: "DELETE"` lines for each active local code absent by
+exact identifier from WHOCC and `Mapping` `__action: "DELETE"` lines for every active legacy mapping.
+The order is desired-state concepts, mapping retirements, then concept retirements. The local bundle is
+created under `exports/api.ocl.localhost/build/whoatc/`; it is a local rehearsal artifact and is not
+versioned in `output/`.
 
 ### Retirement decision and audited retirement artifact
 

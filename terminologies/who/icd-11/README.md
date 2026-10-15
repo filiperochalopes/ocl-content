@@ -9,8 +9,10 @@ single terminology exists.
 
 - **Covers**: one concept per Simple Tabulation entity (chapter, block, category) plus the synthetic
   `ICD-11-Root`, with the hierarchy that the tabulation itself states.
-- **Does not cover**: post-coordinated codes, mappings, translations, descriptions (except the
-  root's), and the `Source` record. The Source is expected to exist already.
+- **Does not cover**: translations, descriptions (except the root's), and the `Source` record. The
+  Source is expected to exist already. Post-coordinated codes, their mappings, and WHO Foundation
+  aliases are covered only when their external inputs are passed to `build` (see
+  [Aliases and the single bundle](#aliases-and-the-single-bundle)); a plain `build` is the base load.
 - **Reference implementation**: the sibling `ciel-scripts` repository (`ocl_uploader_icd11.py`) is the
   audited loader this pipeline mirrors. It is read-only reference; nothing here imports it.
 - **Status**: a *test terminology*. Nothing here was verified against OCL, so the artifacts are marked
@@ -35,7 +37,7 @@ uv run python tools/ocl_source_config.py --config terminologies/who/icd-11/sourc
 
 ### Source properties and concept extras
 
-OCL distinguishes a Source-declared property from an arbitrary concept `extras` key. The latter can still appear under “customized” in the UI; registering it in `properties` gives it a declared display label/type and makes it available to Source-level presentation and filtering. The ICD-11 builder emits these eight extras, so all eight are declared below (the `concept_class` property is OCL concept metadata, not an extra):
+OCL distinguishes a Source-declared property from an arbitrary concept `extras` key. The latter can still appear under “customized” in the UI; registering it in `properties` gives it a declared display label/type and makes it available to Source-level presentation and filtering. The ICD-11 builder emits these extras, so all are declared below (the `concept_class` property is OCL concept metadata, not an extra):
 
 | Property code / extra key | Type | Display | Meaning |
 | --- | --- | --- | --- |
@@ -46,10 +48,12 @@ OCL distinguishes a Source-declared property from an arbitrary concept `extras` 
 | `isLeaf` | `code` | Leaf | Whether the entity has no children in this tabulation, stored as `True`/`False`. This describes this release's tabulation, not all post-coordinated ICD-11 content. |
 | `BlockId` | `string` | Block ID | Tabulation block identifier when supplied; absent values are omitted. |
 | `BrowserLink` | `string` | BrowserLink (latest) | WHO browser URL, verbatim from the Simple Tabulation cell — a `latestrelease` link (it moves with WHO releases), not pinned to the imported release. |
-| `Foundation URI` | `string` | Foundation URI | WHO ICD-11 Foundation entity URI from the Simple Tabulation. |
+| `Foundation URI` | `string` | Foundation URI | WHO ICD-11 Foundation entity URI from the Simple Tabulation (`http://id.who.int/icd/entity/<id>`, resolves through the ICD-API only); composed from the entity id on post-coordinated codes. |
 | `Linearization URI` | `string` | Linearization URI | WHO MMS linearization URI from the Simple Tabulation; identifies the MMS entity. |
+| `Foundation URL` | `string` | Foundation URL | Official WHO Foundation browser link pinned to the imported release (`https://icd.who.int/browse/<release>/foundation/en#<entity id>`), composed by this pipeline from the Foundation URI; omitted where there is no Foundation entity. |
+| `isPostcoordinated` | `code` | Is Postcoordinated | `True` only on post-coordinated codes (ids containing `&` or `/`); see the post-coordinated section. Not a WHO field. |
 
-`filters` currently defines two equality filters: `concept_class=Diagnosis` (exclude root/chapter/block concepts from the diagnosis-focused listing) and `isLeaf=True` (leaf concepts). `meta.display.concept_summary_properties` shows class, chapter and depth in the summary; `concept_filter_order` orders class, chapter and leaf controls. These display lists do not themselves add filter definitions. Empty extras are omitted from a concept, so a declared property need not be present on every resource.
+`filters` defines four equality filters, in this order: `concept_class=Diagnosis` (exclude root/chapter/block concepts from the diagnosis-focused listing), `isLeaf=True` (leaf concepts), `IsResidual=True` (WHO-flagged residual categories) and `isPostcoordinated=True` (the post-coordinated layer). `meta.display.concept_summary_properties` shows class, chapter and depth in the summary; `concept_filter_order` orders class, chapter, leaf, residual and post-coordinated controls. These display lists do not themselves add filter definitions. Empty extras are omitted from a concept, so a declared property need not be present on every resource.
 
 `source.json` is the canonical desired configuration. After changing its `properties`, `filters` or `meta.display`, synchronize the local Source with the reviewed complete arrays and rebuild the concept search index: a Source PATCH alone does not refresh the index. Check the asynchronous indexing task to `SUCCESS`, then exercise representative property filters/searches. The local API flow is:
 
@@ -97,14 +101,14 @@ WHO's own clarifications of it, are in the *Digital Version Terms of Use and Lic
 | --- | --- | --- |
 | 1.2.2 | Incorporating the classification into software is **not** an adaptation, provided the material is not renamed/remodelled, is attributed, and keeps its codes and URIs | The concept `id` is the WHO code, the name is the WHO title, and the Foundation/Linearization URIs are extras; the Source is attributed (below) |
 | 1.2.3 | Storage and transmission must include the code, title and URI | `id` = code, `names[].name` = title, `extras["Foundation URI"]`/`extras["Linearization URI"]` = URIs, on every entity that has them |
-| 1.2.4 | Mappings/crosswalks and translations are **not** covered and need a separate written agreement | This pipeline adds **no** mappings and **no** translations (see "Scope and compatibility") |
+| 1.2.4 | Mappings/crosswalks and translations are **not** covered and need a separate written agreement | No crosswalk to another terminology and no translation. With the post-coordinated input, the bundle adds intra-source `NARROWER-THAN` links from each composite code to its first stem (WHO's own composite structure, within this one Source). Owner decision: these are internal structural links, not crosswalks to another terminology, so clause 1.2.4 is not treated as applying (owner's reading, not a legal opinion) |
 | 1.2.5 | Added data fields must be clearly identified as additions that do not originate from WHO | Every Source property description states its provenance; the WHO columns say so, and the non-WHO items (the synthetic root and `concept_class`) are flagged (below) |
 | 1.2.1 | Must not be used to develop or promulgate a different standard | A faithful load of the WHO MMS Simple Tabulation, not a new standard |
 | 1.3 | Published mentions must carry the WHO citation | Recorded below and in the Source `description` |
 
 ### What originates from WHO, and what this pipeline adds
 
-All eight concept extras are columns of the WHO Simple Tabulation; none is invented here:
+All base concept extras except `Foundation URL` are columns of the WHO Simple Tabulation; none is invented here:
 
 | Extra / property | Origin |
 | --- | --- |
@@ -112,6 +116,7 @@ All eight concept extras are columns of the WHO Simple Tabulation; none is inven
 | `BlockId`, `ChapterNo`, `DepthInKind`, `IsResidual`, `isLeaf` | WHO column, verbatim |
 | `BrowserLink` | WHO column, verbatim — the URL from the `=hyperlink(...)` cell kept as WHO wrote it (a `latestrelease` link, not pinned) |
 | `concept_class` | **Not a WHO field**: OCL metadata derived from the WHO `ClassKind` column |
+| `Foundation URL`, `isPostcoordinated` | **Not WHO fields**: composed/derived by this pipeline (the link from the WHO Foundation entity id; the flag from the composite code) |
 
 Two further items are **ours**, not WHO's, and must be recognisable as non-WHO additions: the
 synthetic root concept `ICD-11-Root` (its name and description are written by this pipeline) and
@@ -224,10 +229,61 @@ numeric order** through the OCL bulk-import form with one Queue ID. Never upload
 `WHO/ICD-11-WHO` Source — the importer would overwrite an existing concept's names and extras. Add
 `en` to `supported_locales` and set the hierarchy root as described above before loading.
 
+## Aliases and the single bundle
+
+`build` can take three optional, external inputs (generated locally by the sibling `ciel-scripts`
+repository, read-only reference; none is committed) and then writes **one** bundle: the base
+concepts, then the post-coordinated concepts, then their mappings (OCL imports lines in order).
+
+```bash
+uv run python terminologies/who/icd-11/pipeline/cli.py build \
+  --flat-synonyms      <ciel-scripts>/output/flat_foundation_synonyms.csv \
+  --postcoordinated-csv <ciel-scripts>/output/postcoord_index_items_full.csv \
+  --index-file         <ICD-API container>/tmp/ix_*mms*.pbf      # docker cp, read-only
+```
+
+| Input | Producer | Used for |
+| --- | --- | --- |
+| `--flat-synonyms` | `list_flat_foundation_synonyms.py` | Foundation titles folded into a stem/extension code, added as names of that **existing** base concept |
+| `--postcoordinated-csv` | `list_postcoordinated_index_codes.py --full-csv` | the post-coordinated concepts and their `NARROWER-THAN` mappings |
+| `--index-file` | the `whoicd/icd-api` container's search index | every Foundation entity title and synonym attached to each composite (required with `--postcoordinated-csv`) |
+
+`--postcoordinated-csv` and `--index-file` must be given together; the build refuses either alone.
+The index reader (`pipeline/foundation_index.py`) is a stdlib port of `decode_index_entities`; run on the
+2026-01 index it returns the same 4,227 composites and 5,643 code–entity pairs as the original.
+
+### Alias policy (owner decision)
+
+- Every alias is a name **without `name_type`**: the key is omitted so OCL stores null. The string
+  `"None"` is never written (an export serializes null as `"None"`, which would create a spurious diff).
+- The Fully Specified name is always first and the only preferred one; aliases are `locale_preferred: false`.
+- Aliases are **lexical aliases of WHO Foundation entities, not an asserted equivalence.** In the 2026-01
+  flat capture every row is `narrower` (20,065) or `residual_rollup` (9,051): a more specific Foundation
+  descendant of the code, or a roll-up into a `.Y`/`.Z` residual. None has the code's own title. They are
+  kept all (owner decision) and the generator's `evidence` is only counted in the audit, never used as a filter.
+- An alias equal to the Fully Specified name (case-insensitive) is dropped and counted; a repeated name
+  within a concept is kept once. A flat code absent from the base is reported in the audit, never dropped silently.
+- Post-coordinated aliases are, in order: every entity title and synonym the search index attaches to the
+  composite, then the CSV's own synonyms.
+
+### Current result (release 2026-01)
+
+| | |
+| --- | --- |
+| Base concepts | 37,053 |
+| Flat alias names added | 29,110 on 5,340 concepts (29,116 rows; 6 equal to the FSN) |
+| Post-coordinated concepts / mappings | 4,227 / 4,227 (all pass `/describe` in flexible mode; none rejected) |
+| Post-coordinated alias names added | 5,705 on 2,542 concepts |
+| Post-coordinated without an alias | 1,685: own-entity rows whose title is already the FSN and that have no synonym in the index |
+| Bundle | 45,507 lines, one part (1,717,368 bytes zipped) |
+
+The 5,340 of the flat file are *codes with folded Foundation entities*, not post-coordinated terms
+(those are the 4,227). A further 3,233 folded entities target chapters/blocks and are not in that file.
+
 ## Post-coordinated codes (additive layer)
 
 A **separate, additive** layer on top of the base load above: indexed post-coordinated ICD-11 codes
-(composite WHO codes such as `1A00&XN62R` or `5B81.Y/1A00`, each with its own Entity ID in the WHO
+(composite WHO codes such as `1A00&XN62R` or `5B81.Y/1A00`, each with its own composite URI in the WHO
 ICD-API search index but no row of its own in the Simple Tabulation). It never touches a concept the
 base load already created — it only *adds* new `Diagnosis` concepts plus a `NARROWER-THAN` mapping
 from each one to its first stem (per the owner's explicit decision: a mapping, not a
@@ -256,7 +312,7 @@ image directly, rather than a personal compose file) is a planned follow-up, tra
 | --- | --- | --- |
 | Concept `id` | The raw WHO composite code, `&`/`/` kept as-is (not encoded, not normalized) | The owner's explicit choice: it is the real ICD-11 code |
 | Stem relationship | `NARROWER-THAN` **mapping** to the first stem only — no `parent_concept_urls` | Matches the `ciel-scripts` reference loader's modeling; the base hierarchy built above is never touched |
-| `concept_class` | `Diagnosis` (same class as the base stems) | Owner decision, plus `extras.is_postcoordinated` to distinguish it |
+| `concept_class` | `Diagnosis` (same class as the base stems) | Owner decision, plus `extras.isPostcoordinated` to distinguish it |
 | Rejected codes (`describe_status=rejected_by_api`) | **Excluded by default**; pass `--include-rejected` to add them too | "Indexed" ≠ "valid" (the index still serves composites the API's own `/describe` value-set rules currently reject); the owner reviews them first via the HTML report below |
 | Capture-script versioning | Deferred | Input stays external for now; porting the Docker-based capture into this pipeline is a tracked follow-up |
 
@@ -280,7 +336,7 @@ verification/GET tool, never for the bulk-import NDJSON lines this builder write
 ### Rejected-codes review
 
 Before deciding whether to pass `--include-rejected`, review every indexed code's title source
-(own WHO Foundation entity vs. composed-only), `describe_status`, Entity ID, and the local ICD-API
+(own WHO Foundation entity vs. composed-only), `describe_status`, the composite URI, and the local ICD-API
 container's browse link, in one dense, filterable HTML (built to show several thousand rows at once):
 
 ```bash
@@ -293,12 +349,21 @@ uv run python terminologies/who/icd-11/pipeline/cli.py review \
 
 ### Properties and extras
 
-Declared in [`source.json`](source.json), alongside the base load's properties: `is_postcoordinated`
-(`True` on every concept this layer adds — not a WHO field), `Entity ID` (the composite Linearization
-URI, WHO field verbatim), `StemCode` (derived from the code, not the CSV's own `stem_code` column —
-see below), `Axes` (WHO `/describe` axis names), and `DescribeStatus` (`ok`/`rejected_by_api`, the WHO
-API's own validation outcome as captured by this pipeline). `ExtensionCodes`, `ExtensionLabels`,
-`DescribeError`, and `BrowseURL` extras are emitted but not yet declared as Source properties.
+A post-coordinated concept is shaped like any other concept (owner decision). Its extras are `isLeaf`
+(`True`), `BrowserLink` (a `latestrelease`-style link derived from the composite URIs; not a WHO cell),
+`Foundation URI` (the standard `http://id.who.int/icd/entity/<id>`, which only the WHO ICD-API resolves), `Foundation URL` and **one** post-coordination field, `isPostcoordinated` (`True`; display "Is Postcoordinated").
+That field holds exactly for ids containing `&` or `/` (no base id does), so it can always be re-derived from the
+code, and the build refuses a post-coordinated code without either separator. `Entity ID`, `StemCode`, `Axes`,
+`DescribeStatus`, `ExtensionCodes`, `ExtensionLabels`, `DescribeError` and `BrowseURL` are **not** extras: the first stem
+lives in the `NARROWER-THAN` mapping, and the audit records the `/describe` outcome counts.
+
+`Foundation URI` and `Foundation URL` exist for every concept that has a Foundation entity, base and post-coordinated alike. The URI is WHO's identifier (for post-coordinated codes composed from the entity id); the URL is the browser link
+`https://icd.who.int/browse/<release>/foundation/en#<Foundation entity id>`, pinned to the imported release, added because the URI is not browsable. For base
+concepts the id comes from the WHO Foundation URI (31,678 of 37,053; the synthetic root and the residual `.Y`/`.Z`
+categories have no Foundation entity of their own, so none is invented). For a post-coordinated code it is, in order:
+the composite's own entity reported by the WHO ICD-API (CSV `foundation_entity_id`), else the single entity the search
+index attaches to it; with several candidates and no own entity none is guessed and the link is left out (counted in
+the audit as `ambiguous_not_set`).
 
 The first stem is always derived from the composite `code` string itself (everything before its
 first `&` or `/`), never from the CSV's own `stem_code` column: that column comes from the `/describe`
@@ -310,10 +375,10 @@ component regardless of hydration outcome.
 | | |
 | --- | --- |
 | Indexed composites | 4,227 (3,638 with an extension value, 657 with a second stem) |
-| `describe_status=ok` | 3,559 → **built by default** |
-| `describe_status=rejected_by_api` | 668 → excluded by default, reviewed separately |
-| Unknown stems (not in the base Source) | 0, in both the default and `--include-rejected` run |
-| Default build | 3,559 concepts + 3,559 mappings → 1 part, 176,748-byte bundle ZIP |
+| `describe_status=ok` | 4,227 in the 2026-10-14 capture (flexible mode) → **built by default** |
+| `describe_status=rejected_by_api` | 0 in that capture (an earlier strict-mode capture rejected 668) |
+| Unknown stems (not in the base Source) | 0 |
+| Default build | 4,227 concepts + 4,227 mappings |
 
 ### Local rehearsal
 

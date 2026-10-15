@@ -15,6 +15,7 @@ wrapper; extract it and upload each inner one-member part ZIP in order, never th
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import re
 import sys
 from pathlib import Path
@@ -37,6 +38,8 @@ def _pipeline(module: str):
 asset_registry = _pipeline("assets")
 simple_tabulation = _pipeline("simple_tabulation")
 postcoordinated = _pipeline("postcoordinated")
+flat_synonyms = _pipeline("flat_synonyms")
+foundation_index = _pipeline("foundation_index")
 review = _pipeline("review")
 _bulk = _pipeline("build_bulkimport")
 TARGET_OWNER, TARGET_SOURCE, build = _bulk.TARGET_OWNER, _bulk.TARGET_SOURCE, _bulk.build
@@ -100,6 +103,23 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     build_parser.add_argument("--archive-name", default=DEFAULT_BUNDLE_ARCHIVE, help="single-member full-bundle ZIP")
     build_parser.add_argument("--parts-archive-name", default=DEFAULT_PARTS_ARCHIVE, help="distribution ZIP containing each upload-part ZIP")
     build_parser.add_argument("--no-archive", action="store_true", help="skip both hand-off ZIPs (parts and bundle remain)")
+    build_parser.add_argument(
+        "--flat-synonyms", type=Path,
+        help="flat_foundation_synonyms.csv from ciel-scripts' list_flat_foundation_synonyms.py (external; not committed): "
+             "adds each Foundation title as an untyped name of its stem/extension code",
+    )
+    build_parser.add_argument(
+        "--postcoordinated-csv", type=Path,
+        help="full CSV from ciel-scripts' list_postcoordinated_index_codes.py --full-csv (external; not committed): "
+             "appends the post-coordinated concepts and their NARROWER-THAN mappings to this same bundle; needs --index-file",
+    )
+    build_parser.add_argument(
+        "--index-file", type=Path,
+        help="WHO ICD-API search index (ix_*mms*.pbf, read-only, external) that supplies the post-coordinated aliases; "
+             "needs --postcoordinated-csv",
+    )
+    build_parser.add_argument("--include-rejected", action="store_true",
+        help="with --postcoordinated-csv, also build describe_status=rejected_by_api rows (excluded by default)")
 
     postcoord = subparsers.add_parser(
         "build-postcoordinated",
@@ -115,6 +135,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     postcoord.add_argument("--include-rejected", action="store_true",
         help="also build the describe_status=rejected_by_api rows (excluded by default; see README)")
+    postcoord.add_argument("--index-file", type=Path,
+        help="WHO ICD-API search index (read-only, external): adds each composite's Foundation titles and synonyms as untyped names")
     postcoord.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR / "postcoordinated")
     postcoord.add_argument("--max-part-size", type=parse_size, default=DEFAULT_PART_BYTES, metavar="SIZE")
     postcoord.add_argument("--zip-method", choices=sorted(METHODS), default=DEFAULT_METHOD)
@@ -140,18 +162,108 @@ def command_fetch_assets(args: argparse.Namespace) -> int:
     return 0
 
 
+def _file_input(role: str, path: Path, **details) -> dict:
+    return {"role": role, "path": display_path(path), "sha256": sha256_file(path), "bytes": Path(path).stat().st_size, **details}
+
+
+def alias_inputs(args, flat, postcoord_index, release, index_entities) -> list[dict]:
+    inputs = []
+    if flat:
+        inputs.append(_file_input(
+            "flat-foundation-synonyms-csv", args.flat_synonyms, release=release,
+            authority="WHO (content) via local WHO ICD-API search index, not a WHO-published file",
+            generator="ciel-scripts/list_flat_foundation_synonyms.py (read-only reference; not imported by this pipeline)",
+        ))
+    if postcoord_index:
+        inputs.append(_file_input(
+            "postcoordinated-index-full-csv", args.postcoordinated_csv, release=release,
+            authority="WHO (content) via local WHO ICD-API search index, not a WHO-published file",
+            generator="ciel-scripts/list_postcoordinated_index_codes.py --full-csv (read-only reference; not imported by this pipeline)",
+            include_rejected=args.include_rejected,
+        ))
+        inputs.append(_file_input(
+            "icd-api-search-index", args.index_file, release=release,
+            authority="WHO ICD-API search index (ix_*mms*.pbf) copied read-only from a local whoicd/icd-api container; not committed",
+            composites_with_entities=len(index_entities),
+            entities=sum(len(entities) for entities in index_entities.values()),
+        ))
+    return inputs
+
+
+def alias_audit(flat, flat_stats, postcoord_index, postcoord_result) -> dict:
+    audit = {
+        "name_type": "omitted (null)",
+        "policy": (
+            "Owner decision: every WHO Foundation title or synonym added here is an untyped name (no name_type key; "
+            "OCL stores null, never the string 'None'). They are lexical aliases of Foundation entities, not an asserted "
+            "equivalence: flat-code entities are narrower or residual roll-ups of the code (no row has the code's own title)."
+        ),
+    }
+    if flat:
+        audit["flat"] = {
+            "rows_read": flat.total_read,
+            "rows_skipped_without_code_or_name": flat.skipped,
+            "duplicate_names_in_csv": flat.duplicate_names,
+            "names_added": flat_stats["names_added"],
+            "concepts_with_aliases": flat_stats["concepts_with_aliases"],
+            "equal_to_fsn": flat_stats["equal_to_fsn"],
+            "unknown_codes": flat_stats["unknown_codes"],
+            "evidence": flat.evidence_counts,
+            "note": "evidence is the generator's heuristic, kept for review; it does not filter or label any name",
+        }
+    if postcoord_result:
+        stats = postcoord_result.alias_stats
+        missing = stats["rows_without_index_entities"]
+        audit["postcoordinated"] = {
+            "rows_read": postcoord_index.total_read,
+            "rows_kept": len(postcoord_index.rows),
+            "names_added": stats["names_added"],
+            "concepts_with_aliases": stats["rows_with_aliases"],
+            "equal_to_fsn": stats["equal_to_fsn"],
+            "rows_without_index_entities": len(missing),
+            "rows_without_index_entities_sample": missing[:20],
+            "note": "aliases = every Foundation entity title and synonym the search index attaches to the composite, then the CSV's own synonyms",
+        }
+    return audit
+
+
 def command_build(args: argparse.Namespace) -> int:
     path = Path(args.input)
     if not path.is_file():
         print(f"error: Simple Tabulation input not found: {path}\n       run: cli.py fetch-assets", file=sys.stderr)
         return 1
+    if args.postcoordinated_csv and not args.index_file:
+        print("error: --postcoordinated-csv needs --index-file (the aliases of every post-coordinated code come from it)", file=sys.stderr)
+        return 1
+    if args.index_file and not args.postcoordinated_csv:
+        print("error: --index-file only applies together with --postcoordinated-csv", file=sys.stderr)
+        return 1
+    for label, given in (("flat synonyms CSV", args.flat_synonyms), ("post-coordinated CSV", args.postcoordinated_csv), ("index file", args.index_file)):
+        if given and not Path(given).is_file():
+            print(f"error: {label} not found: {given}", file=sys.stderr)
+            return 1
     tabulation = simple_tabulation.read(path)
     print(f"{tabulation.version_label}: {len(tabulation.rows):,} entities, {len(tabulation.skipped):,} rows skipped")
-    result = build(tabulation)
+    flat = flat_synonyms.read(args.flat_synonyms) if args.flat_synonyms else None
+    result = build(tabulation, flat.by_code if flat else None)
+    lines = result.lines
+
+    postcoord_index = postcoord_result = index_entities = None
+    if args.postcoordinated_csv:
+        postcoord_index = postcoordinated.read(args.postcoordinated_csv, release=tabulation.release, include_rejected=args.include_rejected)
+        index_entities = foundation_index.read_index_entities(args.index_file, tabulation.release)
+        known_ids = {row.id for row in tabulation.rows} | {simple_tabulation.ROOT_ID}
+        postcoord_result = build_postcoordinated(postcoord_index, known_ids, index_entities)
+        collisions = sorted(known_ids & {line["id"] for line in postcoord_result.concept_lines})
+        if collisions:
+            print(f"error: {len(collisions)} post-coordinated id(s) collide with the base Source, e.g. {collisions[:5]}", file=sys.stderr)
+            return 1
+        # concepts before the mappings that point at them: OCL imports the lines in order
+        lines = lines + postcoord_result.concept_lines + postcoord_result.mapping_lines
 
     output_dir = Path(args.output_dir)
-    parts = write_parts(output_dir, result.lines, args.max_part_size)
-    bundle = write_bundle(output_dir, result.lines)
+    parts = write_parts(output_dir, lines, args.max_part_size)
+    bundle = write_bundle(output_dir, lines)
 
     target = {"owner": TARGET_OWNER, "source": TARGET_SOURCE, "owner_type": "Organization"}
     mode = "full-source-load"
@@ -160,13 +272,19 @@ def command_build(args: argparse.Namespace) -> int:
         "nothing was verified against OCL. They create complete concepts (names and extras), so load them "
         "only into an empty WHO/ICD-11-WHO Source; the importer would overwrite an existing concept."
     )
+    if flat or postcoord_result:
+        warning += (
+            " Alias names carry no name_type; they are WHO Foundation titles/synonyms kept as lexical aliases, "
+            "not an asserted equivalence (flat-code entities are narrower or residual roll-ups of the code)."
+        )
+    upload_comment = "pending: not yet rehearsed against a local OCL instance; full-source-load needs an empty Source"
     bundle_archive_info = None
     parts_archive_info = None
     if not args.no_archive:
         manifest = build_manifest(
             target=target,
             mode=mode,
-            upload_ready=upload_ready_map(False, "pending tasks: test terminology; local Source already holds 37,053 concepts, full-source-load needs an empty Source"),
+            upload_ready=upload_ready_map(False, upload_comment),
             parts=[part.__dict__ for part in parts],
             bundle=bundle.__dict__,
             method=args.zip_method,
@@ -208,7 +326,7 @@ def command_build(args: argparse.Namespace) -> int:
         "schema_version": 1,
         "target": target,
         "mode": mode,
-        "upload_ready": upload_ready_map(False, "pending tasks: test terminology; local Source already holds 37,053 concepts, full-source-load needs an empty Source"),
+        "upload_ready": upload_ready_map(False, upload_comment),
         "warning": warning,
         "inputs": [
             {
@@ -226,7 +344,7 @@ def command_build(args: argparse.Namespace) -> int:
         ],
         "read": {"entities": len(tabulation.rows), "skipped": dict(sorted(reasons.items()))},
         "build": {
-            "lines": len(result.lines),
+            "lines": len(lines),
             "class_counts": result.class_counts,
             "rooted_without_parent": result.rooted_without_parent,
             "max_part_zip_bytes": args.max_part_size,
@@ -261,10 +379,31 @@ def command_build(args: argparse.Namespace) -> int:
             ),
         },
     }
+    audit["build"]["base_concepts_with_foundation_url"] = sum(
+        1 for line in result.lines if "Foundation URL" in line.get("extras", {})
+    )
+    if flat or postcoord_result:
+        audit["aliases"] = alias_audit(flat, result.alias_stats, postcoord_index, postcoord_result)
+        audit["inputs"].extend(alias_inputs(args, flat, postcoord_index, tabulation.release, index_entities))
+    if postcoord_result:
+        audit["build"]["postcoordinated_concepts"] = len(postcoord_result.concept_lines)
+        audit["build"]["postcoordinated_mappings"] = len(postcoord_result.mapping_lines)
+        audit["build"]["postcoordinated_unknown_stems"] = postcoord_result.unknown_stems
+        audit["build"]["postcoordinated_foundation_url"] = postcoord_result.foundation_stats
+        audit["build"]["postcoordinated_describe_status"] = dict(sorted(Counter(row.describe_status or "unknown" for row in postcoord_index.rows).items()))
+        audit["projection"]["omitted"] = ["Source record", "descriptions (except the root)"]
+        audit["projection"]["mapping_fields"] = ["type", "owner", "owner_type", "source", "map_type", "from_concept_url", "to_concept_url"]
     write_json(output_dir / "bulkimport_audit.json", audit)
 
     print(f"mode: {mode}   upload_ready.local: False")
-    print(f"lines: {len(result.lines):,}   classes: {result.class_counts}")
+    print(f"lines: {len(lines):,}   classes: {result.class_counts}")
+    if flat:
+        print(f"flat aliases: {result.alias_stats['names_added']:,} names on {result.alias_stats['concepts_with_aliases']:,} concepts "
+              f"({len(result.alias_stats['unknown_codes'])} unknown codes, {result.alias_stats['equal_to_fsn']} equal to the FSN)")
+    if postcoord_result:
+        stats = postcoord_result.alias_stats
+        print(f"post-coordinated: {len(postcoord_result.concept_lines):,} concepts + {len(postcoord_result.mapping_lines):,} mappings; "
+              f"{stats['names_added']:,} alias names on {stats['rows_with_aliases']:,} concepts")
     for part in parts:
         print(f"  {part.zip}  {part.lines:,} lines  {part.bytes:,} bytes → {part.zip_bytes:,} bytes zipped  sha256={part.zip_sha256[:12]}…")
     print(f"bundle: {bundle.name}  {bundle.lines:,} lines  {bundle.bytes:,} bytes")
@@ -289,7 +428,13 @@ def command_build_postcoordinated(args: argparse.Namespace) -> int:
     known_stem_ids = {row.id for row in tabulation.rows}
     known_stem_ids.add(root_id)
     index = postcoordinated.read(input_path, release=tabulation.release, include_rejected=args.include_rejected)
-    result = build_postcoordinated(index, known_stem_ids)
+    index_entities = None
+    if args.index_file:
+        if not Path(args.index_file).is_file():
+            print(f"error: index file not found: {args.index_file}", file=sys.stderr)
+            return 1
+        index_entities = foundation_index.read_index_entities(args.index_file, tabulation.release)
+    result = build_postcoordinated(index, known_stem_ids, index_entities)
 
     collisions = sorted(known_stem_ids & {line["id"] for line in result.concept_lines})
     if collisions:
@@ -305,7 +450,7 @@ def command_build_postcoordinated(args: argparse.Namespace) -> int:
     mode = "incremental-add"
     warning = (
         "Test terminology, additive layer: this bundle ONLY adds new concepts (indexed post-coordinated "
-        "codes, concept_class Diagnosis, extras.is_postcoordinated=True) and NARROWER-THAN mappings to "
+        "codes, concept_class Diagnosis, extras.isPostcoordinated=True) and NARROWER-THAN mappings to "
         "their first stem. It never creates, modifies, or deletes a concept already in the base Simple "
         "Tabulation load, and nothing here was verified against OCL yet."
     )
@@ -358,6 +503,8 @@ def command_build_postcoordinated(args: argparse.Namespace) -> int:
             "concept_lines": len(result.concept_lines),
             "mapping_lines": len(result.mapping_lines),
             "unknown_stems": result.unknown_stems,
+            "foundation_url": result.foundation_stats,
+            "describe_status": dict(sorted(Counter(row.describe_status or "unknown" for row in index.rows).items())),
             "max_part_zip_bytes": args.max_part_size,
         },
         "review": {
@@ -391,6 +538,14 @@ def command_build_postcoordinated(args: argparse.Namespace) -> int:
             ),
         },
     }
+    if index_entities is not None:
+        audit["aliases"] = alias_audit(None, None, index, result)
+        audit["inputs"].append(_file_input(
+            "icd-api-search-index", args.index_file, release=tabulation.release,
+            authority="WHO ICD-API search index (ix_*mms*.pbf) copied read-only from a local whoicd/icd-api container; not committed",
+            composites_with_entities=len(index_entities),
+            entities=sum(len(entities) for entities in index_entities.values()),
+        ))
     write_json(output_dir / "bulkimport_audit.json", audit)
 
     print(f"mode: {mode}   upload_ready.local: False")

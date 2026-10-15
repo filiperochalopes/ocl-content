@@ -6,8 +6,21 @@
     "owner_type": "Organization"
   },
   "mode": "full-source-load",
-  "upload_ready": false,
-  "warning": "Test terminology: the bulk-import lines were generated from the Simple Tabulation alone and nothing was verified against OCL. They create complete concepts (names and extras), so load them only into an empty WHO/ICD-11-WHO Source; the importer would overwrite an existing concept.",
+  "upload_ready": {
+    "local": {
+      "status": false,
+      "comment": "pending: not yet rehearsed against a local OCL instance; full-source-load needs an empty Source"
+    },
+    "staging": {
+      "status": false,
+      "comment": "pending: local rehearsal not passed; staging bundle not built"
+    },
+    "production": {
+      "status": false,
+      "comment": "pending: staging not validated; production bundle not built"
+    }
+  },
+  "warning": "Test terminology: the bulk-import lines were generated from the Simple Tabulation alone and nothing was verified against OCL. They create complete concepts (names and extras), so load them only into an empty WHO/ICD-11-WHO Source; the importer would overwrite an existing concept. Alias names carry no name_type; they are WHO Foundation titles/synonyms kept as lexical aliases, not an asserted equivalence (flat-code entities are narrower or residual roll-ups of the code).",
   "inputs": [
     {
       "role": "simple-tabulation",
@@ -20,6 +33,35 @@
       "version_label": "Version:2026 Jan 17 - 05:30 UTC",
       "matches_pinned_asset": true,
       "source_url": "https://icdcdn.who.int/static/releasefiles/2026-01/SimpleTabulation-ICD-11-MMS-en.zip"
+    },
+    {
+      "role": "flat-foundation-synonyms-csv",
+      "path": "flat_foundation_synonyms.csv",
+      "sha256": "86b30d7c89a18c5fb13544469900376b3da22700eaee5d7d7067288ee2f59c0d",
+      "bytes": 7844042,
+      "release": "2026-01",
+      "authority": "WHO (content) via local WHO ICD-API search index, not a WHO-published file",
+      "generator": "ciel-scripts/list_flat_foundation_synonyms.py (read-only reference; not imported by this pipeline)"
+    },
+    {
+      "role": "postcoordinated-index-full-csv",
+      "path": "postcoord_index_items_full.csv",
+      "sha256": "e8c25dce241853997626305781cf07c7f7fafb84a21bafd276cfef6795d241fa",
+      "bytes": 3093370,
+      "release": "2026-01",
+      "authority": "WHO (content) via local WHO ICD-API search index, not a WHO-published file",
+      "generator": "ciel-scripts/list_postcoordinated_index_codes.py --full-csv (read-only reference; not imported by this pipeline)",
+      "include_rejected": false
+    },
+    {
+      "role": "icd-api-search-index",
+      "path": "ix_(2025-01-24)(2026-01-17)_foundation-icf-mms_en_v5.7.pbf",
+      "sha256": "764d45b85087be0e623a40afb67b25f51a136e2deb8bfe7e57ac1db49ce3cbc2",
+      "bytes": 204985843,
+      "release": "2026-01",
+      "authority": "WHO ICD-API search index (ix_*mms*.pbf) copied read-only from a local whoicd/icd-api container; not committed",
+      "composites_with_entities": 4227,
+      "entities": 5643
     }
   ],
   "read": {
@@ -29,7 +71,7 @@
     }
   },
   "build": {
-    "lines": 37053,
+    "lines": 45507,
     "class_counts": {
       "Block": 1360,
       "Chapter": 28,
@@ -37,70 +79,84 @@
       "Root": 1
     },
     "rooted_without_parent": 0,
-    "max_part_zip_bytes": 2097152
+    "max_part_zip_bytes": 2097152,
+    "base_concepts_with_foundation_url": 31678,
+    "postcoordinated_concepts": 4227,
+    "postcoordinated_mappings": 4227,
+    "postcoordinated_unknown_stems": [],
+    "postcoordinated_foundation_url": {
+      "from_own_entity": 2577,
+      "from_single_index_entity": 1410,
+      "ambiguous_not_set": 240,
+      "own_not_in_index": 24,
+      "no_entity": 0
+    },
+    "postcoordinated_describe_status": {
+      "ok": 4227
+    }
   },
   "output": {
     "directory": "terminologies/who/icd-11/output",
     "parts": [
       {
         "name": "bulkimport_part_001.ndjson",
-        "lines": 37053,
-        "sha256": "ce6c566db32900cdf06c97ae933882e0d8c37346e21c30a62046b1c70d979413",
-        "bytes": 23477243,
+        "lines": 45507,
+        "sha256": "9a3d0a80eb9d86f4353138949eafb4adb2edbdf69b91f32a33bf7d879050936d",
+        "bytes": 32911924,
         "zip": "bulkimport_part_001.zip",
-        "zip_bytes": 1149919,
-        "zip_sha256": "30f1b753d4dd72d2fba6d94b6827f538461043e066a7cb3668ad32d477c8a602"
+        "zip_bytes": 1851136,
+        "zip_sha256": "43aaf9912d6bacfa1a928883f6e639bcf9fe1295648a1b810d435359942cb2e5"
       }
     ],
     "bundle": {
       "name": "bulkimport_bundle.ndjson",
-      "lines": 37053,
-      "sha256": "ce6c566db32900cdf06c97ae933882e0d8c37346e21c30a62046b1c70d979413",
-      "bytes": 23477243,
+      "lines": 45507,
+      "sha256": "9a3d0a80eb9d86f4353138949eafb4adb2edbdf69b91f32a33bf7d879050936d",
+      "bytes": 32911924,
       "zip": "",
       "zip_bytes": 0,
       "zip_sha256": ""
     },
     "bundle_archive": {
       "name": "bulkimport_icd11-who.bundle.zip",
-      "bytes": 1149915,
+      "bytes": 1851132,
       "method": "deflate",
-      "payload_bytes": 23477243,
+      "payload_bytes": 32911924,
       "members": [
         {
           "name": "bulkimport_bundle.ndjson",
-          "lines": 37053,
-          "bytes": 23477243,
-          "compressed_bytes": 1149769,
-          "sha256": "ce6c566db32900cdf06c97ae933882e0d8c37346e21c30a62046b1c70d979413"
+          "lines": 45507,
+          "bytes": 32911924,
+          "compressed_bytes": 1850986,
+          "sha256": "9a3d0a80eb9d86f4353138949eafb4adb2edbdf69b91f32a33bf7d879050936d"
         }
       ],
-      "ratio": 0.049,
-      "sha256": "ebfd1965a977ce0ae614ae7e3f2eb4702c5818494083d21cdaa2b4c407b98860"
+      "ratio": 0.0562,
+      "sha256": "6a2cf4ec1d34cb2397e01e3904642e657049f664c0e6b16aa34d46cc9b0a35a9"
     },
     "parts_archive": {
       "name": "bulkimport_icd11-who.parts.zip",
-      "bytes": 1144801,
+      "bytes": 1840174,
       "method": "deflate",
-      "payload_bytes": 1151284,
+      "payload_bytes": 1852917,
       "members": [
         {
           "name": "bulkimport_part_001.zip",
-          "lines": 6499,
-          "bytes": 1149919,
-          "compressed_bytes": 1143921,
-          "sha256": "30f1b753d4dd72d2fba6d94b6827f538461043e066a7cb3668ad32d477c8a602"
+          "lines": 7906,
+          "bytes": 1851136,
+          "compressed_bytes": 1839166,
+          "sha256": "43aaf9912d6bacfa1a928883f6e639bcf9fe1295648a1b810d435359942cb2e5"
         },
         {
           "name": "bulkimport_manifest.json",
           "lines": 0,
-          "bytes": 1365,
-          "compressed_bytes": 612,
-          "sha256": "bf38cc4c5988a0d67c15b0021123ca43b6b3ff2af06155016e4e2e190df09d40"
+          "bytes": 1781,
+          "compressed_bytes": 740,
+          "sha256": "a6d2862903e342deeae1242fd3208eaff4af0739a2dd701d76af40c4a72f77f7"
         }
       ],
-      "ratio": 0.9944,
-      "sha256": "adf43507010570ebe9c5e0211d96802998aeb23f59e638254e2c221557452da8"
+      "ratio": 0.9931,
+      "sha256": "771c1f198fc07f65ffa9e460f2015daa95a51f5cd71ae32b6235275390937492"
     },
     "versioned": [
       "bulkimport_audit.json",
@@ -129,14 +185,49 @@
     ],
     "omitted": [
       "Source record",
-      "mappings",
-      "post-coordinated codes",
       "descriptions (except the root)"
+    ],
+    "mapping_fields": [
+      "type",
+      "owner",
+      "owner_type",
+      "source",
+      "map_type",
+      "from_concept_url",
+      "to_concept_url"
     ]
   },
   "upload": {
     "mechanism": "manual",
     "api_upload": false,
     "note": "The .bundle.zip contains exactly one complete NDJSON file and can be uploaded as one import. The .parts.zip is a distribution container, not an OCL upload: extract it, then upload each inner bulkimport_part_NNN.zip in numeric order through the OCL form, reusing one Queue ID. Each inner part ZIP contains exactly one NDJSON file."
+  },
+  "aliases": {
+    "name_type": "omitted (null)",
+    "policy": "Owner decision: every WHO Foundation title or synonym added here is an untyped name (no name_type key; OCL stores null, never the string 'None'). They are lexical aliases of Foundation entities, not an asserted equivalence: flat-code entities are narrower or residual roll-ups of the code (no row has the code's own title).",
+    "flat": {
+      "rows_read": 29116,
+      "rows_skipped_without_code_or_name": 0,
+      "duplicate_names_in_csv": 0,
+      "names_added": 29110,
+      "concepts_with_aliases": 5340,
+      "equal_to_fsn": 6,
+      "unknown_codes": [],
+      "evidence": {
+        "narrower": 20065,
+        "residual_rollup": 9051
+      },
+      "note": "evidence is the generator's heuristic, kept for review; it does not filter or label any name"
+    },
+    "postcoordinated": {
+      "rows_read": 4227,
+      "rows_kept": 4227,
+      "names_added": 5705,
+      "concepts_with_aliases": 2542,
+      "equal_to_fsn": 2553,
+      "rows_without_index_entities": 0,
+      "rows_without_index_entities_sample": [],
+      "note": "aliases = every Foundation entity title and synonym the search index attaches to the composite, then the CSV's own synonyms"
+    }
   }
 }

@@ -86,6 +86,7 @@ def validate_config(config: dict[str, Any]) -> None:
     _require_identifier(config, "source")
     _require_string(config, "name")
     _require_string(config, "description")
+    _require_string(config, "copyright")
     _validate_canonical_url(config)
 
     content = config.get("content")
@@ -96,8 +97,10 @@ def validate_config(config: dict[str, Any]) -> None:
             raise ConfigError(f"content.{key} must be a boolean")
 
     properties = config.get("properties")
-    if not isinstance(properties, list) or not properties:
-        raise ConfigError("properties must be a non-empty list")
+    # A flat Source (no hierarchy) may declare no property at all, e.g. when its only
+    # classification field is an internal OCL concept_class kept out of the UI.
+    if not isinstance(properties, list) or (not properties and content.get("has_hierarchy") is not False):
+        raise ConfigError("properties must be a non-empty list unless the Source is flat (has_hierarchy false)")
     property_codes: set[str] = set()
     for index, prop in enumerate(properties):
         if not isinstance(prop, dict):
@@ -212,6 +215,7 @@ def build_patch(
     # Managed fields only. name and description are descriptive inputs of the configuration and
     # are deliberately not part of the patch, so a run never renames the live Source.
     patch: dict[str, Any] = {
+        "copyright": config["copyright"],
         "properties": config["properties"],
         "filters": config.get("filters", []),
         "meta": deep_merge(current_meta, configured_meta),

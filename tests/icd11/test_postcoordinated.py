@@ -134,19 +134,49 @@ def test_concept_line_carries_the_raw_code_as_id_with_no_parent_url():
     assert line["id"] == "1A00&XN62R"
     assert line["concept_class"] == "Diagnosis"
     assert "parent_concept_urls" not in line
-    assert line["extras"]["is_postcoordinated"] == "True"
-    assert line["extras"]["Entity ID"].startswith("http://id.who.int/")
-    assert line["extras"]["StemCode"] == "1A00"
-    assert line["extras"]["Axes"] == "infectiousAgent"
-    assert line["extras"]["DescribeStatus"] == "ok"
-    assert "DescribeError" not in line["extras"]
+    assert line["extras"]["isPostcoordinated"] == "True"
 
 
-def test_rejected_concept_keeps_the_describe_error():
-    line = bulk.postcoord_concept_line(_row(code="5B81.Y/1A00", stem_code="5B81.Y", describe_status="rejected_by_api",
-                                             describe_error="the entity 1A00 does not exist in any valueset"))
-    assert line["extras"]["DescribeStatus"] == "rejected_by_api"
-    assert line["extras"]["DescribeError"] == "the entity 1A00 does not exist in any valueset"
+def test_the_only_post_coordination_extra_is_isPostcoordinated():
+    extras = bulk.postcoord_concept_line(_row(), foundation_id="555", release="2026-01")["extras"]
+    assert set(extras) == {"isLeaf", "BrowserLink", "isPostcoordinated", "Foundation URI", "Foundation URL"}
+    for dropped in ("is_postcoordinated", "Entity ID", "StemCode", "Axes", "DescribeStatus"):
+        assert dropped not in extras
+
+
+def test_foundation_uri_is_the_standard_who_entity_uri_next_to_the_url():
+    extras = bulk.postcoord_concept_line(_row(), foundation_id="704377697", release="2026-01")["extras"]
+    assert extras["Foundation URI"] == "http://id.who.int/icd/entity/704377697"
+
+
+def test_foundation_url_is_the_pinned_official_foundation_browser_link():
+    extras = bulk.postcoord_concept_line(_row(), foundation_id="704377697", release="2026-01")["extras"]
+    assert extras["Foundation URL"] == "https://icd.who.int/browse/2026-01/foundation/en#704377697"
+
+
+def test_without_a_foundation_id_there_is_neither_foundation_uri_nor_url():
+    extras = bulk.postcoord_concept_line(_row())["extras"]
+    assert "Foundation URL" not in extras and "Foundation URI" not in extras
+
+
+def test_a_post_coordinated_code_must_contain_an_ampersand_or_a_slash():
+    with pytest.raises(ValueError, match="not a composite"):
+        bulk.postcoord_concept_line(_row(code="1A00"))
+
+
+def test_postcoordinated_concept_is_a_leaf_with_a_latest_browser_link_like_any_other_concept():
+    extras = bulk.postcoord_concept_line(_row())["extras"]
+    assert extras["isLeaf"] == "True"
+    assert extras["BrowserLink"] == "https://icd.who.int/browse/latestrelease/mms/en#1%20%26%202"
+
+
+def test_postcoordinated_concept_carries_no_extension_error_or_pinned_link_extras():
+    line = bulk.postcoord_concept_line(_row(
+        code="5B81.Y/1A00", stem_code="5B81.Y", describe_status="rejected_by_api",
+        describe_error="the entity 1A00 does not exist in any valueset",
+    ))
+    for dropped in ("ExtensionCodes", "ExtensionLabels", "DescribeError", "BrowseURL"):
+        assert dropped not in line["extras"]
 
 
 def test_mapping_percent_encodes_a_slash_in_from_concept_url():

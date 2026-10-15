@@ -3,23 +3,10 @@
   "source": "SNOMED-GPS",
   "canonical_url": "http://terminology.hl7.org/ValueSet/snomed-intl-gps",
   "name": "SNOMED Global Patient Set (GPS)",
-  "description": "The SNOMED International Global Patient Set (GPS), a flat identifier-and-term artifact. The January 2026 release includes all active SNOMED CT International Edition concepts and all concepts inactive since 2012. Each concept preserves the source ConceptID, active status, Fully Specified Name, and US Preferred Term. GPS does not contain SNOMED CT hierarchies, relationships, definitions, mappings, translations, or semantic reasoning content. © 2026 International Health Terminology Standards Development Organisation. Licensed under CC BY-ND 4.0.",
+  "description": "The SNOMED International Global Patient Set (GPS), a flat identifier-and-term artifact. The January 2026 release includes all active SNOMED CT International Edition concepts and all concepts inactive since 2012. Each concept preserves the source ConceptID, active status, Fully Specified Name, and US Preferred Term. GPS does not contain SNOMED CT hierarchies, relationships, definitions, mappings, translations, or semantic reasoning content.",
+  "copyright": "© 2026 International Health Terminology Standards Development Organisation (IHTSDO), trading as SNOMED International. SNOMED CT® was originally created by the College of American Pathologists. The Global Patient Set (GPS) is distributed under the Creative Commons Attribution-NoDerivatives 4.0 International Public License (CC BY-ND 4.0): https://creativecommons.org/licenses/by-nd/4.0/. Copyright in partner-organization materials remains with their respective owners. SNOMED®, SNOMED CT® and IHTSDO® are registered trademarks of International Health Terminology Standards Development Organisation. GPS release information: https://www.snomed.org/gps.",
   "content": {"requires_mappings": false, "has_hierarchy": false},
-  "properties": [
-    {
-      "code": "concept_class",
-      "type": "code",
-      "display": "Concept class",
-      "description": "OCL concept class. The GPS pipeline sets Misc for every concept because the official flat release contains no hierarchy or semantic type classification."
-    }
-  ],
-  "filters": [
-    {
-      "code": "concept_class",
-      "operator": ["="],
-      "value": "Misc",
-      "description": "GPS is a flat terminology; all concepts are represented with the OCL Misc class."
-    }
-  ],
-  "meta": {"display": {"concept_summary_properties": ["concept_class"], "concept_filter_order": ["concept_class"]}}
+  "properties": [],
+  "filters": [],
+  "meta": {"display": {"concept_summary_properties": [], "concept_filter_order": []}}
 }

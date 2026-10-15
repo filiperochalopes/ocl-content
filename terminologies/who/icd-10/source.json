@@ -4,6 +4,7 @@
   "canonical_url": "http://hl7.org/fhir/sid/icd-10",
   "name": "ICD-10 WHO Version",
   "description": "WHO International Classification of Diseases, Tenth Revision, modeled as a navigable classification hierarchy in OCL.",
+  "copyright": "© World Health Organization (WHO). International Classification of Diseases, Tenth Revision (ICD-10), 2019 release. Used under the Creative Commons Attribution-NoDerivatives 3.0 IGO licence (CC BY-ND 3.0 IGO). Source: https://icd.who.int/; licence: https://creativecommons.org/licenses/by-nd/3.0/igo/.",
   "content": {
     "requires_mappings": false,
     "has_hierarchy": true

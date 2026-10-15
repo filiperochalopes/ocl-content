@@ -6,12 +6,13 @@ Validates and synchronizes declarative OCL Source metadata kept in a terminology
 
 It manages:
 
+- `copyright` (required): Source-level rights and attribution notice from the terminology authority; include the licence and its URL only when the applicable release terms establish one;
 - `properties` definitions and their display labels/descriptions;
 - `filters` and their configured order;
 - `meta.display.concept_summary_properties` and `concept_filter_order`;
 - optionally, `hierarchy_meaning` and `hierarchy_root_url`.
 
-`name` and `description` in `source.json` are descriptive inputs and are not part of the proposed patch.
+`name` and `description` in `source.json` are descriptive inputs and are not part of the proposed patch. The required `copyright` value is included in the printed PATCH; the tool does not apply it. Keep a release-specific rights notice here and mirror it to the live Source only after explicit authorization. An attribution citation alone is not an open-licence grant.
 
 The tool is read-only. The default invocation is local-only; `--check` GETs the target Source and prints the proposed PATCH body, which never includes the Source `name` or `description`. There is no `--apply`: applying the body is a manual, separately authorized step. Property `display` keys require an oclapi2 version that accepts them (already live on CIEL).
 

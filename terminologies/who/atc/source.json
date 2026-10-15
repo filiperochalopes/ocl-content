@@ -4,7 +4,8 @@
   "canonical_url": "http://www.whocc.no/atc",
   "name": "WHOATC",
   "full_name": "WHO Anatomical Therapeutic Chemical Classification",
-  "description": "ATC drug classification from the World Health Organization. Content is reproduced from the BioPortal UMLS2RDF export of the ATC ontology (NCBO BioPortal, https://bioportal.bioontology.org/ontologies/ATC); codes and English preferred names are preserved verbatim; UMLS CUIs and Semantic Types are not carried (temporary policy, pending a documented decision). The synthetic root concept Root and the concept_class property (Chapter/Group/Subgroup/Code derived from the ATC level) are added by this pipeline and are not BioPortal content. Retirements are generated only as separate audited updates when an active OCL concept is absent by exact code from a current ontology snapshot; this Source does not create REPLACED BY mappings.",
+  "description": "ATC drug classification. The canonical authority selected for the WHOATC Source is the WHO Collaborating Centre for Drug Statistics Methodology's ATC/DDD Index. The offline build-who-update command consumes the hash-pinned WHOCC crawl snapshot and a target environment's complete BEFORE export to create an audited WHOCC-only update; the legacy BioPortal/UMLS build and its older bundle remain historical comparison artifacts.",
+  "copyright": "WHO Collaborating Centre for Drug Statistics Methodology. ATC classification index with DDDs, 2026. Oslo, Norway, 2026. Source: https://atcddd.fhi.no/atc_ddd_index/. Owner decision: use the public index and provide this attribution; no open redistribution licence is asserted here. This is not a legal opinion.",
   "content": {
     "requires_mappings": false,
     "has_hierarchy": true
@@ -14,19 +15,19 @@
       "code": "concept_class",
       "type": "code",
       "display": "Concept class",
-      "description": "OCL concept class derived from the ATC level: Root for the synthetic root, Chapter (level 1), Group (level 2), Subgroup (levels 3-4), Code (level 5). Not a BioPortal field."
+      "description": "OCL concept class derived from the WHOCC ATC level: Root for the synthetic root, Chapter (level 1), Group (level 2), Subgroup (levels 3-4), Code (level 5). Not a WHOCC field."
     },
     {
       "code": "ATC Level",
       "type": "integer",
       "display": "ATC level",
-      "description": "1-5, verbatim from the ontology's ATC_LEVEL predicate."
+      "description": "1-5, derived from the five-level WHOCC ATC hierarchy recorded in the crawl snapshot; the public Index does not supply a separate numeric property."
     },
     {
       "code": "Is_Drug_Class",
       "type": "code",
       "display": "Is drug class",
-      "description": "Y for levels 1-4 (classification groups), N for level 5 (an actual chemical substance). Read from the ontology's IS_DRUG_CLASS predicate when present, derived from the level otherwise (that predicate is absent on level-5 entries in the source file)."
+      "description": "Y for WHOCC levels 1-4 (classification groups), N for level 5 (a chemical substance), derived from the five-level classification."
     }
   ],
   "filters": [

@@ -6,12 +6,12 @@ Pipeline for `US-NCHS/ICD-10-CM`, built from the CMS/NCHS FY27 release effective
 ## Scope
 
 FY27 changed the archive layout relative to FY26: the `table-and-index` ZIP no longer includes the
-fixed-width order file. The pipeline combines two official FY27 assets instead:
+fixed-width order file. The pipeline combines two official FY27 assets:
 
 1. `icd10cm-tabular_-2027.xml` in `icd10cm-table-and-index-2027.zip` supplies chapters, sections,
    explicit diagnosis nesting, titles, and seventh-character rules.
 2. `icd10cm-order-2027.txt` in `icd10cm-code-descriptions-2027.zip` supplies all 98,403 concrete
-   codes, order numbers, valid-for-submission flags, short descriptions, and long descriptions.
+   codes, order numbers, short descriptions, and long descriptions.
 
 The XML contains 47,025 explicit diagnosis nodes but does not enumerate all seventh-character
 extensions. The order file contains 98,403 concrete codes. For a concrete code absent from the XML,
@@ -46,7 +46,6 @@ The staging FY25 source carries properties not all supplied by the FY27 CMS/NCHS
 | Property | Origin / update rule |
 |---|---|
 | `Order number` | Official FY27 order-file sequence; preserve as an integer. |
-| `Valid for submission` | Official FY27 order-file flag; new FY27 property. |
 | `Leaf Node` | Derived from the modeled hierarchy. |
 | `EXCLUDES1`, `EXCLUDES2`, `USE ADDITIONAL`, `CODE FIRST`, `CODE ALSO`, `Note` | Official Tabular instructional notes present in the legacy source. An update must preserve them or regenerate them explicitly from XML; emitting a narrower `extras` object deletes them. |
 | `CUI`, `Semantic Types` | Legacy UMLS enrichment, absent from the CMS/NCHS FY27 package. Preserve unchanged until its provenance and intended use are reviewed. |
@@ -104,8 +103,7 @@ uv run python terminologies/us-nchs/icd-10-cm/pipeline/cli.py build \
 
 `--export` and `--environment` go together. A line for a concept the target already holds keeps what the
 release does not govern: the existing non-preferred names (English synonyms), descriptions, every legacy
-extra except UMLS (`EXCLUDES1/2`, `USE ADDITIONAL`, `CODE FIRST`, `CODE ALSO`, `Note`), From the release come the English preferred name, `Order number`,
-`Valid for submission`, `Leaf Node`, the parent link and the `concept_class` (`Root`/`Chapter`/`Section`/`Diagnosis`;
+extra except UMLS (`EXCLUDES1/2`, `USE ADDITIONAL`, `CODE FIRST`, `CODE ALSO`, `Note`), From the release come the English preferred name, `Order number`, `Leaf Node`, the parent link and the `concept_class` (`Root`/`Chapter`/`Section`/`Diagnosis`;
 existing concepts whose class changes are counted in `concept_class_changed`). Ids in the release but not in the export are
 created. Ids in the export but not in the release are **reported, never retired** (`not_in_release_ids` in
 the audit) until the `TBD.md` retirement decision exists (the UMLS `T001`–`T204` ids are the exception, see below). No `external_id` is emitted.

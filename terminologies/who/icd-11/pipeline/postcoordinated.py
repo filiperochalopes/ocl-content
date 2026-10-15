@@ -51,7 +51,7 @@ def public_browse_url(entity_id: str, release: str) -> str:
     Not a WHO-supplied field for post-coordinated terms: the index only carries ``entity_id`` (the
     composite URI) and a *local* ICD-API container browse link. This pipeline rebuilds the public
     link against the same anchor scheme the WHO browser uses, so it is documented as a derived
-    field (``BrowseURL``), never attributed to WHO as a verbatim column.
+    field (the concept's ``BrowserLink``), never attributed to WHO as a verbatim column.
     """
     ids = NUMERIC_ID_RE.findall(entity_id or "")
     if not ids:
@@ -80,6 +80,7 @@ class PostcoordRow:
     title_source: str = ""
     foundation_entity_id: str = ""
     foundation_browser_link: str = ""
+    synonyms: tuple[str, ...] = ()  # the CSV's own-entity synonyms; the search index supplies the rest
 
     @property
     def is_multi_stem(self) -> bool:
@@ -170,6 +171,7 @@ def read(path: Path, *, release: str, include_rejected: bool = False) -> Postcoo
                     title_source=(raw.get("title_source") or "").strip(),
                     foundation_entity_id=(raw.get("foundation_entity_id") or "").strip(),
                     foundation_browser_link=(raw.get("foundation_browser_link") or "").strip(),
+                    synonyms=_split_list(raw.get("synonyms", "")),
                 )
             )
     return index

@@ -5,6 +5,7 @@
   "version": "FY27",
   "name": "ICD-10-CM",
   "description": "International Classification of Diseases, Tenth Revision, Clinical Modification. FY27 content is derived from CMS/NCHS Tabular XML and the companion full order file. The root, chapters, sections, concrete diagnosis codes, parent hierarchy, order number, valid-for-submission flag, and leaf status are modeled from those official files. The legacy staging source carried UMLS enrichments (CUI and Semantic Types) that CMS/NCHS does not supply; they are not carried (temporary policy, pending a documented decision). Tabular instructional-note fields (EXCLUDES1, EXCLUDES2, USE ADDITIONAL, CODE FIRST, CODE ALSO, Note) are preserved in an update.",
+  "copyright": "Developed by the National Center for Health Statistics (NCHS) and the Centers for Medicare & Medicaid Services (CMS), U.S. Department of Health and Human Services. U.S. government works are not subject to copyright protection within the United States. ICD-10-CM is based on the WHO International Classification of Diseases, Tenth Revision; WHO authorized NCHS to develop the U.S. clinical modification.",
   "content": {
     "requires_mappings": false,
     "has_hierarchy": true
@@ -73,23 +74,20 @@
   ],
   "filters": [
     {
-      "code": "Valid for submission",
+      "code": "Leaf Node",
       "operator": [
         "="
       ],
       "value": "true",
-      "description": "Focuses the list on concrete codes valid for submission."
+      "description": "Focuses the list on leaf concepts."
     }
   ],
   "meta": {
     "display": {
       "concept_summary_properties": [
-        "concept_class",
-        "Valid for submission",
-        "Leaf Node"
+        "concept_class"
       ],
       "concept_filter_order": [
-        "Valid for submission",
         "Leaf Node"
       ]
     }

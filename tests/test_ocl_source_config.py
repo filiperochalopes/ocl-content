@@ -17,6 +17,7 @@ def config():
         "source": "ICD-10-WHO",
         "name": "ICD-10 WHO Version",
         "description": "WHO International Classification of Diseases, Tenth Revision.",
+        "copyright": "© WHO. Licensed under CC BY-ND 3.0 IGO.",
         "content": {"requires_mappings": False, "has_hierarchy": True},
         "hierarchy": {"root_concept_id": "ICD-10", "meaning": "grouped-by"},
         "properties": [
@@ -49,11 +50,46 @@ def test_validate_config_accepts_valid_source_configuration():
     subject.validate_config(config())
 
 
+def test_validate_config_accepts_flat_source_without_properties():
+    flat = config()
+    flat["content"] = {"requires_mappings": False, "has_hierarchy": False}
+    del flat["hierarchy"]
+    flat["properties"] = []
+    flat["filters"] = []
+    flat["meta"] = {"display": {"concept_summary_properties": [], "concept_filter_order": []}}
+
+    subject.validate_config(flat)
+
+
+def test_validate_config_rejects_empty_properties_for_hierarchical_source():
+    invalid = config()
+    invalid["properties"] = []
+
+    with pytest.raises(subject.ConfigError, match="non-empty list"):
+        subject.validate_config(invalid)
+
+
 def test_validate_config_rejects_display_reference_to_unknown_property():
     invalid = config()
     invalid["meta"]["display"]["concept_summary_properties"].append("unknown")
 
     with pytest.raises(subject.ConfigError, match="unknown property"):
+        subject.validate_config(invalid)
+
+
+def test_validate_config_rejects_missing_copyright():
+    invalid = config()
+    del invalid["copyright"]
+
+    with pytest.raises(subject.ConfigError, match="copyright"):
+        subject.validate_config(invalid)
+
+
+def test_validate_config_rejects_blank_copyright():
+    invalid = config()
+    invalid["copyright"] = "  "
+
+    with pytest.raises(subject.ConfigError, match="copyright"):
         subject.validate_config(invalid)
 
 
@@ -63,6 +99,7 @@ def test_build_patch_preserves_existing_meta_keys():
     payload = subject.build_patch(config(), current)
 
     assert "name" not in payload and "description" not in payload  # never rename the live Source
+    assert payload["copyright"] == config()["copyright"]
     assert payload["properties"] == config()["properties"]
     assert payload["filters"] == config()["filters"]
     assert payload["meta"] == {

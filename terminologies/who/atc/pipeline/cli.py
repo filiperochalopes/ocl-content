@@ -1,29 +1,20 @@
-"""WHO-ATC: BioPortal ATC ontology to versioned bulk-import artifacts.
+"""WHO-ATC pipelines: legacy BioPortal audit/build and WHOCC update artifacts.
 
-    # fetch the pinned BioPortal submission (needs BIOPORTAL_API_KEY); the cumulative alterations
-    # page is fetched only as an optional cross-check input, never for lifecycle decisions
-    python3 terminologies/who/atc/pipeline/cli.py fetch-assets
+    # offline, target-specific WHOCC update from a prior all-level crawler snapshot
+    python3 terminologies/who/atc/pipeline/cli.py build-who-update \
+        --snapshot terminologies/who/atc/output/whoatc_index_snapshot.json \
+        --export exports/api.ocl.localhost/WHO_WHOATC_HEAD.local.zip
 
-    # build ordered parts, the full bundle, and the two hand-off ZIPs (offline, no network)
+    # legacy BioPortal build (historical comparison only; not the selected WHOCC release)
     python3 terminologies/who/atc/pipeline/cli.py build
 
-    # optional, read-only: compare the fresh snapshot against an immutable WHO/WHOATC snapshot;
-    # only codes active in that snapshot and absent from the ontology are retirement candidates
-    python3 terminologies/who/atc/pipeline/cli.py diff-export --export exports/prod/WHO_WHOATC_HEAD.ndjson
-
-    # optional, network, bounded to 15 requests: spot-check level 1/2 against atcddd.fhi.no itself
-    python3 terminologies/who/atc/pipeline/cli.py crosscheck-chapters
-
-    # optional, network, read-only: crawl the public WHOCC Index across levels 1-5 and
-    # regenerate the local JSON/HTML comparison against the pinned BioPortal submission
+    # network, read-only: regenerate the public WHOCC Index snapshot and historical comparison
     python3 terminologies/who/atc/pipeline/cli.py crawl-index
 
-``build`` and `diff-export` make no network call and never touch OCL. `fetch-assets`,
-`crosscheck-chapters`, and `crawl-index` are the only commands that reach the network, and none
-uploads or writes to OCL. Uploading a built artifact stays manual (see `CONTRIBUTING.md`, "Uploading is
-manual"); the `.bundle.zip` holds exactly one full-bundle NDJSON file, and the `.parts.zip` is a
-distribution wrapper whose inner one-member part ZIPs are uploaded individually, in numeric order,
-through the OCL bulk-import form.
+All build commands are offline and never touch OCL. The crawl command is read-only. Uploading any
+artifact stays manual (see ``CONTRIBUTING.md``, "Uploading is manual"); the `.bundle.zip` holds exactly
+one full-bundle NDJSON file, and the `.parts.zip` is a distribution wrapper whose inner one-member part
+ZIPs are uploaded individually, in numeric order, through the OCL bulk-import form.
 """
 
 from __future__ import annotations
@@ -51,6 +42,7 @@ asset_registry = _pipeline("assets")
 ttl_reader = _pipeline("ttl_reader")
 atcddd_crosscheck = _pipeline("atcddd_crosscheck")
 atcddd_index = _pipeline("atcddd_index")
+who_update = _pipeline("who_update")
 align_module = _pipeline("align")
 retirements = _pipeline("retirements")
 _bulk = _pipeline("build_bulkimport")
@@ -68,7 +60,7 @@ from ocl_artifacts import (  # noqa: E402
     write_json,
     write_parts,
 )
-from ocl_export import load_concepts  # noqa: E402
+from ocl_export import load_concepts, read_bytes  # noqa: E402
 
 TERMINOLOGY_DIR = Path(__file__).resolve().parents[1]
 REPO_ROOT = TERMINOLOGY_DIR.parents[2]
@@ -77,6 +69,9 @@ DEFAULT_TTL_INPUT = asset_registry.ttl_destination(ASSETS_DIR)
 DEFAULT_OUTPUT_DIR = TERMINOLOGY_DIR / "output"
 DEFAULT_BUNDLE_ARCHIVE = "bulkimport_whoatc.bundle.zip"
 DEFAULT_PARTS_ARCHIVE = "bulkimport_whoatc.parts.zip"
+DEFAULT_LOCAL_UPDATE_DIR = REPO_ROOT / "exports" / "api.ocl.localhost" / "build" / "whoatc"
+DEFAULT_LOCAL_UPDATE_BUNDLE_ARCHIVE = "bulkimport_whoatc.local.bundle.zip"
+DEFAULT_LOCAL_UPDATE_PARTS_ARCHIVE = "bulkimport_whoatc.local.parts.zip"
 SIZE_RE = re.compile(r"^(\d+)(b|kb|mb|gb)?$", re.IGNORECASE)
 
 
@@ -113,6 +108,24 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     build_parser.add_argument("--archive-name", default=DEFAULT_BUNDLE_ARCHIVE)
     build_parser.add_argument("--parts-archive-name", default=DEFAULT_PARTS_ARCHIVE)
     build_parser.add_argument("--no-archive", action="store_true")
+
+    who_update_parser = subparsers.add_parser(
+        "build-who-update",
+        help="offline: build a WHOCC-only update from an index snapshot and the target environment export",
+    )
+    who_update_parser.add_argument(
+        "--snapshot", type=Path, default=DEFAULT_OUTPUT_DIR / "whoatc_index_snapshot.json",
+        help="WHOCC crawl snapshot JSON (default: output/whoatc_index_snapshot.json)",
+    )
+    who_update_parser.add_argument(
+        "--export", type=Path, required=True,
+        help="complete BEFORE export (.zip or export.json) of the target WHO/WHOATC environment",
+    )
+    who_update_parser.add_argument("--output-dir", type=Path, default=DEFAULT_LOCAL_UPDATE_DIR)
+    who_update_parser.add_argument("--max-part-size", type=parse_size, default=DEFAULT_PART_BYTES, metavar="SIZE")
+    who_update_parser.add_argument("--zip-method", choices=sorted(METHODS), default=DEFAULT_METHOD)
+    who_update_parser.add_argument("--archive-name", default=DEFAULT_LOCAL_UPDATE_BUNDLE_ARCHIVE)
+    who_update_parser.add_argument("--parts-archive-name", default=DEFAULT_LOCAL_UPDATE_PARTS_ARCHIVE)
 
     diff_parser = subparsers.add_parser("diff-export", help="read-only: classify every code against a WHO/WHOATC export")
     diff_parser.add_argument("--ttl", type=Path, default=DEFAULT_TTL_INPUT)
@@ -254,6 +267,145 @@ def command_build(args: argparse.Namespace) -> int:
     for info in (bundle_archive_info, parts_archive_info):
         if info:
             print(f"archive: {info.name}  {info.bytes:,} bytes ({info.method}, ratio {info.ratio:.3f})")
+    return 0
+
+
+def command_build_who_update(args: argparse.Namespace) -> int:
+    """Build the local WHOCC-only update from immutable local input files."""
+    snapshot_path = Path(args.snapshot)
+    export_path = Path(args.export)
+    try:
+        snapshot = json.loads(snapshot_path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        print(f"error: WHOCC snapshot not found: {snapshot_path}", file=sys.stderr)
+        return 1
+    except json.JSONDecodeError as error:
+        print(f"error: invalid WHOCC snapshot JSON: {error}", file=sys.stderr)
+        return 1
+    try:
+        export = json.loads(read_bytes(export_path).decode("utf-8-sig"))
+    except (FileNotFoundError, ValueError, json.JSONDecodeError) as error:
+        print(f"error: cannot read target export {export_path}: {error}", file=sys.stderr)
+        return 1
+    if not isinstance(export, dict):
+        print(f"error: target export {export_path} must be a JSON object", file=sys.stderr)
+        return 1
+    export_source = export.get("source")
+    if not isinstance(export_source, str):
+        export_source = export.get("short_code")
+    if export.get("owner") != TARGET_OWNER or export_source != TARGET_SOURCE:
+        print(
+            f"error: target export belongs to {export.get('owner')!r}/{export_source!r}, "
+            f"expected {TARGET_OWNER!r}/{TARGET_SOURCE!r}",
+            file=sys.stderr,
+        )
+        return 1
+
+    result = who_update.build(snapshot, export)
+    output_dir = Path(args.output_dir)
+    parts = write_parts(output_dir, result.lines, args.max_part_size)
+    bundle = write_bundle(output_dir, result.lines)
+    target = {"owner": TARGET_OWNER, "source": TARGET_SOURCE, "owner_type": "Organization"}
+    local_comment = "built from this local environment's complete BEFORE export; manual import and post-import verification pending"
+    upload_ready = upload_ready_map(True, local_comment)
+    bundle_archive = create_archive(
+        output_dir, files=[output_dir / bundle.name], archive_name=args.archive_name, method=args.zip_method
+    )
+    manifest = build_manifest(
+        target=target,
+        mode="full-source-update",
+        upload_ready=upload_ready,
+        parts=[part.__dict__ for part in parts],
+        bundle=bundle.__dict__,
+        method=args.zip_method,
+        bundle_archive=bundle_archive.name,
+        parts_archive=args.parts_archive_name,
+    )
+    parts_archive = create_archive(
+        output_dir,
+        files=[output_dir / part.zip for part in parts],
+        manifest=manifest,
+        archive_name=args.parts_archive_name,
+        method=args.zip_method,
+    )
+
+    def archive_record(info):
+        return {
+            **{key: value for key, value in info.__dict__.items() if key != "members"},
+            "members": [member.__dict__ for member in info.members],
+            "ratio": round(info.ratio, 4),
+            "sha256": sha256_file(output_dir / info.name),
+        }
+
+    records = who_update.records_from_snapshot(snapshot)
+    active_before = sum(not bool(concept.get("retired")) for concept in export["concepts"])
+    active_mappings_before = sum(not bool(mapping.get("retired")) for mapping in export["mappings"])
+    audit = {
+        "schema_version": 1,
+        "target": target,
+        "environment": "local",
+        "mode": "full-source-update",
+        "upload_ready": upload_ready,
+        "warning": (
+            "Upload only to the local WHO/WHOATC Source with Update existing enabled. The artifact replaces "
+            "the current names, descriptions, and extras of all WHOCC concepts with the approved WHOCC-only "
+            "projection, retires exact-code absences, and retires every active legacy mapping. Verify against "
+            "a fresh local AFTER export before treating the rehearsal as passed."
+        ),
+        "inputs": [
+            {
+                "role": "who-atc-ddd-index-snapshot",
+                "path": display_path(snapshot_path),
+                "sha256": sha256_file(snapshot_path),
+                "records": len(records),
+                "who_source": snapshot.get("metadata", {}).get("who_source"),
+                "who_last_updated": snapshot.get("metadata", {}).get("who_last_updated"),
+            },
+            {
+                "role": "local-before-export",
+                "path": display_path(export_path),
+                "sha256": sha256_file(export_path),
+                "concepts": len(export["concepts"]),
+                "active_concepts": active_before,
+                "mappings": len(export["mappings"]),
+                "active_mappings": active_mappings_before,
+            },
+        ],
+        "changes": result.stats,
+        "expected": {
+            "active_concepts_after": active_before + result.stats["concepts_created"]
+            + result.stats["retired_concepts_reactivated"] - result.stats["concepts_retired"],
+            "active_mappings_after": active_mappings_before - result.stats["active_mappings_retired"],
+            "bundle_lines": len(result.lines),
+        },
+        "projection": {
+            "who_concepts": "one preferred English WHOCC title; descriptions empty; extras limited to ATC Level and Is_Drug_Class",
+            "retirements": "Concept and Mapping __action DELETE lines retire versioned resources; they do not physically delete history",
+            "line_order": ["WHOCC concept desired-state lines", "active Mapping DELETE lines", "active Concept DELETE lines"],
+        },
+        "output": {
+            "directory": display_path(output_dir),
+            "parts": [part.__dict__ for part in parts],
+            "bundle": bundle.__dict__,
+            "bundle_archive": archive_record(bundle_archive),
+            "parts_archive": archive_record(parts_archive),
+            "versioned": [],
+            "not_versioned": [part.name for part in parts] + [part.zip for part in parts] + [bundle.name, parts_archive.name, bundle_archive.name],
+        },
+        "upload": {
+            "mechanism": "manual",
+            "api_upload": False,
+            "update_existing_required": True,
+            "note": "Upload the single-member .local.bundle.zip, or extract .local.parts.zip and upload inner parts in numeric order using one Queue ID. Do not upload the outer parts archive.",
+        },
+    }
+    write_json(output_dir / "bulkimport_audit.json", audit)
+
+    print(f"mode: full-source-update   upload_ready.local: True")
+    print(f"WHOCC records: {len(records):,}   bundle lines: {len(result.lines):,}")
+    print(f"changes: {result.stats}")
+    print(f"bundle: {bundle_archive.name} ({bundle_archive.bytes:,} bytes)")
+    print(f"parts: {parts_archive.name} ({parts_archive.bytes:,} bytes; extract before upload)")
     return 0
 
 
@@ -459,6 +611,8 @@ def main(argv: list[str] | None = None) -> int:
             return command_fetch_assets(args)
         if args.command == "build":
             return command_build(args)
+        if args.command == "build-who-update":
+            return command_build_who_update(args)
         if args.command == "diff-export":
             return command_diff_export(args)
         if args.command == "build-retirements":
